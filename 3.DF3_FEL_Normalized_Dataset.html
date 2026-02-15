@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>DF3 FEL Normalized Dataset</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      margin: 0;
+      padding: 32px 18px;
+      line-height: 1.55;
+      max-width: 980px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    pre { overflow: auto; padding: 14px; border-radius: 12px; }
+    code { padding: 2px 6px; border-radius: 8px; }
+    hr { margin: 28px 0; }
+    a { word-break: break-word; }
+  </style>
+</head>
+<body>
+<h1>DeepFashion3D V2 (DF3) — Normalized Dataset for FEL</h1>
+
+<h2>1. Dataset Overview</h2>
+
+<p><strong>DeepFashion3D (DF3)</strong> is a large-scale 3D clothing benchmark designed to handle <strong>3D geometry (mesh)</strong>, <strong>texture</strong>, and <strong>pose/camera-related parameters</strong> from a single RGB image (or pose-conditioned setting).<br />
+While DF1/DF2 focus on 2D signals (boxes/landmarks/segmentation/Re-ID), DF3 is built to evaluate representations closer to <strong>true 3D surfaces</strong>, including <strong>physical wrinkles</strong>, <strong>thickness</strong>, and <strong>asymmetry</strong>.</p>
+
+<p>The <strong>df3<em>fel</em>out.zip</strong> artifact converts DF3’s heterogeneous 3D files (OBJ/PLY/PKL/PNG/MTL) into a FEL-joinable structure based on a <strong>file index + unified pose item hub</strong>, without copying or fully parsing the heavy 3D contents.</p>
+
+<h3>Key Concepts</h3>
+
+<ul>
+<li><strong>Hub key:</strong> <code>pose_key = garment_id-pose_id</code></li>
+<li><strong>Hub table:</strong> <code>items.csv.gz</code> (pose-level unified node)</li>
+<li><strong>Goal:</strong> Ensure reference stability, coverage visibility, QC, and graph connectivity <strong>without</strong> fully parsing all 3D files</li>
+</ul>
+
+<hr />
+
+<h2>2. Folder and File Description</h2>
+
+<h3>2.1 DF3 Original Input Tree (Manifest-evidenced)</h3>
+
+<p>Based on path patterns and extension distributions in <code>normalized/manifest.csv</code>, DF3 V2’s major folders can be reconstructed as follows:</p>
+
+<h4><code>featureline_annotation/</code></h4>
+
+<ul>
+<li>Role: Feature-line (curve) annotations per pose/garment in <code>.ply</code></li>
+</ul>
+
+<h4><code>point_cloud/</code></h4>
+
+<ul>
+<li>Role: Per-pose point clouds in <code>.ply</code></li>
+<li>Pattern: <code>point_cloud/&lt;garment_id&gt;/&lt;garment-pose&gt;.ply</code></li>
+</ul>
+
+<h4><code>packed_pose/</code></h4>
+
+<ul>
+<li>Role: Pose parameters in <code>.pkl</code></li>
+<li>Pattern: <code>packed_pose/&lt;garment_id&gt;/&lt;garment-pose&gt;.pkl</code></li>
+</ul>
+
+<h4><code>filtered_registered_mesh-001/</code> (discovered via prefix search)</h4>
+
+<ul>
+<li>Role: Registered mesh + texture + material files</li>
+<li>Pattern: <code>filtered_registered_mesh-001/&lt;garment-pose&gt;/model_cleaned.obj</code>, <code>*.mtl</code>, <code>*_tex.png</code></li>
+</ul>
+
+<h4><code>garment_type_list.txt</code></h4>
+
+<ul>
+<li>Role: Mapping <code>garment_id → garment_type</code></li>
+</ul>
+
+<p><strong>Observed file distribution (QC/manifest summary):</strong>
+- <code>.ply</code>: 7,952
+- <code>.pkl</code>: 1,783
+- <code>.png</code>: 1,212
+- <code>.obj</code>: 1,212
+- <code>.obj.mtl</code>: 1,212</p>
+
+<hr />
+
+<h3>2.2 DF3 Normalized Output Folder (Artifacts)</h3>
+
+<p><code>out_dir/normalized/</code> contains the core tables:</p>
+
+<ul>
+<li><code>poses_index.csv.gz</code> — pose PKL index</li>
+<li><code>pointcloud_index.csv.gz</code> — point cloud PLY index (+ vertex_count when available)</li>
+<li><code>meshes_index.csv.gz</code> — mesh (OBJ/MTL/TEX) index</li>
+<li><code>featureline_index.csv.gz</code> — featureline PLY index (1 file = 1 row, includes <code>curve_type_id</code>)</li>
+<li><code>items.csv.gz</code> — FEL hub (unified pose item by <code>pose_key</code>)</li>
+<li><code>garments.csv.gz</code> — garment-level aggregation</li>
+<li><code>manifest.csv</code> / <code>manifest.jsonl</code> — input scan audit</li>
+<li><code>qc_summary.json</code> — QC results</li>
+</ul>
+
+<hr />
+
+<h2>3. Role in FEL</h2>
+
+<h3>3.1 DF3’s Role in FEL (Graph View)</h3>
+
+<p>In DF3, the primary semantic unit is not an “image” but a <strong>3D pose instance (<code>pose_key</code>)</strong>.</p>
+
+<h4>Nodes (Entities)</h4>
+
+<ul>
+<li><strong>Garment node:</strong> <code>garment_id</code></li>
+<li><strong>PoseItem node:</strong> <code>pose_key</code>  
+<ul>
+<li><code>item_uid = DF3:pose/&lt;pose_key&gt;</code></li>
+</ul></li>
+<li><strong>Modality Evidence nodes (or file-reference attributes):</strong>
+<ul>
+<li><code>PosePKLFileRef</code> (<code>poses_index</code>)</li>
+<li><code>PointCloudFileRef</code> (<code>pointcloud_index</code>)</li>
+<li><code>MeshFileRef</code> (<code>meshes_index</code>)</li>
+<li><code>FeatureLineFileRef</code> (<code>featureline_index</code>)</li>
+</ul></li>
+</ul>
+
+<h4>Edges (Relations)</h4>
+
+<ul>
+<li><code>Garment --has_pose--&gt; PoseItem</code></li>
+<li><code>PoseItem --has_pose_params--&gt; PosePKLFileRef</code></li>
+<li><code>PoseItem --has_pointcloud--&gt; PointCloudFileRef</code></li>
+<li><code>PoseItem --has_mesh--&gt; MeshFileRef</code></li>
+<li><code>PoseItem --has_featureline--&gt; FeatureLineFileRef</code> <em>(many)</em></li>
+</ul>
+
+<hr />
+
+<h3>3.2 Why Index / Reference Tables Are Optimal for FEL</h3>
+
+<ul>
+<li><strong>Join stability:</strong> all modalities join on a single key (<code>pose_key</code>)</li>
+<li><strong>Reproducibility:</strong> df3_root-relative paths keep references stable across environments</li>
+<li><strong>Cost control:</strong> full parsing of OBJ/PLY/PKL is expensive; FEL prioritizes links + integrity first</li>
+<li><strong>QC &amp; coverage analysis:</strong> missing meshes/textures and partial coverage are easy to quantify</li>
+<li><strong>Robustness:</strong> avoids crashes due to format variants by deferring heavy parsing downstream</li>
+</ul>
+
+<hr />
+
+<h2>4. Extracted Data</h2>
+
+<h3>4.1 Key QC Counts (Artifact-level)</h3>
+
+<ul>
+<li><code>pose_pkls</code>: 1,783 (<code>pose_key</code>)</li>
+<li><code>pointclouds</code>: 1,783 (<code>pose_key</code>)</li>
+<li><code>meshes</code>: 1,212 (<code>pose_key</code>)</li>
+<li><code>featurelines_rows</code>: 7,952 (1 file = 1 row)</li>
+<li><code>pose_keys_union</code>: 1,783 (unified pose universe by modality union)</li>
+</ul>
+
+<p><strong>Coverage / Missingness</strong>
+- <code>meshes_missing_obj = 0</code>
+- <code>meshes_missing_tex = 0</code>
+- <code>only_pose_pkl = 0</code>, <code>only_pointcloud = 0</code>, <code>only_mesh = 0</code></p>
+
+<p>Interpretation:
+- PKL + point cloud exist for the same full <code>pose_key</code> range.
+- Meshes cover a <strong>subset</strong>, which is consistent with expected partial availability.</p>
+
+<hr />
+
+<h3>4.2 What Each Table Extracts</h3>
+
+<ul>
+<li><code>poses_index</code> — PKL path/size per <code>pose_key</code></li>
+<li><code>pointcloud_index</code> — PLY path/size/vertex_count (when available) per <code>pose_key</code></li>
+<li><code>meshes_index</code> — OBJ/MTL/TEX paths/sizes + existence QC per <code>pose_key</code></li>
+<li><code>featureline_index</code> — <code>pose_key + curve_type_id + ply_path</code> (many-to-many)</li>
+<li><code>items</code> — unified per <code>pose_key</code> (modality flags + representative paths + <code>featureline_count</code>)</li>
+<li><code>garments</code> — garment-level aggregation (pose count + modality coverage summary)</li>
+</ul>
+
+<hr />
+
+<h2>5. Graph Structure Description</h2>
+
+<h3>5.1 DF3 Graph Center: Items (pose_key hub)</h3>
+
+<p>The graph represents DF3’s normalized schema, with <strong>Items</strong> as the central hub.</p>
+
+<ul>
+<li>One row in <code>items.csv.gz</code> = one <strong>3D clothing pose instance (<code>pose_key</code>)</strong></li>
+<li>Items unify all modalities into a single “pose node”</li>
+</ul>
+
+<hr />
+
+<h3>5.2 pose_key-Based Modality Joins</h3>
+
+<ul>
+<li><code>Items --(pose_key)--&gt; PosesIndex</code></li>
+<li><code>Items --(pose_key)--&gt; PointcloudIndex</code></li>
+<li><code>Items --(pose_key)--&gt; MeshesIndex</code></li>
+<li><code>Items --(pose_key)--&gt; FeaturelineIndex</code></li>
+</ul>
+
+<p>So DF3 becomes a consistent structure of:</p>
+
+<p><strong>Items → (multiple modality index tables)</strong></p>
+
+<hr />
+
+<h3>5.3 garment_id Aggregation Layer</h3>
+
+<ul>
+<li><code>Items --(garment_id)--&gt; Garments</code></li>
+</ul>
+
+<p>This is best interpreted as an <strong>aggregation (summary)</strong> relationship rather than a purely semantic FK edge.</p>
+
+<hr />
+
+<h3>5.4 Meta Layer (Dashed / Conceptual Links)</h3>
+
+<ul>
+<li><code>Manifest</code>, <code>QCSummary</code> are not semantic data nodes.</li>
+<li>They represent:
+<ul>
+<li>input audit</li>
+<li>extraction validation / reproducibility metadata</li>
+</ul></li>
+</ul>
+
+<p>Therefore they are typically rendered as <strong>dashed conceptual edges</strong> in the graph.</p>
+
+<hr />
+
+<h2>Additional: “Indexed but Not Parsed” Files (and Why)</h2>
+
+<p>Indexed but not fully parsed:
+- <code>.obj</code>, <code>.ply</code>, <code>.pkl</code>, <code>.png</code>, <code>.mtl</code></p>
+
+<p>Reasons:
+- FEL stage prioritizes link integrity / coverage / QC / joinability
+- Full 3D parsing is I/O- and memory-heavy
+- Format variants increase crash risk, conflicting with “no-crash QC” policy
+- Parsing is deferred to downstream loaders where needed</p>
+
+<p>Other noisy files (e.g., <code>.log</code>, <code>.txt.txt</code>) are tracked in <code>manifest</code> for traceability, but not absorbed into normalized tables to avoid noise.</p>
+
+<hr />
+
+<h2>DF3 Graph (Interactive)</h2>
+
+<p>Click below to open the interactive graph in a new window:</p>
+
+<a href="file:///Users/kimyounghoe/Desktop/Graph/DF3-1.html" target="_blank" rel="noopener noreferrer">
+Open DF3 Graph Interactive Editor
+</a>
+
+<p>⚠️ This link works only on the local machine where the file exists.</p>
+
+</body>
+</html>

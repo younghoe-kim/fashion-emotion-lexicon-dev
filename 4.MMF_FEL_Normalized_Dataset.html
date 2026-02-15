@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>MMF FEL Normalized Dataset (v1.6)</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      margin: 0;
+      padding: 32px 18px;
+      line-height: 1.55;
+      max-width: 980px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    pre { overflow: auto; padding: 14px; border-radius: 12px; }
+    code { padding: 2px 6px; border-radius: 8px; }
+    hr { margin: 28px 0; }
+    a { word-break: break-word; }
+  </style>
+</head>
+<body>
+<h1>MMF (MultiModalFashion / DeepFashion-MultiModal) — Normalized Dataset for FEL (v1.6)</h1>
+
+<h2>1. Dataset Overview</h2>
+
+<h3>MMF (MultiModalFashion / DeepFashion-MultiModal)</h3>
+
+<p>MMF is a multimodal fashion dataset centered on <strong>image–text pairs</strong>.<br />
+The FEL v1.6 artifact is a graph-friendly normalization where <strong>captions (natural-language descriptions)</strong> are treated as the primary signal. The schema is intentionally designed so that extraction is possible <strong>from <code>captions.json</code> alone</strong>, structurally reflecting MMF’s “text-centric multimodal” nature.</p>
+
+<p><strong>Key points</strong>
+- Pair-centric: Image ↔ Text relationships are first-class entities
+- Normalized into separate tables for images, texts, and pair relations
+- Supports optional modalities (keypoints, masks) via auto-discovery and indexing
+- Preserves provenance (<code>src_file</code>, <code>row_index</code>) for reproducibility and traceability</p>
+
+<hr />
+
+<h3>Fashionpedia (Conceptual summary only)</h3>
+
+<p>Fashionpedia links <strong>category–part–attribute</strong> into an ontology and provides <strong>part-level attributes</strong> plus <strong>pixel masks</strong> for fashion understanding.</p>
+
+<p>From a FEL perspective, the most natural approach is to normalize COCO-style JSON into:
+1) <strong>Ontology (terms)</strong> tables and<br />
+2) <strong>Observations / evidence</strong> (labels, masks, boxes, part–attribute links).</p>
+
+<blockquote>
+  <p>Note: This message does not include Fashionpedia’s actual normalized outputs (<code>manifest</code>, <code>qc_summary</code>, normalized tables).<br />
+  Therefore, the Fashionpedia section below is a <strong>paper/format-based generalization</strong> rather than an artifact-backed report.</p>
+</blockquote>
+
+<hr />
+
+<h2>2. Folder and File Description</h2>
+
+<h3>2.1 MMF Original Input Structure (manifest + auto-discovery + <code>captions.json</code>)</h3>
+
+<p><strong>Hard-required</strong>
+- <code>captions.json</code> — the single required source for image↔caption annotations<br />
+  (the only hard-fail condition)</p>
+
+<p><strong>Optional (linked if present)</strong>
+- <code>images/</code> — actual image files (path linking only)
+- <code>keypoints/</code> — <code>keypoints_loc.txt</code>, <code>keypoints_vis.txt</code>
+- <code>masks/</code> or <code>segm/</code> or <code>parsing/</code> — segmentation / mask images (auto-discovered)</p>
+
+<p>Summary tree:</p>
+
+<pre><code>mmf_root/
+├── captions.json              (REQUIRED)
+├── images/                    (OPTIONAL)
+├── keypoints/                 (OPTIONAL)
+└── masks|segm|parsing/        (OPTIONAL)
+</code></pre>
+
+<hr />
+
+<h3>2.2 MMF Normalized Outputs (Core)</h3>
+
+<ul>
+<li><code>images.csv.gz</code> — Image entities (core graph nodes)</li>
+<li><code>texts.csv.gz</code> — Text (caption) entities</li>
+<li><code>image_text_pairs.csv.gz</code> — Image↔Text relation table (<strong>hub</strong>)</li>
+<li><code>items.csv.gz</code> — typed registry (only emitted entities are registered; 100% referential integrity)</li>
+<li><code>keypoints_raw.jsonl.gz</code> — (optional) keypoint evidence</li>
+<li><code>masks_index.csv.gz</code> — (optional) mask file index</li>
+<li><code>manifest.*</code>, <code>qc_summary.json</code> — audit / validation metadata</li>
+</ul>
+
+<hr />
+
+<h2>3. Role in FEL</h2>
+
+<h3>3.1 MMF (Image + Text dual-core)</h3>
+
+<h4>Nodes</h4>
+
+<ul>
+<li><strong>ImageItem</strong>: from <code>images.csv.gz</code> (PK: <code>image_uid</code>)</li>
+<li><strong>TextItem</strong>: from <code>texts.csv.gz</code> (PK: <code>text_uid</code>)</li>
+<li>(Optional) Evidence: keypoints / masks</li>
+</ul>
+
+<h4>Edges (Relations)</h4>
+
+<p><code>ImageTextPairs</code> is the hub layer:</p>
+
+<ul>
+<li><code>pair_id</code> (relation UID)</li>
+<li><code>image_uid</code> → Images</li>
+<li><code>text_uid</code> → Texts</li>
+</ul>
+
+<p>Graph structure:</p>
+
+<ul>
+<li><code>ImageItem --has_caption--&gt; TextItem</code> (via <code>image_text_pairs</code>)</li>
+<li><code>ImageItem --has_keypoints--&gt; KeypointEvidence</code> (optional)</li>
+<li><code>ImageItem --has_mask--&gt; MaskEvidence</code> (optional)</li>
+</ul>
+
+<h4>Why this design is correct (scientific / modeling rationale)</h4>
+
+<ul>
+<li>MMF is fundamentally a <strong>relationship (pair) dataset</strong>.<br />
+Separating relations into an independent table is necessary to represent <strong>multi-caption</strong>, <strong>many-to-many</strong>, and graph joins safely.</li>
+<li>In v1.6, <code>image_uid = MMF:img/&lt;encoded_relpath_without_ext&gt;</code><br />
+This path-based global unique key structurally prevents PK collisions.</li>
+</ul>
+
+<hr />
+
+<h3>3.2 Fashionpedia (Ontology + Part-level attributes + masks) — Conceptual mapping</h3>
+
+<p>Most natural FEL mapping:</p>
+
+<ul>
+<li><strong>Terms nodes (ontology):</strong> Category / Part / Attribute</li>
+<li><strong>Evidence &amp; observations:</strong> images, objects, part masks, boxes, labels</li>
+<li><strong>Core edges (part–attribute linking):</strong>
+<ul>
+<li><code>PartInstance --has_attribute--&gt; AttributeTerm</code></li>
+<li><code>ObjectInstance --has_part--&gt; PartInstance</code></li>
+<li><code>ObjectInstance --has_category--&gt; CategoryTerm</code></li>
+</ul></li>
+</ul>
+
+<hr />
+
+<h2>4. Extracted Data</h2>
+
+<h3>4.1 What is actually extracted in MMF</h3>
+
+<ul>
+<li><strong>Images</strong>
+<ul>
+<li><code>image_uid</code>, <code>image_key</code>, <code>image_file</code> (if present), provenance</li>
+</ul></li>
+<li><strong>Texts</strong>
+<ul>
+<li>captions split into <strong>one row per caption</strong></li>
+</ul></li>
+<li><strong>ImageTextPairs</strong>
+<ul>
+<li><code>(image_uid, text_uid)</code> relations with provenance (<code>row_index</code>)</li>
+</ul></li>
+<li><strong>Items</strong>
+<ul>
+<li>typed registry ensuring referential integrity</li>
+</ul></li>
+</ul>
+
+<p>Optional extensions:
+- <strong>KeypointsRaw (JSONL)</strong>: preserves original loc/vis as “raw evidence”
+- <strong>MasksIndex</strong>: indexes mask paths (existence + linkage), not pixel contents</p>
+
+<hr />
+
+<h3>4.2 Fashionpedia core extraction targets (generalized)</h3>
+
+<p>From COCO-style JSON:
+- image table
+- object/garment table (bbox/segmentation)
+- part masks/labels
+- attributes (especially part-level)
+- ontology (category–part–attribute tree)</p>
+
+<hr />
+
+<h2>5. Graph Structure Description</h2>
+
+<h3>5.1 MMF Graph (Normalized Schema)</h3>
+
+<p>MMF is centered on <strong>ImageTextPairs</strong> as the hub.</p>
+
+<ul>
+<li><strong>Pair layer:</strong> <code>image_text_pairs.csv.gz</code> (relation-centric entry point)</li>
+<li><strong>Entity layer:</strong> <code>images.csv.gz</code>, <code>texts.csv.gz</code> (referenced by <code>image_uid</code> / <code>text_uid</code>)</li>
+<li><strong>Typed registry layer:</strong> <code>items.csv.gz</code> (<code>item_type</code> + <code>ref_uid</code>)</li>
+<li><strong>Optional modality layer:</strong> <code>keypoints_raw</code>, <code>masks_index</code> (attached to <code>image_uid</code>)</li>
+<li><strong>Meta layer:</strong> <code>manifest</code>, <code>qc_summary</code><br />
+→ typically drawn as <strong>dashed conceptual links</strong> (audit/reproducibility, not semantic data)</li>
+</ul>
+
+<hr />
+
+<h3>5.2 Fashionpedia Graph (Conceptual)</h3>
+
+<p>By separating <strong>ontology (terms)</strong> from <strong>observations (masks/attributes)</strong>, the dataset supports ontology-aware learning via hierarchical edges:</p>
+
+<p><strong>Object → Part → Attribute</strong></p>
+
+<hr />
+
+<h2>Unused Data and Why (Template)</h2>
+
+<h3>MMF</h3>
+
+<ul>
+<li>Image pixels: FEL prioritizes meaning/join/evidence linking; pixels are used downstream</li>
+<li>Mask pixel contents: resolution/format dependent; path indexing is sufficient for FEL</li>
+<li>Forcing <code>captions.json</code> into a rigid schema: preserve original diversity; express structure through relations</li>
+</ul>
+
+<h3>Fashionpedia (generalized)</h3>
+
+<ul>
+<li>Heavy mask decoding/resampling can be too costly at FEL stage<br />
+→ store COCO RLE/polygons as evidence; decode downstream if needed</li>
+</ul>
+
+<hr />
+
+<h2>QC Status</h2>
+
+<h3>MMF (based on your provided QC summary)</h3>
+
+<ul>
+<li><code>hard_fail = False</code></li>
+<li><code>image_uid collision = 0</code></li>
+<li><code>pairs &gt; 0</code></li>
+<li>manifest generated successfully</li>
+</ul>
+
+<p>✅ Meets PK stability + provenance + audit requirements.</p>
+
+<h3>Fashionpedia</h3>
+
+<p>This message does not include Fashionpedia’s normalized outputs, so an artifact-backed QC verdict cannot be made.</p>
+
+<hr />
+
+<h2>MMF Graph (Interactive)</h2>
+
+<p>Click below to open the interactive graph in a new window:</p>
+
+<a href="file:///Users/kimyounghoe/Desktop/Graph/MMF-1.html" target="_blank" rel="noopener noreferrer">
+Open MMF Graph Interactive Editor
+</a>
+
+<p>⚠️ This link works only on the local machine where the file exists.</p>
+
+</body>
+</html>

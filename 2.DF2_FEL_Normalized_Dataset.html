@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>DF2 FEL Normalized Dataset</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      margin: 0;
+      padding: 32px 18px;
+      line-height: 1.55;
+      max-width: 980px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    pre { overflow: auto; padding: 14px; border-radius: 12px; }
+    code { padding: 2px 6px; border-radius: 8px; }
+    hr { margin: 28px 0; }
+    a { word-break: break-word; }
+  </style>
+</head>
+<body>
+<h1>DeepFashion2 (DF2) — Normalized Dataset for FEL</h1>
+
+<h2>1. Dataset Overview</h2>
+
+<p>DeepFashion2 (DF2) is the successor to DF1. It is a multitask clothing dataset and benchmark designed to evaluate:</p>
+
+<ul>
+<li>Detection</li>
+<li>Pose / Landmark estimation</li>
+<li>Segmentation</li>
+<li>Re-identification (Re-ID)</li>
+</ul>
+
+<p>within a single unified platform.</p>
+
+<p>The <strong>df2<em>fel</em>out.zip</strong> artifact converts DF2’s original annotations (JSON + retrieval JSON) into a
+<strong>normalized schema directly compatible with the FEL graph and learning pipeline.</strong></p>
+
+<h3>Key Characteristics</h3>
+
+<ul>
+<li>Preserves DF2’s core <strong>pair-centric structure</strong> (based on <code>pair_id</code>)</li>
+<li>Normalizes images, items, pairs, modalities (bbox, segmentation, keypoints), quality metadata, and retrieval</li>
+<li>Uses namespace-based UIDs: <code>DF2:{split}:...</code> to avoid global primary-key collisions</li>
+<li>Provenance retained (<code>src_file</code>, <code>row_index</code>) for reproducibility and traceability</li>
+<li>QC final result: <code>hard_fail = False</code> (no critical errors)</li>
+</ul>
+
+<hr />
+
+<h2>2. Folder and File Description</h2>
+
+<h3>2.1 Original Input Tree</h3>
+
+<p>Input paths confirmed via artifact provenance (<code>src_file</code> fields):</p>
+
+<ul>
+<li><code>train/annos/000001.json</code> → recorded in images/items/bbox/etc.</li>
+<li><code>json_for_validation/val_query.json</code> → retrieval_query</li>
+<li><code>json_for_validation/val_gallery.json</code> → retrieval_gallery</li>
+</ul>
+
+<p>Minimal required structure:</p>
+
+<pre><code>(df2_root)
+├─ train/
+│  └─ annos/
+│     ├─ 000001.json
+│     ├─ 000002.json
+│     └─ ...
+└─ json_for_validation/
+   ├─ val_query.json
+   └─ val_gallery.json
+</code></pre>
+
+<p>Expected (assumed) structure by the code:</p>
+
+<ul>
+<li><code>*/{split}/annos/*.json</code> (train / val / test)</li>
+<li>Optional test retrieval info files</li>
+</ul>
+
+<p>Note: Some test retrieval files may be detected during QC but are not parsed into normalized tables.</p>
+
+<hr />
+
+<h3>2.2 Normalized Output Files</h3>
+
+<p>According to <code>normalized/manifest.csv</code>, there are <strong>11 core artifacts:</strong></p>
+
+<ul>
+<li><code>images.csv.gz</code></li>
+<li><code>items.csv.gz</code></li>
+<li><code>pair_items.csv.gz</code></li>
+<li><code>pairs.csv.gz</code></li>
+<li><code>bbox.csv.gz</code></li>
+<li><code>segmentation.jsonl.gz</code></li>
+<li><code>keypoints_raw.jsonl.gz</code></li>
+<li><code>quality_flags.csv.gz</code></li>
+<li><code>retrieval_query.csv.gz</code></li>
+<li><code>retrieval_gallery.csv.gz</code></li>
+<li><code>retrieval_pairs.csv.gz</code></li>
+</ul>
+
+<p>Audit / validation:</p>
+
+<ul>
+<li><code>manifest.*</code></li>
+<li><code>qc_summary.json</code></li>
+</ul>
+
+<hr />
+
+<h2>3. Role in FEL</h2>
+
+<p>DF2 provides strong signals for:</p>
+
+<p>➡️ <strong>Same-item consistency</strong>
+➡️ <strong>Cross-domain linkage (user ↔ shop)</strong></p>
+
+<p>based on the pair-centric design.</p>
+
+<h3>3.1 Node Mapping</h3>
+
+<ul>
+<li><p>Image node → <code>image_uid</code><br />
+(e.g., <code>DF2:train:img/000001</code>)</p></li>
+<li><p>Pair node → <code>pair_uid</code><br />
+(e.g., <code>DF2:train:pair/1</code>)</p></li>
+<li><p>Item node → <code>item_uid</code><br />
+(e.g., <code>DF2:train:itm/000001/item1</code>)</p></li>
+<li><p>(Optional) Evaluation sample node → retrieval query/gallery rows</p></li>
+</ul>
+
+<hr />
+
+<h3>3.2 Edge Mapping</h3>
+
+<pre><code>pair_uid → has_image → image_uid
+image_uid → has_item → item_uid
+pair_uid → has_item → item_uid
+
+item_uid → has_bbox → bbox
+item_uid → has_segmentation → segmentation
+item_uid → has_keypoints → keypoints
+
+(pair_id, style) → retrieval_positive → (query_image_uid, gallery_image_uid)
+</code></pre>
+
+<hr />
+
+<h3>3.3 Unique Contribution of DF2</h3>
+
+<p>While DF1 strengthens category/attribute/text signals, DF2 emphasizes:</p>
+
+<ul>
+<li>Same-product candidate generation</li>
+<li>Cross-domain gap analysis</li>
+<li>Retrieval-based consistency evaluation</li>
+</ul>
+
+<p>The <code>pair_uid</code> acts as the central hub for identity relationships.</p>
+
+<hr />
+
+<h2>4. Extracted Data</h2>
+
+<h3>4.1 Core Entities</h3>
+
+<p><strong>images.csv.gz</strong> — image-level entities</p>
+
+<ul>
+<li><code>image_uid</code></li>
+<li><code>image_id_raw</code></li>
+<li><code>image_id_int</code></li>
+<li><code>pair_uid</code></li>
+<li>domain (user/shop)</li>
+<li>split</li>
+<li>provenance fields</li>
+</ul>
+
+<p><strong>items.csv.gz</strong> — clothing instances inside images</p>
+
+<ul>
+<li><code>item_uid</code></li>
+<li>item slot</li>
+<li>category ID/name</li>
+<li>style</li>
+<li>deformation metadata</li>
+</ul>
+
+<p><strong>pair_items.csv.gz</strong> — pair ↔ item bridge (critical for graph linkage)</p>
+
+<p><strong>pairs.csv.gz</strong> — pair-level aggregation (image lists preserved as JSON array strings)</p>
+
+<hr />
+
+<h3>4.2 Modality Evidence Tables</h3>
+
+<ul>
+<li><code>bbox.csv.gz</code> → bounding boxes (normalized to xyxy)</li>
+<li><code>segmentation.jsonl.gz</code> → segmentation (variable structure)</li>
+<li><code>keypoints_raw.jsonl.gz</code> → keypoints (variable structure)</li>
+<li><code>quality_flags.csv.gz</code> → occlusion / viewpoint / scale / zoom metadata</li>
+</ul>
+
+<hr />
+
+<h3>4.3 Retrieval Layer</h3>
+
+<ul>
+<li><code>retrieval_query.csv.gz</code></li>
+<li><code>retrieval_gallery.csv.gz</code></li>
+<li><code>retrieval_pairs.csv.gz</code></li>
+</ul>
+
+<p>Important implementation detail:</p>
+
+<p>Some DF2 retrieval files use non-padded numeric IDs.</p>
+
+<p>Therefore:</p>
+
+<ul>
+<li><code>image_id_raw</code> = "000001"</li>
+<li><code>image_id_int</code> = 1</li>
+</ul>
+
+<p>Joins are stabilized using <code>image_id_int</code>.</p>
+
+<hr />
+
+<h2>5. Graph Structure Description</h2>
+
+<p>DF2 uses a <strong>pair-centric architecture</strong>, unlike DF1’s image-centric structure.</p>
+
+<h3>5.1 Central Hub: Pairs</h3>
+
+<p><code>pairs.csv.gz</code> acts as the hub node.</p>
+
+<p>All images, items, and retrieval links connect through <code>pair_id</code>.</p>
+
+<hr />
+
+<h3>5.2 Structural Flow</h3>
+
+<pre><code>Pairs → Images → Items → (BBox / Seg / Keypoints / QualityFlags)
+</code></pre>
+
+<p>Separates:</p>
+
+<ul>
+<li>Pair-level identity relationships</li>
+<li>Item-level geometric and annotation evidence</li>
+</ul>
+
+<p>This enables both identity evaluation and fine-grained learning within a single schema.</p>
+
+<hr />
+
+<h3>5.3 Retrieval Layer</h3>
+
+<ul>
+<li>Query / gallery sets define evaluation samples</li>
+<li>Retrieval pairs define positive links via <code>(pair_id, style)</code></li>
+<li>Image ID normalization (<code>image_id_int</code>) unifies joins across levels</li>
+</ul>
+
+<hr />
+
+<h3>5.4 QC and Metadata Nodes</h3>
+
+<ul>
+<li><code>qc_summary.json</code></li>
+<li><code>manifest.*</code></li>
+</ul>
+
+<p>These represent extraction integrity rather than semantic data nodes.</p>
+
+<p>They are typically shown as dashed conceptual links in graphs.</p>
+
+<hr />
+
+<h2>DF2 Normalized Graph (Interactive)</h2>
+
+<p>Click below to open the interactive graph in a new window:</p>
+
+<a href="file:///Users/kimyounghoe/Desktop/Graph/DF2-1.html" target="_blank" rel="noopener noreferrer">
+Open DF2 Graph Interactive Editor
+</a>
+
+<p>⚠️ This link works only on the local machine where the file exists.</p>
+
+<hr />
+
+<h2>Final Summary</h2>
+
+<p>The normalized DF2 dataset:</p>
+
+<ul>
+<li>Preserves DF2’s pair-centric identity structure</li>
+<li>Integrates multimodal annotations into a unified schema</li>
+<li>Enables cross-domain matching (user ↔ shop)</li>
+<li>Supports detection, pose, segmentation, and retrieval tasks simultaneously</li>
+<li>Provides a core data source for FEL-based identity reasoning and product matching systems</li>
+</ul>
+
+</body>
+</html>

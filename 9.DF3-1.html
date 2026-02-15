@@ -1,0 +1,772 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>DF3 Schema Graph Interactive Editor (ZIP+Code Matched)</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      margin: 0;
+      padding: 24px;
+      color: #111;
+      background: #f9fafb;
+    }
+    .toolbar {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 16px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+    button {
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid #111;
+      background: #fff;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    button:hover { background: #f6f6f6; }
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 14px;
+      padding: 16px;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06);
+      overflow: auto;
+    }
+    .info {
+      background: #fef3c7;
+      border: 1px solid #f59e0b;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 13px;
+    }
+    .checkedPanel{
+      background:#ecfeff;
+      border:1px solid #06b6d4;
+      padding:14px 16px;
+      border-radius:10px;
+      margin-bottom:16px;
+      font-size:13px;
+    }
+    .checkedPanel h3{
+      margin:0 0 10px 0;
+      font-size:14px;
+    }
+    .checkedPanel .grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px 18px;
+    }
+    .checkedPanel ul{ margin:8px 0 0 18px; padding:0; }
+    .checkedPanel li{ margin:4px 0; line-height:1.3; }
+    .badge{
+      display:inline-block;
+      padding:2px 8px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:700;
+      border:1px solid #111;
+      background:#fff;
+      margin-left:8px;
+    }
+    .badge.ok{ border-color:#16a34a; color:#16a34a; }
+    .badge.warn{ border-color:#dc2626; color:#dc2626; }
+    .badge.meta{ border-color:#0284c7; color:#0284c7; }
+    #canvas { cursor: grab; user-select: none; }
+    #canvas.dragging { cursor: grabbing; }
+    .node-dragging { cursor: move !important; }
+    input[type="range"] { width: 120px; }
+    label { font-size: 13px; font-weight: 600; margin-left: 12px; }
+    .muted { color:#334155; }
+    code { background:#f1f5f9; padding:2px 6px; border-radius:6px; }
+    .small { font-size: 12px; }
+  </style>
+</head>
+<body>
+  <h1 style="margin:0 0 16px 0;">DF3 Schema Graph Interactive Editor (ZIP + Code Matched)</h1>
+
+  <div class="info">
+    <strong>How to use:</strong>
+    Drag nodes to reposition | Right-click a node to resize | Drag edge labels to reposition | Save/Load the layout as JSON
+    <div class="muted" style="margin-top:6px;">
+      This graph matches DF3 outputs in the ZIP:
+      <code>items</code>, <code>garments</code>, modality indices, <code>manifest</code>, and <code>qc_summary.json</code>.
+      The hub join key is <code>pose_key</code> across modality indices; garment aggregation joins by <code>garment_id</code>.
+    </div>
+  </div>
+
+  <div class="checkedPanel" id="checkedPanel">
+    <h3>
+      Checked elements
+      <span class="badge meta" id="validatedBadge">Validating...</span>
+      <span class="badge meta" id="countsBadge"></span>
+    </h3>
+    <div class="grid">
+      <div>
+        <strong>Nodes</strong>
+        <ul id="checkedNodes"></ul>
+      </div>
+      <div>
+        <strong>Edges</strong>
+        <ul id="checkedEdges"></ul>
+      </div>
+    </div>
+    <div style="margin-top:10px; color:#0f172a;">
+      <strong>Join semantics (ZIP header matched):</strong>
+      <ul>
+        <li><code>Items</code> is the hub table (contains <code>pose_key</code> + <code>garment_id</code>/<code>pose_id</code>).</li>
+        <li><code>PosesIndex</code>, <code>PointcloudIndex</code>, <code>MeshesIndex</code>, <code>FeaturelineIndex</code> join to <code>Items</code> via <code>pose_key</code>.</li>
+        <li><code>Garments</code> aggregates by <code>garment_id</code>.</li>
+        <li><code>Manifest</code> is an input audit list (no FK; informational).</li>
+        <li><code>QCSummary</code> is run-level metadata (counts/coverage/warnings/errors); the edge is conceptual (not a FK).</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <button onclick="downloadSVG()">📥 Download SVG</button>
+    <button onclick="downloadHTML()">📥 Download HTML</button>
+    <button onclick="saveConfig()">💾 Save Layout (JSON)</button>
+    <button onclick="loadConfig()">📂 Load Layout</button>
+    <button onclick="resetGraph()">🔄 Reset</button>
+    <label>Zoom: <input type="range" id="zoomSlider" min="50" max="150" value="100" oninput="updateZoom(this.value)"></label>
+    <span id="zoomLevel">100%</span>
+  </div>
+
+  <div class="card">
+    <svg id="canvas" xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000">
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#111"/>
+        </marker>
+        <style>
+          .node { fill:#fff; stroke:#111; stroke-width:2.2; cursor: move; }
+          .node:hover { stroke:#0066cc; stroke-width:3; }
+          .nodeCenter { fill:#f0f9ff; stroke:#0066cc; stroke-width:2.5; cursor: move; }
+          .nodeCenter:hover { stroke:#0044aa; stroke-width:3; }
+          .nodeMeta { fill:#fff7ed; stroke:#c2410c; stroke-width:2.3; cursor: move; }
+          .nodeMeta:hover { stroke:#9a3412; stroke-width:3; }
+
+          .label { font:700 13px system-ui; fill:#111; pointer-events: none; }
+          .sub { font:400 10.5px system-ui; fill:#555; pointer-events: none; }
+
+          .edge { stroke:#111; stroke-width:2.1; fill:none; marker-end:url(#arrow); }
+          /* conceptual edges (qc/manifest) are dashed */
+          .edgeMeta { stroke:#111; stroke-width:2.1; fill:none; marker-end:url(#arrow); stroke-dasharray:7 6; }
+          .edgeLabel { font:600 11px system-ui; fill:#111; cursor: move; }
+          .pill { fill:#f3f4f6; stroke:#111; stroke-width:1.4; rx:999; ry:999; cursor: move; }
+          .pill:hover { fill:#e5e7eb; }
+          .pillMeta { fill:#f8fafc; stroke:#111; stroke-width:1.4; rx:999; ry:999; cursor: move; }
+          .pillMeta:hover { fill:#eef2f7; }
+        </style>
+      </defs>
+      <g id="edges"></g>
+      <g id="nodes"></g>
+    </svg>
+  </div>
+
+<script>
+/**
+ * DF3 graph updated based on the uploaded df3_fel_out.zip outputs (headers):
+ * - items.csv.gz header:
+ *   item_uid, pose_key, garment_id, pose_id, garment_type,
+ *   has_pose_pkl, has_pointcloud, has_mesh, has_featureline, featureline_count,
+ *   pose_pkl_rel, pointcloud_ply_rel, mesh_obj_rel, mesh_mtl_rel, mesh_tex_rel
+ * - poses_index.csv.gz header: pose_key, garment_id, pose_id, pkl_rel, pkl_size
+ * - pointcloud_index.csv.gz header: pose_key, garment_id, pose_id, ply_rel, ply_size, vertex_count
+ * - meshes_index.csv.gz header: pose_key, garment_id, pose_id, mesh_folder_rel, obj_rel, mtl_rel, tex_rel, obj_size, mtl_size, tex_size
+ * - featureline_index.csv.gz header: pose_key, garment_id, pose_id, curve_type_id, ply_rel, ply_size
+ * - garments.csv.gz header:
+ *   garment_id, garment_type, n_poses, n_pose_pkls, n_pointclouds, n_meshes, n_featureline_rows
+ * - manifest.csv header: relative_path, ext, size_bytes, mtime_iso
+ * - qc_summary.json keys include: counts, coverage, warnings, errors, inputs, policy
+ *
+ * Text rendering requirement:
+ * - DO NOT shrink font.
+ * - Wrap with line breaks so sub texts stay inside the circle.
+ * - Clip to circle to prevent overflow.
+ */
+
+const initialData = {
+  "nodes": [
+    {
+      "id": "items",
+      "label": "Items",
+      "sub1": "items.csv.gz",
+      "sub2": "(item_uid, pose_key, garment_id, pose_id, garment_type, has_* flags, rel paths...)",
+      "x": 800,
+      "y": 480,
+      "r": 105,
+      "center": true
+    },
+    {
+      "id": "poses",
+      "label": "PosesIndex",
+      "sub1": "poses_index.csv.gz",
+      "sub2": "(pose_key, garment_id, pose_id, pkl_rel, pkl_size)",
+      "x": 632,
+      "y": 221,
+      "r": 85
+    },
+    {
+      "id": "pc",
+      "label": "PointcloudIndex",
+      "sub1": "pointcloud_index.csv.gz",
+      "sub2": "(pose_key, garment_id, pose_id, ply_rel, ply_size, vertex_count)",
+      "x": 938,
+      "y": 209,
+      "r": 88
+    },
+    {
+      "id": "meshes",
+      "label": "MeshesIndex",
+      "sub1": "meshes_index.csv.gz",
+      "sub2": "(pose_key, garment_id, pose_id, obj_rel, mtl_rel, tex_rel, sizes...)",
+      "x": 1124,
+      "y": 379,
+      "r": 88
+    },
+    {
+      "id": "fl",
+      "label": "FeaturelineIndex",
+      "sub1": "featureline_index.csv.gz",
+      "sub2": "(pose_key, garment_id, pose_id, curve_type_id, ply_rel, ply_size)",
+      "x": 831,
+      "y": 782,
+      "r": 88
+    },
+    {
+      "id": "garments",
+      "label": "Garments",
+      "sub1": "garments.csv.gz",
+      "sub2": "(garment_id, garment_type, n_poses, n_* modality counts)",
+      "x": 537,
+      "y": 658,
+      "r": 90
+    },
+    {
+      "id": "manifest",
+      "label": "Manifest",
+      "sub1": "manifest.csv",
+      "sub2": "manifest.jsonl",
+      "x": 476,
+      "y": 409,
+      "r": 82
+    },
+    {
+      "id": "qc",
+      "label": "QCSummary",
+      "sub1": "qc_summary.json",
+      "sub2": "(counts, coverage, warnings, errors, inputs, policy)",
+      "x": 1109,
+      "y": 671,
+      "r": 88,
+      "meta": true
+    }
+  ],
+  "edges": [
+    { "from": "items", "to": "poses",   "label": "pose_key",   "labelX": 735, "labelY": 337 },
+    { "from": "items", "to": "pc",      "label": "pose_key",   "labelX": 894, "labelY": 344 },
+    { "from": "items", "to": "meshes",  "label": "pose_key",   "labelX": 982, "labelY": 449 },
+    { "from": "items", "to": "fl",      "label": "pose_key",   "labelX": 796, "labelY": 648 },
+    { "from": "items", "to": "garments","label": "garment_id", "labelX": 651, "labelY": 555 },
+    { "from": "items", "to": "manifest","label": "input audit","labelX": 643, "labelY": 426 },
+    { "from": "items", "to": "qc",      "label": "run metadata","labelX": 942, "labelY": 588 }
+  ]
+};
+
+const checkedSpec = {
+  nodes: [
+    "Items (items.csv.gz)",
+    "PosesIndex (poses_index.csv.gz)",
+    "PointcloudIndex (pointcloud_index.csv.gz)",
+    "MeshesIndex (meshes_index.csv.gz)",
+    "FeaturelineIndex (featureline_index.csv.gz)",
+    "Garments (garments.csv.gz)",
+    "Manifest (manifest.csv + manifest.jsonl)",
+    "QCSummary (qc_summary.json)"
+  ],
+  edges: [
+    "Items→PosesIndex (pose_key)",
+    "Items→PointcloudIndex (pose_key)",
+    "Items→MeshesIndex (pose_key)",
+    "Items→FeaturelineIndex (pose_key)",
+    "Items→Garments (garment_id)",
+    "Items→Manifest (input audit)",
+    "Items→QCSummary (run metadata)"
+  ]
+};
+
+let graphData = JSON.parse(JSON.stringify(initialData));
+let draggedNode = null;
+let draggedLabel = null;
+let dragOffset = { x: 0, y: 0 };
+
+function renderCheckedPanel() {
+  const ulNodes = document.getElementById("checkedNodes");
+  const ulEdges = document.getElementById("checkedEdges");
+  const badge = document.getElementById("countsBadge");
+  ulNodes.innerHTML = "";
+  ulEdges.innerHTML = "";
+
+  checkedSpec.nodes.forEach(n => {
+    const li = document.createElement("li");
+    li.textContent = n;
+    ulNodes.appendChild(li);
+  });
+  checkedSpec.edges.forEach(e => {
+    const li = document.createElement("li");
+    li.textContent = e;
+    ulEdges.appendChild(li);
+  });
+
+  badge.textContent = `${checkedSpec.nodes.length} nodes / ${checkedSpec.edges.length} edges`;
+}
+
+function setValidationBadge(ok, message) {
+  const b = document.getElementById("validatedBadge");
+  if (ok) {
+    b.textContent = "Validated";
+    b.classList.remove("warn");
+    b.classList.add("ok");
+  } else {
+    b.textContent = "Validation issues";
+    b.classList.remove("ok");
+    b.classList.add("warn");
+    if (message) console.warn(message);
+  }
+}
+
+function isFiniteNumber(x) {
+  return typeof x === "number" && Number.isFinite(x);
+}
+
+function validateGraph(data) {
+  const errors = [];
+  if (!data || typeof data !== "object") { errors.push("Graph data is not an object."); return errors; }
+  if (!Array.isArray(data.nodes) || !Array.isArray(data.edges)) { errors.push("Graph must have 'nodes' and 'edges' arrays."); return errors; }
+
+  const ids = new Set();
+  data.nodes.forEach((n, i) => {
+    if (!n || typeof n !== "object") { errors.push(`Node[${i}] is not an object.`); return; }
+    if (!n.id || typeof n.id !== "string") errors.push(`Node[${i}] missing valid 'id'.`);
+    if (ids.has(n.id)) errors.push(`Duplicate node id: '${n.id}'.`);
+    ids.add(n.id);
+
+    ["label","sub1","sub2"].forEach(k => {
+      if (typeof n[k] !== "string") errors.push(`Node '${n.id}' missing string '${k}'.`);
+    });
+    if (!isFiniteNumber(n.x) || !isFiniteNumber(n.y) || !isFiniteNumber(n.r)) {
+      errors.push(`Node '${n.id}' has invalid numeric fields (x,y,r).`);
+    }
+  });
+
+  data.edges.forEach((e, i) => {
+    if (!e || typeof e !== "object") { errors.push(`Edge[${i}] is not an object.`); return; }
+    if (!ids.has(e.from)) errors.push(`Edge[${i}] from='${e.from}' does not match any node id.`);
+    if (!ids.has(e.to)) errors.push(`Edge[${i}] to='${e.to}' does not match any node id.`);
+    if (typeof e.label !== "string") errors.push(`Edge[${i}] missing string 'label'.`);
+    if (!isFiniteNumber(e.labelX) || !isFiniteNumber(e.labelY)) {
+      errors.push(`Edge[${i}] has invalid numeric fields (labelX,labelY).`);
+    }
+  });
+
+  return errors;
+}
+
+/* ---------- Subtext wrap (NO font shrink) + clip-to-circle ---------- */
+function estimateCharsPerLine(r) {
+  const fontSize = 10.5;
+  const glyph = fontSize * 0.58;
+  const maxWidth = Math.max(40, 2 * (r - 14));
+  return Math.max(6, Math.floor(maxWidth / glyph));
+}
+
+function tokenizeForWrap(text) {
+  if (text.indexOf(" ") >= 0) return text.split(" ");
+  const injected = String(text)
+    .replace(/([,()\/])/g, " $1 ")
+    .replace(/(→|->)/g, " $1 ")
+    .replace(/([_:\-])/g, "$1 ");
+  return injected.split(/\s+/).filter(Boolean);
+}
+
+function wrapLines(text, maxChars, maxLines) {
+  const tokens = tokenizeForWrap(text);
+  const lines = [];
+  let cur = "";
+
+  for (let i = 0; i < tokens.length; i++) {
+    const tok = tokens[i];
+    const cand = cur ? (cur + " " + tok) : tok;
+
+    if (cand.length <= maxChars) {
+      cur = cand;
+      continue;
+    }
+
+    if (cur) {
+      lines.push(cur);
+      cur = tok;
+    } else {
+      let t = tok;
+      while (t.length > maxChars) {
+        lines.push(t.slice(0, maxChars));
+        t = t.slice(maxChars);
+        if (lines.length >= maxLines) break;
+      }
+      cur = t;
+    }
+
+    if (lines.length >= maxLines) break;
+  }
+
+  if (lines.length < maxLines && cur) lines.push(cur);
+
+  if (lines.length > maxLines) lines.length = maxLines;
+
+  // add ellipsis if likely truncated
+  if (lines.length === maxLines) {
+    const joined = lines.join(" ").replace(/\s+/g, " ");
+    const orig = String(text).replace(/\s+/g, " ");
+    if (joined.length < orig.length) {
+      const last = lines[maxLines - 1];
+      lines[maxLines - 1] = (last.length > 1) ? (last.slice(0, Math.max(1, last.length - 1)) + "…") : "…";
+    }
+  }
+  return lines;
+}
+
+function appendWrappedText(g, clipId, x, startY, lines, lineHeight) {
+  const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  t.setAttribute('class', 'sub');
+  t.setAttribute('x', x);
+  t.setAttribute('y', startY);
+  t.setAttribute('text-anchor', 'middle');
+  t.setAttribute('clip-path', `url(#${clipId})`);
+
+  lines.forEach((ln, i) => {
+    const sp = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+    sp.setAttribute('x', x);
+    sp.setAttribute('dy', i === 0 ? 0 : lineHeight);
+    sp.textContent = ln;
+    t.appendChild(sp);
+  });
+
+  g.appendChild(t);
+  return startY + (Math.max(1, lines.length) - 1) * lineHeight;
+}
+/* ------------------------------------------------------------------ */
+
+function calculateEdgePath(from, to) {
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  const dist = Math.sqrt(dx * dx + dy * dy);
+
+  const angle = Math.atan2(dy, dx);
+  const startX = from.x + from.r * Math.cos(angle);
+  const startY = from.y + from.r * Math.sin(angle);
+  const endX = to.x - to.r * Math.cos(angle);
+  const endY = to.y - to.r * Math.sin(angle);
+
+  if (dist < 300) {
+    return `M ${startX} ${startY} L ${endX} ${endY}`;
+  } else {
+    const midX = (startX + endX) / 2;
+    const midY = (startY + endY) / 2;
+    const offsetX = -(dy) / dist * 50;
+    const offsetY = (dx) / dist * 50;
+    return `M ${startX} ${startY} Q ${midX + offsetX} ${midY + offsetY} ${endX} ${endY}`;
+  }
+}
+
+function render() {
+  const nodesGroup = document.getElementById('nodes');
+  const edgesGroup = document.getElementById('edges');
+  nodesGroup.innerHTML = '';
+  edgesGroup.innerHTML = '';
+
+  // Edges
+  graphData.edges.forEach((edge, idx) => {
+    const fromNode = graphData.nodes.find(n => n.id === edge.from);
+    const toNode = graphData.nodes.find(n => n.id === edge.to);
+    if (!fromNode || !toNode) return;
+
+    const path = calculateEdgePath(fromNode, toNode);
+
+    const pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    const isMetaEdge = (edge.to === "qc" || edge.to === "manifest");
+    pathEl.setAttribute('class', isMetaEdge ? 'edgeMeta' : 'edge');
+    pathEl.setAttribute('d', path);
+    edgesGroup.appendChild(pathEl);
+
+    const labelWidth = (edge.label || "").length * 7 + 20;
+
+    const pill = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    pill.setAttribute('class', isMetaEdge ? 'pillMeta' : 'pill');
+    pill.setAttribute('x', edge.labelX - labelWidth / 2);
+    pill.setAttribute('y', edge.labelY - 9);
+    pill.setAttribute('width', labelWidth);
+    pill.setAttribute('height', 18);
+    pill.setAttribute('data-edge-idx', idx);
+    edgesGroup.appendChild(pill);
+
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('class', 'edgeLabel');
+    text.setAttribute('x', edge.labelX);
+    text.setAttribute('y', edge.labelY + 3.5);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('data-edge-idx', idx);
+    text.textContent = edge.label;
+    edgesGroup.appendChild(text);
+  });
+
+  // Nodes
+  graphData.nodes.forEach((node, idx) => {
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('data-node-idx', idx);
+
+    // clipPath so sub text cannot render outside the circle.
+    const clipId = `clip_${node.id}_${idx}`;
+    const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+    const clip = document.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
+    clip.setAttribute('id', clipId);
+    const clipCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    clipCircle.setAttribute('cx', node.x);
+    clipCircle.setAttribute('cy', node.y);
+    clipCircle.setAttribute('r', Math.max(10, node.r - 3));
+    clip.appendChild(clipCircle);
+    defs.appendChild(clip);
+    g.appendChild(defs);
+
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    const cls = node.meta ? 'nodeMeta' : (node.center ? 'nodeCenter' : 'node');
+    circle.setAttribute('class', cls);
+    circle.setAttribute('cx', node.x);
+    circle.setAttribute('cy', node.y);
+    circle.setAttribute('r', node.r);
+    g.appendChild(circle);
+
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('class', 'label');
+    label.setAttribute('x', node.x);
+    label.setAttribute('y', node.y - 15);
+    label.setAttribute('text-anchor', 'middle');
+    label.textContent = node.label;
+    g.appendChild(label);
+
+    // Sub texts: wrap + clip (NO font-size change)
+    const maxChars = estimateCharsPerLine(node.r);
+    const lineH = 11;
+
+    const sub1Lines = wrapLines(node.sub1, maxChars, 2);
+    const sub2Lines = wrapLines(node.sub2, maxChars, 3);
+
+    let y = node.y + 3;
+    y = appendWrappedText(g, clipId, node.x, y, sub1Lines, lineH) + lineH;
+    appendWrappedText(g, clipId, node.x, y, sub2Lines, lineH);
+
+    nodesGroup.appendChild(g);
+  });
+
+  renderCheckedPanel();
+}
+
+// Drag interactions
+const canvas = document.getElementById('canvas');
+
+canvas.addEventListener('mousedown', (e) => {
+  const target = e.target;
+
+  const nodeGroup = target.closest('[data-node-idx]');
+  if (nodeGroup) {
+    const idx = parseInt(nodeGroup.getAttribute('data-node-idx'));
+    draggedNode = idx;
+    const node = graphData.nodes[idx];
+    const rect = canvas.getBoundingClientRect();
+    const svgX = (e.clientX - rect.left) * (1600 / rect.width);
+    const svgY = (e.clientY - rect.top) * (1000 / rect.height);
+    dragOffset = { x: svgX - node.x, y: svgY - node.y };
+    canvas.classList.add('node-dragging');
+    return;
+  }
+
+  if (target.classList.contains('pill') || target.classList.contains('pillMeta') || target.classList.contains('edgeLabel')) {
+    const idx = parseInt(target.getAttribute('data-edge-idx'));
+    draggedLabel = idx;
+    const edge = graphData.edges[idx];
+    const rect = canvas.getBoundingClientRect();
+    const svgX = (e.clientX - rect.left) * (1600 / rect.width);
+    const svgY = (e.clientY - rect.top) * (1000 / rect.height);
+    dragOffset = { x: svgX - edge.labelX, y: svgY - edge.labelY };
+    canvas.classList.add('node-dragging');
+    return;
+  }
+});
+
+canvas.addEventListener('mousemove', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const svgX = (e.clientX - rect.left) * (1600 / rect.width);
+  const svgY = (e.clientY - rect.top) * (1000 / rect.height);
+
+  if (draggedNode !== null) {
+    graphData.nodes[draggedNode].x = svgX - dragOffset.x;
+    graphData.nodes[draggedNode].y = svgY - dragOffset.y;
+    render();
+  } else if (draggedLabel !== null) {
+    graphData.edges[draggedLabel].labelX = svgX - dragOffset.x;
+    graphData.edges[draggedLabel].labelY = svgY - dragOffset.y;
+    render();
+  }
+});
+
+function stopDrag() {
+  draggedNode = null;
+  draggedLabel = null;
+  canvas.classList.remove('node-dragging');
+}
+canvas.addEventListener('mouseup', stopDrag);
+canvas.addEventListener('mouseleave', stopDrag);
+
+// Resize node (right-click)
+canvas.addEventListener('contextmenu', (e) => {
+  e.preventDefault();
+  const nodeGroup = e.target.closest('[data-node-idx]');
+  if (nodeGroup) {
+    const idx = parseInt(nodeGroup.getAttribute('data-node-idx'));
+    const newRadius = prompt('Enter node radius (30-150):', graphData.nodes[idx].r);
+    if (newRadius && !isNaN(newRadius)) {
+      graphData.nodes[idx].r = Math.max(30, Math.min(150, parseInt(newRadius)));
+      render();
+    }
+  }
+});
+
+function updateZoom(value) {
+  canvas.style.transform = `scale(${value / 100})`;
+  canvas.style.transformOrigin = 'top left';
+  document.getElementById('zoomLevel').textContent = value + '%';
+}
+
+function saveConfig() {
+  const json = JSON.stringify(graphData, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'df3-graph-config.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 100);
+  alert('Layout JSON saved.');
+}
+
+function loadConfig() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const loaded = JSON.parse(event.target.result);
+        const errs = validateGraph(loaded);
+        if (errs.length) {
+          setValidationBadge(false, errs.join("\n"));
+          alert("Loaded JSON has validation issues:\n\n" + errs.slice(0, 30).join("\n"));
+        } else {
+          setValidationBadge(true);
+        }
+        graphData = loaded;
+        render();
+      } catch (err) {
+        alert('Failed to parse JSON: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+function resetGraph() {
+  if (confirm('Reset to the ZIP+code-matched DF3 layout?')) {
+    graphData = JSON.parse(JSON.stringify(initialData));
+    const errs = validateGraph(graphData);
+    setValidationBadge(errs.length === 0, errs.join("\n"));
+    render();
+    alert('Reset complete.');
+  }
+}
+
+function downloadSVG() {
+  const svg = document.getElementById('canvas').cloneNode(true);
+  svg.removeAttribute('style');
+  const serializer = new XMLSerializer();
+  let src = serializer.serializeToString(svg);
+  if (!src.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)) {
+    src = src.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+  }
+  const blob = new Blob([src], {type: 'image/svg+xml;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'DF3_graph_edited.svg';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 100);
+  alert('SVG downloaded.');
+}
+
+function downloadHTML() {
+  const htmlContent = `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>DF3 Graph (Export)</title>
+  <style>
+    body { margin: 24px; font-family: system-ui; }
+    .card { border: 1px solid #ddd; border-radius: 14px; padding: 16px; }
+  </style>
+</head>
+<body>
+  <h1>DF3 Graph (Export)</h1>
+  <div class="card">
+    ${document.getElementById('canvas').outerHTML}
+  </div>
+</body>
+</html>`;
+
+  const blob = new Blob([htmlContent], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'DF3_graph_exported.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 100);
+  alert('HTML downloaded.');
+}
+
+// Init
+renderCheckedPanel();
+const initialErrors = validateGraph(graphData);
+setValidationBadge(initialErrors.length === 0, initialErrors.join("\n"));
+render();
+</script>
+</body>
+</html>

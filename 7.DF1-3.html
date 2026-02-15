@@ -1,0 +1,837 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>DF1 Graph Interactive Editor (v4.3.3 zip-aligned)</title>
+  <style>
+    body{
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      margin: 0;
+      padding: 24px;
+      color: #111;
+      background: #f9fafb;
+    }
+    .toolbar{
+      background:#fff;
+      border:1px solid #ddd;
+      border-radius:14px;
+      padding:16px;
+      margin-bottom:16px;
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+    button, select{
+      padding:10px 16px;
+      border-radius:10px;
+      border:1px solid #111;
+      background:#fff;
+      cursor:pointer;
+      font-weight:600;
+    }
+    button:hover{ background:#f6f6f6; }
+    select{ padding-right: 32px; }
+    .card{
+      border:1px solid #ddd;
+      border-radius:14px;
+      padding:16px;
+      background:#fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06);
+      overflow:auto;
+    }
+    .info{
+      background:#fef3c7;
+      border:1px solid #f59e0b;
+      padding:12px 16px;
+      border-radius:8px;
+      margin-bottom:16px;
+      font-size:13px;
+    }
+    .checkedPanel{
+      background:#ecfeff;
+      border:1px solid #06b6d4;
+      padding:14px 16px;
+      border-radius:10px;
+      margin-bottom:16px;
+      font-size:13px;
+    }
+    .checkedPanel h3{
+      margin:0 0 10px 0;
+      font-size:14px;
+    }
+    .checkedPanel .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px 18px;
+    }
+    .checkedPanel ul{ margin:8px 0 0 18px; padding:0; }
+    .checkedPanel li{ margin:4px 0; line-height:1.3; }
+    .badge{
+      display:inline-block;
+      padding:2px 8px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:700;
+      border:1px solid #111;
+      background:#fff;
+      margin-left:8px;
+    }
+    .badge.ok{ border-color:#16a34a; color:#16a34a; }
+    .badge.meta{ border-color:#0284c7; color:#0284c7; }
+    .badge.warn{ border-color:#dc2626; color:#dc2626; }
+    #canvas{ cursor:grab; user-select:none; }
+    #canvas.dragging{ cursor:grabbing; }
+    .node-dragging{ cursor:move !important; }
+    input[type="range"]{ width:120px; }
+    label{ font-size:13px; font-weight:600; margin-left:12px; }
+    .muted{ color:#334155; }
+    code{ background:#f1f5f9; padding:2px 6px; border-radius:6px; }
+
+    /* error box (debug) */
+    #errBox{
+      display:none;
+      background:#fee2e2;
+      border:1px solid #ef4444;
+      color:#7f1d1d;
+      padding:10px 12px;
+      border-radius:10px;
+      margin-bottom:12px;
+      font-size:12px;
+      white-space:pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h1 style="margin:0 0 16px 0;">DF1 Graph Interactive Editor (v4.3.3 zip-aligned)</h1>
+
+  <div id="errBox"></div>
+
+  <div class="info">
+    <strong>How to use:</strong>
+    Drag nodes to reposition | Right-click a node to resize | Drag edge labels to reposition | Save/Load the layout as JSON
+    <div class="muted" style="margin-top:6px;">
+      Scope switch renders only the files that exist in that scope.
+    </div>
+  </div>
+
+  <div class="checkedPanel" id="checkedPanel">
+    <h3>
+      Checked elements <span class="badge ok">Zip-aligned</span>
+      <span class="badge meta" id="scopeBadge">scope: global</span>
+      <span class="badge meta" id="countBadge">—</span>
+      <span class="badge meta" id="metaLegendBadge">black dashed = conceptual/meta</span>
+    </h3>
+    <div class="grid">
+      <div>
+        <strong>Nodes</strong>
+        <ul id="checkedNodes"></ul>
+      </div>
+      <div>
+        <strong>Edges</strong>
+        <ul id="checkedEdges"></ul>
+      </div>
+    </div>
+    <div style="margin-top:10px; color:#0f172a;">
+      <strong>Meta edge rules:</strong>
+      <ul>
+        <li><code>* → QCSummary</code> is run-level metadata → dashed.</li>
+        <li><code>* → Manifest</code> is output audit → dashed.</li>
+        <li><code>ImageSources → Images</code> is canonicalization/derivation → dashed.</li>
+        <li><code>CategoryTerms → CategoryLabels</code> is implicit mapping (“order/id”) → dashed.</li>
+        <li><code>ColorTerms → ColorLabels</code> is value-join (<code>color_space + color_name</code>) → dashed.</li>
+        <li><code>AttrTermsType* → AttrSparse</code> (CAPB coarse only) is typed mapping (<code>attr_space + attr_type + attr_id</code>) → dashed.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <label style="margin-left:0;">
+      Scope:
+      <select id="scopeSelect">
+        <option value="global">global (global/normalized)</option>
+        <option value="df1_inshop">df1_inshop</option>
+        <option value="df1_consumer2shop">df1_consumer2shop</option>
+        <option value="df1_capb_coarse">df1_capb_coarse</option>
+        <option value="df1_capb_fine">df1_capb_fine</option>
+        <option value="df1_landmark">df1_landmark</option>
+      </select>
+    </label>
+
+    <button id="btnSvg">📥 Download SVG</button>
+    <button id="btnHtml">📥 Download HTML</button>
+    <button id="btnSave">💾 Save Layout (JSON)</button>
+    <button id="btnLoad">📂 Load Layout</button>
+    <button id="btnReset">🔄 Reset</button>
+    <label>Zoom:
+      <input type="range" id="zoomSlider" min="50" max="150" value="100">
+    </label>
+    <span id="zoomLevel">100%</span>
+  </div>
+
+  <div class="card">
+    <svg id="canvas" xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000">
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#111"/>
+        </marker>
+        <style>
+          .node { fill:#fff; stroke:#111; stroke-width:2.2; cursor: move; }
+          .node:hover { stroke:#0066cc; stroke-width:3; }
+          .nodeCenter { fill:#f0f9ff; stroke:#0066cc; stroke-width:2.5; cursor: move; }
+          .nodeCenter:hover { stroke:#0044aa; stroke-width:3; }
+          .nodeMeta { fill:#fff7ed; stroke:#f97316; stroke-width:2.5; cursor: move; }
+          .nodeMeta:hover { stroke:#ea580c; stroke-width:3; }
+
+          .label { font:700 13px system-ui; fill:#111; pointer-events:none; }
+          .sub { font:400 10.5px system-ui; fill:#555; pointer-events:none; }
+
+          .edge { stroke:#111; stroke-width:2.1; fill:none; marker-end:url(#arrow); }
+          .edgeMeta { stroke:#111; stroke-width:2.1; fill:none; marker-end:url(#arrow); stroke-dasharray:7 6; }
+
+          .edgeLabel { font:600 11px system-ui; fill:#111; cursor: move; }
+          .pill { fill:#f3f4f6; stroke:#111; stroke-width:1.4; rx:999; ry:999; cursor: move; }
+          .pill:hover { fill:#e5e7eb; }
+          .pillMeta { fill:#f3f4f6; stroke:#111; stroke-width:1.4; rx:999; ry:999; cursor: move; stroke-dasharray:6 5; }
+          .pillMeta:hover { fill:#e5e7eb; }
+        </style>
+      </defs>
+      <g id="edges"></g>
+      <g id="nodes"></g>
+    </svg>
+  </div>
+
+<script>
+(function(){
+  // ---------- error box ----------
+  var errBox = null;
+  function showErr(msg){
+    try{
+      if(!errBox) errBox = document.getElementById("errBox");
+      if(!errBox) return;
+      errBox.style.display = "block";
+      errBox.textContent = msg;
+    }catch(_){}
+  }
+  window.addEventListener("error", function(e){
+    showErr("JS Error: " + (e && e.message ? e.message : "unknown") + "\\n" + (e && e.filename ? e.filename : "") + ":" + (e && e.lineno ? e.lineno : ""));
+  });
+
+  // ---------- data (same as before; optional chaining removed) ----------
+  var graphsByScope = {
+    "global": {
+      "nodes": [
+        {"id":"images","label":"Images","sub1":"images.csv.gz","sub2":"(image_uid, image_relpath_canon, split_canon, canon_from_domain, canon_from_benchmark, canon_src_file, canon_row_index)","x":800,"y":450,"r":98,"center":true},
+        {"id":"imgSrc","label":"ImageSources","sub1":"image_sources.csv.gz","sub2":"(image_uid, image_relpath, split, benchmark, domain, src_file, row_index)","x":565,"y":160,"r":86},
+        {"id":"eval","label":"EvalPartition","sub1":"eval_partition.csv.gz","sub2":"(image_uid, split, item_id, benchmark, domain, src_file, row_index)","x":410,"y":320,"r":88},
+        {"id":"retrieval","label":"RetrievalPairs","sub1":"retrieval_pairs.csv.gz","sub2":"(pair_id, query_image_uid, gallery_image_uid, item_id, split, benchmark, src_file, row_index)","x":1097.8125,"y":878.125,"r":98},
+        {"id":"desc","label":"Descriptions","sub1":"descriptions.jsonl.gz","sub2":"(item_id, color, description[], src_file)","x":748.75,"y":710.3125,"r":90},
+        {"id":"catLabel","label":"CategoryLabels","sub1":"category_labels.csv.gz","sub2":"(image_uid, category_id, split, benchmark, domain, src_file, row_index)","x":862.8125,"y":144.6875,"r":92},
+        {"id":"catTerms","label":"CategoryTerms","sub1":"category_terms.csv.gz","sub2":"(category_space, category_name, category_type, src_file, row_index)","x":1292.1875,"y":143.125,"r":92},
+        {"id":"attr","label":"AttrSparse","sub1":"attr_sparse.csv.gz","sub2":"(image_uid, attr_space, attr_id, value, attr_type, split, benchmark, domain, src_file, row_index)","x":360,"y":520,"r":94},
+        {"id":"attrTerms","label":"AttrTerms","sub1":"attr_terms.csv.gz","sub2":"(attr_space, attr_id, attr_name, attr_type, src_file, row_index)","x":182.1875,"y":235,"r":88},
+        {"id":"colorLabels","label":"ColorLabels","sub1":"color_labels.csv.gz","sub2":"(image_uid, color_space, color_name, split, benchmark, domain, src_file, row_index)","x":260,"y":770,"r":92},
+        {"id":"colorTerms","label":"ColorTerms","sub1":"color_terms.csv.gz","sub2":"(color_space, color_id, color_name, src_file, row_index)","x":110.625,"y":503.75,"r":86},
+        {"id":"bbox","label":"BBox","sub1":"bbox.csv.gz","sub2":"(image_uid, x1, y1, x2, y2, extras_json, domain, src_file, row_index)","x":1180,"y":325,"r":90},
+        {"id":"landmarks","label":"LandmarksRaw","sub1":"landmarks_raw.csv.gz","sub2":"(image_uid, fields_json, domain, src_file, row_index)","x":1230,"y":525,"r":92},
+        {"id":"manifest","label":"Manifest","sub1":"manifest.csv","sub2":"(relpath, size_bytes, sha256, ext, rows) + manifest.jsonl","x":485,"y":842.5,"r":88,"meta":true},
+        {"id":"qc","label":"QCSummary","sub1":"qc_summary.json","sub2":"(version, counts, warnings, errors, files, manifest, ...)","x":1245.9375,"y":726.875,"r":86,"meta":true}
+      ],
+      "edges": [
+        {"from":"imgSrc","to":"images","label":"image_uid (canonicalize)","labelX":653.125,"labelY":294.6875},
+        {"from":"eval","to":"images","label":"image_uid","labelX":595.9375,"labelY":404.375},
+        {"from":"catLabel","to":"images","label":"image_uid","labelX":809.6875,"labelY":290.625},
+        {"from":"bbox","to":"images","label":"image_uid","labelX":992.5,"labelY":363.125},
+        {"from":"landmarks","to":"images","label":"image_uid","labelX":1033.125,"labelY":465.9375},
+        {"from":"attr","to":"images","label":"image_uid","labelX":590,"labelY":506.25},
+        {"from":"colorLabels","to":"images","label":"image_uid","labelX":507.5,"labelY":646.25},
+        {"from":"retrieval","to":"images","label":"query/gallery image_uid","labelX":968.125,"labelY":664.375},
+        {"from":"eval","to":"desc","label":"item_id (optional)","labelX":524.375,"labelY":469.375},
+        {"from":"retrieval","to":"desc","label":"item_id (optional)","labelX":945,"labelY":779.0625},
+        {"from":"attrTerms","to":"attr","label":"attr_space + attr_id","labelX":237.5,"labelY":375},
+        {"from":"catTerms","to":"catLabel","label":"implicit id ↔ order","labelX":1086.875,"labelY":119.375},
+        {"from":"colorTerms","to":"colorLabels","label":"color_space + color_name","labelX":152.8125,"labelY":641.875},
+        {"from":"images","to":"manifest","label":"output audit","labelX":612.8125,"labelY":646.25},
+        {"from":"images","to":"qc","label":"run metadata","labelX":1012.8125,"labelY":608.125}
+      ]
+    },
+
+    "df1_inshop": {
+      "nodes": [
+        {"id":"images","label":"Images","sub1":"images.csv.gz","sub2":"(image_uid, image_relpath_canon, split_canon, canon_from_domain, canon_from_benchmark, canon_src_file, canon_row_index)","x":800,"y":450,"r":98,"center":true},
+        {"id":"imgSrc","label":"ImageSources","sub1":"image_sources.csv.gz","sub2":"(image_uid, image_relpath, split, benchmark, domain, src_file, row_index)","x":565,"y":160,"r":86},
+        {"id":"eval","label":"EvalPartition","sub1":"eval_partition.csv.gz","sub2":"(image_uid, split, item_id, benchmark, domain, src_file, row_index)","x":410,"y":320,"r":88},
+        {"id":"desc","label":"Descriptions","sub1":"descriptions.jsonl.gz","sub2":"(item_id, color, description[], src_file)","x":748.75,"y":710.3125,"r":90},
+        {"id":"colorLabels","label":"ColorLabels","sub1":"color_labels.csv.gz","sub2":"(image_uid, color_space, color_name, split, benchmark, domain, src_file, row_index)","x":260,"y":770,"r":92},
+        {"id":"colorTerms","label":"ColorTerms","sub1":"color_terms.csv.gz","sub2":"(color_space, color_id, color_name, src_file, row_index)","x":110.625,"y":503.75,"r":86},
+        {"id":"bbox","label":"BBox","sub1":"bbox.csv.gz","sub2":"(image_uid, x1, y1, x2, y2, extras_json, domain, src_file, row_index)","x":1180,"y":325,"r":90},
+        {"id":"landmarks","label":"LandmarksRaw","sub1":"landmarks_raw.csv.gz","sub2":"(image_uid, fields_json, domain, src_file, row_index)","x":1230,"y":525,"r":92},
+        {"id":"manifest","label":"Manifest","sub1":"manifest.csv","sub2":"(relpath, size_bytes, sha256, ext, rows) + manifest.jsonl","x":485,"y":842.5,"r":88,"meta":true},
+        {"id":"qc","label":"QCSummary","sub1":"qc_summary.json","sub2":"(version, counts, warnings, errors, files, manifest, ...)","x":1245.9375,"y":726.875,"r":86,"meta":true}
+      ],
+      "edges": [
+        {"from":"imgSrc","to":"images","label":"image_uid (canonicalize)","labelX":653.125,"labelY":294.6875},
+        {"from":"eval","to":"images","label":"image_uid","labelX":595.9375,"labelY":404.375},
+        {"from":"bbox","to":"images","label":"image_uid","labelX":992.5,"labelY":363.125},
+        {"from":"landmarks","to":"images","label":"image_uid","labelX":1033.125,"labelY":465.9375},
+        {"from":"colorLabels","to":"images","label":"image_uid","labelX":507.5,"labelY":646.25},
+        {"from":"eval","to":"desc","label":"item_id (optional)","labelX":524.375,"labelY":469.375},
+        {"from":"colorTerms","to":"colorLabels","label":"color_space + color_name","labelX":152.8125,"labelY":641.875},
+        {"from":"images","to":"manifest","label":"output audit","labelX":612.8125,"labelY":646.25},
+        {"from":"images","to":"qc","label":"run metadata","labelX":1012.8125,"labelY":608.125}
+      ]
+    },
+
+    "df1_consumer2shop": {
+      "nodes": [
+        {"id":"images","label":"Images","sub1":"images.csv.gz","sub2":"(image_uid, image_relpath_canon, split_canon, canon_from_domain, canon_from_benchmark, canon_src_file, canon_row_index)","x":800,"y":450,"r":98,"center":true},
+        {"id":"imgSrc","label":"ImageSources","sub1":"image_sources.csv.gz","sub2":"(image_uid, image_relpath, split, benchmark, domain, src_file, row_index)","x":565,"y":160,"r":86},
+        {"id":"eval","label":"EvalPartition","sub1":"eval_partition.csv.gz","sub2":"(image_uid, split, item_id, benchmark, domain, src_file, row_index)","x":410,"y":320,"r":88},
+        {"id":"retrieval","label":"RetrievalPairs","sub1":"retrieval_pairs.csv.gz","sub2":"(pair_id, query_image_uid, gallery_image_uid, item_id, split, benchmark, src_file, row_index)","x":1097.8125,"y":878.125,"r":98},
+        {"id":"bbox","label":"BBox","sub1":"bbox.csv.gz","sub2":"(image_uid, x1, y1, x2, y2, extras_json, domain, src_file, row_index)","x":1180,"y":325,"r":90},
+        {"id":"landmarks","label":"LandmarksRaw","sub1":"landmarks_raw.csv.gz","sub2":"(image_uid, fields_json, domain, src_file, row_index)","x":1230,"y":525,"r":92},
+        {"id":"manifest","label":"Manifest","sub1":"manifest.csv","sub2":"(relpath, size_bytes, sha256, ext, rows) + manifest.jsonl","x":485,"y":842.5,"r":88,"meta":true},
+        {"id":"qc","label":"QCSummary","sub1":"qc_summary.json","sub2":"(version, counts, warnings, errors, files, manifest, ...)","x":1245.9375,"y":726.875,"r":86,"meta":true}
+      ],
+      "edges": [
+        {"from":"imgSrc","to":"images","label":"image_uid (canonicalize)","labelX":653.125,"labelY":294.6875},
+        {"from":"eval","to":"images","label":"image_uid","labelX":595.9375,"labelY":404.375},
+        {"from":"bbox","to":"images","label":"image_uid","labelX":992.5,"labelY":363.125},
+        {"from":"landmarks","to":"images","label":"image_uid","labelX":1033.125,"labelY":465.9375},
+        {"from":"retrieval","to":"images","label":"query/gallery image_uid","labelX":968.125,"labelY":664.375},
+        {"from":"images","to":"manifest","label":"output audit","labelX":612.8125,"labelY":646.25},
+        {"from":"images","to":"qc","label":"run metadata","labelX":1012.8125,"labelY":608.125}
+      ]
+    },
+
+    "df1_capb_fine": {
+      "nodes": [
+        {"id":"images","label":"Images","sub1":"images.csv.gz","sub2":"(image_uid, image_relpath_canon, split_canon, canon_from_domain, canon_from_benchmark, canon_src_file, canon_row_index)","x":800,"y":450,"r":98,"center":true},
+        {"id":"imgSrc","label":"ImageSources","sub1":"image_sources.csv.gz","sub2":"(image_uid, image_relpath, split, benchmark, domain, src_file, row_index)","x":565,"y":160,"r":86},
+        {"id":"catLabel","label":"CategoryLabels","sub1":"category_labels.csv.gz","sub2":"(image_uid, category_id, split, benchmark, domain, src_file, row_index)","x":862.8125,"y":144.6875,"r":92},
+        {"id":"catTerms","label":"CategoryTerms","sub1":"category_terms.csv.gz","sub2":"(category_space, category_name, category_type, src_file, row_index)","x":1292.1875,"y":143.125,"r":92},
+        {"id":"attr","label":"AttrSparse","sub1":"attr_sparse.csv.gz","sub2":"(image_uid, attr_space, attr_id, value, attr_type, split, benchmark, domain, src_file, row_index)","x":360,"y":520,"r":94},
+        {"id":"attrTerms","label":"AttrTerms","sub1":"attr_terms.csv.gz","sub2":"(attr_space, attr_id, attr_name, attr_type, src_file, row_index)","x":182.1875,"y":235,"r":88},
+        {"id":"bbox","label":"BBox","sub1":"bbox.csv.gz","sub2":"(image_uid, x1, y1, x2, y2, extras_json, domain, src_file, row_index)","x":1180,"y":325,"r":90},
+        {"id":"landmarks","label":"LandmarksRaw","sub1":"landmarks_raw.csv.gz","sub2":"(image_uid, fields_json, domain, src_file, row_index)","x":1230,"y":525,"r":92},
+        {"id":"manifest","label":"Manifest","sub1":"manifest.csv","sub2":"(relpath, size_bytes, sha256, ext, rows) + manifest.jsonl","x":485,"y":842.5,"r":88,"meta":true},
+        {"id":"qc","label":"QCSummary","sub1":"qc_summary.json","sub2":"(version, counts, warnings, errors, files, manifest, ...)","x":1245.9375,"y":726.875,"r":86,"meta":true}
+      ],
+      "edges": [
+        {"from":"imgSrc","to":"images","label":"image_uid (canonicalize)","labelX":653.125,"labelY":294.6875},
+        {"from":"catLabel","to":"images","label":"image_uid","labelX":809.6875,"labelY":290.625},
+        {"from":"bbox","to":"images","label":"image_uid","labelX":992.5,"labelY":363.125},
+        {"from":"landmarks","to":"images","label":"image_uid","labelX":1033.125,"labelY":465.9375},
+        {"from":"attr","to":"images","label":"image_uid","labelX":590,"labelY":506.25},
+        {"from":"attrTerms","to":"attr","label":"attr_space + attr_id","labelX":237.5,"labelY":375},
+        {"from":"catTerms","to":"catLabel","label":"implicit id ↔ order","labelX":1086.875,"labelY":119.375},
+        {"from":"images","to":"manifest","label":"output audit","labelX":612.8125,"labelY":646.25},
+        {"from":"images","to":"qc","label":"run metadata","labelX":1012.8125,"labelY":608.125}
+      ]
+    },
+
+    "df1_capb_coarse": {
+      "nodes": [
+        {"id":"images","label":"Images","sub1":"images.csv.gz","sub2":"(image_uid, image_relpath_canon, split_canon, canon_from_domain, canon_from_benchmark, canon_src_file, canon_row_index)","x":800,"y":450,"r":98,"center":true},
+        {"id":"imgSrc","label":"ImageSources","sub1":"image_sources.csv.gz","sub2":"(image_uid, image_relpath, split, benchmark, domain, src_file, row_index)","x":565,"y":160,"r":86},
+        {"id":"catLabel","label":"CategoryLabels","sub1":"category_labels.csv.gz","sub2":"(image_uid, category_id, split, benchmark, domain, src_file, row_index)","x":862.8125,"y":144.6875,"r":92},
+        {"id":"catTerms","label":"CategoryTerms","sub1":"category_terms.csv.gz","sub2":"(category_space, category_name, category_type, src_file, row_index)","x":1292.1875,"y":143.125,"r":92},
+        {"id":"attr","label":"AttrSparse","sub1":"attr_sparse.csv.gz","sub2":"(image_uid, attr_space, attr_id, value, attr_type, split, benchmark, domain, src_file, row_index)","x":360,"y":520,"r":94},
+        {"id":"attrTerms","label":"AttrTerms","sub1":"attr_terms.csv.gz","sub2":"(attr_space, attr_id, attr_name, attr_type, src_file, row_index)","x":182.1875,"y":235,"r":88},
+
+        {"id":"attrTermsT1","label":"AttrTermsType1","sub1":"attr_terms_by_type/attr_terms_type1.csv.gz","sub2":"(attr_space, attr_type, attr_id, attr_name)","x":130,"y":150,"r":70},
+        {"id":"attrTermsT2","label":"AttrTermsType2","sub1":"attr_terms_by_type/attr_terms_type2.csv.gz","sub2":"(attr_space, attr_type, attr_id, attr_name)","x":80,"y":260,"r":70},
+        {"id":"attrTermsT3","label":"AttrTermsType3","sub1":"attr_terms_by_type/attr_terms_type3.csv.gz","sub2":"(attr_space, attr_type, attr_id, attr_name)","x":120,"y":370,"r":70},
+        {"id":"attrTermsT4","label":"AttrTermsType4","sub1":"attr_terms_by_type/attr_terms_type4.csv.gz","sub2":"(attr_space, attr_type, attr_id, attr_name)","x":80,"y":480,"r":70},
+        {"id":"attrTermsT5","label":"AttrTermsType5","sub1":"attr_terms_by_type/attr_terms_type5.csv.gz","sub2":"(attr_space, attr_type, attr_id, attr_name)","x":130,"y":590,"r":70},
+
+        {"id":"bbox","label":"BBox","sub1":"bbox.csv.gz","sub2":"(image_uid, x1, y1, x2, y2, extras_json, domain, src_file, row_index)","x":1180,"y":325,"r":90},
+        {"id":"landmarks","label":"LandmarksRaw","sub1":"landmarks_raw.csv.gz","sub2":"(image_uid, fields_json, domain, src_file, row_index)","x":1230,"y":525,"r":92},
+        {"id":"manifest","label":"Manifest","sub1":"manifest.csv","sub2":"(relpath, size_bytes, sha256, ext, rows) + manifest.jsonl","x":485,"y":842.5,"r":88,"meta":true},
+        {"id":"qc","label":"QCSummary","sub1":"qc_summary.json","sub2":"(version, counts, warnings, errors, files, manifest, ...)","x":1245.9375,"y":726.875,"r":86,"meta":true}
+      ],
+      "edges": [
+        {"from":"imgSrc","to":"images","label":"image_uid (canonicalize)","labelX":653.125,"labelY":294.6875},
+        {"from":"catLabel","to":"images","label":"image_uid","labelX":809.6875,"labelY":290.625},
+        {"from":"bbox","to":"images","label":"image_uid","labelX":992.5,"labelY":363.125},
+        {"from":"landmarks","to":"images","label":"image_uid","labelX":1033.125,"labelY":465.9375},
+        {"from":"attr","to":"images","label":"image_uid","labelX":590,"labelY":506.25},
+        {"from":"attrTerms","to":"attr","label":"attr_space + attr_id","labelX":237.5,"labelY":375},
+
+        {"from":"attrTermsT1","to":"attr","label":"attr_space + attr_type + attr_id","labelX":210,"labelY":330},
+        {"from":"attrTermsT2","to":"attr","label":"attr_space + attr_type + attr_id","labelX":210,"labelY":390},
+        {"from":"attrTermsT3","to":"attr","label":"attr_space + attr_type + attr_id","labelX":210,"labelY":450},
+        {"from":"attrTermsT4","to":"attr","label":"attr_space + attr_type + attr_id","labelX":210,"labelY":510},
+        {"from":"attrTermsT5","to":"attr","label":"attr_space + attr_type + attr_id","labelX":210,"labelY":570},
+
+        {"from":"catTerms","to":"catLabel","label":"implicit id ↔ order","labelX":1086.875,"labelY":119.375},
+        {"from":"images","to":"manifest","label":"output audit","labelX":612.8125,"labelY":646.25},
+        {"from":"images","to":"qc","label":"run metadata","labelX":1012.8125,"labelY":608.125}
+      ]
+    },
+
+    "df1_landmark": {
+      "nodes": [
+        {"id":"images","label":"Images","sub1":"images.csv.gz","sub2":"(image_uid, image_relpath_canon, split_canon, canon_from_domain, canon_from_benchmark, canon_src_file, canon_row_index)","x":800,"y":450,"r":98,"center":true},
+        {"id":"imgSrc","label":"ImageSources","sub1":"image_sources.csv.gz","sub2":"(image_uid, image_relpath, split, benchmark, domain, src_file, row_index)","x":565,"y":160,"r":86},
+        {"id":"landmarks","label":"LandmarksRaw","sub1":"landmarks_raw.csv.gz","sub2":"(image_uid, fields_json, domain, src_file, row_index)","x":1230,"y":525,"r":92},
+        {"id":"manifest","label":"Manifest","sub1":"manifest.csv","sub2":"(relpath, size_bytes, sha256, ext, rows) + manifest.jsonl","x":485,"y":842.5,"r":88,"meta":true},
+        {"id":"qc","label":"QCSummary","sub1":"qc_summary.json","sub2":"(version, counts, warnings, errors, files, manifest, ...)","x":1245.9375,"y":726.875,"r":86,"meta":true}
+      ],
+      "edges": [
+        {"from":"imgSrc","to":"images","label":"image_uid (canonicalize)","labelX":653.125,"labelY":294.6875},
+        {"from":"landmarks","to":"images","label":"image_uid","labelX":1033.125,"labelY":465.9375},
+        {"from":"images","to":"manifest","label":"output audit","labelX":612.8125,"labelY":646.25},
+        {"from":"images","to":"qc","label":"run metadata","labelX":1012.8125,"labelY":608.125}
+      ]
+    }
+  };
+
+  // ---------- state ----------
+  var currentScope = "global";
+  function deepClone(o){ return JSON.parse(JSON.stringify(o)); }
+  var initialData = deepClone(graphsByScope[currentScope]);
+  var graphData   = deepClone(initialData);
+
+  var draggedNode = null;
+  var draggedLabel = null;
+  var dragOffset = {x:0,y:0};
+
+  // ---------- helpers ----------
+  function findNodeLabel(id){
+    for(var i=0;i<graphData.nodes.length;i++){
+      if(graphData.nodes[i].id === id) return graphData.nodes[i].label;
+    }
+    return id;
+  }
+
+  function renderCheckedPanel(){
+    var ulNodes = document.getElementById("checkedNodes");
+    var ulEdges = document.getElementById("checkedEdges");
+    var badge = document.getElementById("countBadge");
+    var scopeBadge = document.getElementById("scopeBadge");
+    if(!ulNodes || !ulEdges || !badge || !scopeBadge) return;
+
+    scopeBadge.textContent = "scope: " + currentScope;
+    ulNodes.innerHTML = "";
+    ulEdges.innerHTML = "";
+
+    for(var i=0;i<graphData.nodes.length;i++){
+      var n = graphData.nodes[i];
+      var li = document.createElement("li");
+      li.textContent = n.label + " (" + n.sub1 + ")";
+      ulNodes.appendChild(li);
+    }
+
+    for(var j=0;j<graphData.edges.length;j++){
+      var e = graphData.edges[j];
+      var li2 = document.createElement("li");
+      li2.textContent = findNodeLabel(e.from) + "→" + findNodeLabel(e.to) + " (" + e.label + ")";
+      ulEdges.appendChild(li2);
+    }
+
+    badge.textContent = graphData.nodes.length + " nodes / " + graphData.edges.length + " edges";
+  }
+
+  function calculateEdgePath(from, to){
+    var dx = to.x - from.x;
+    var dy = to.y - from.y;
+    var dist = Math.sqrt(dx*dx + dy*dy) || 1;
+
+    var angle = Math.atan2(dy, dx);
+    var startX = from.x + from.r * Math.cos(angle);
+    var startY = from.y + from.r * Math.sin(angle);
+    var endX = to.x - to.r * Math.cos(angle);
+    var endY = to.y - to.r * Math.sin(angle);
+
+    if (dist < 300) {
+      return "M " + startX + " " + startY + " L " + endX + " " + endY;
+    } else {
+      var midX = (startX + endX) / 2;
+      var midY = (startY + endY) / 2;
+      var offsetX = -(dy) / dist * 50;
+      var offsetY = (dx) / dist * 50;
+      return "M " + startX + " " + startY + " Q " + (midX + offsetX) + " " + (midY + offsetY) + " " + endX + " " + endY;
+    }
+  }
+
+  function estimateTextWidthPx(text, fontSizePx){
+    return String(text).length * fontSizePx * 0.58;
+  }
+
+  function wrapTextToRadius(text, radius, fontSizePx, paddingPx, maxLines){
+    paddingPx = paddingPx || 18;
+    maxLines = maxLines || 3;
+    var maxWidth = Math.max(30, (radius * 2) - paddingPx);
+    if(!text) return [];
+    var raw = String(text);
+    var tokens = raw.split(/\s+/).filter(function(x){ return !!x; });
+    var lines = [];
+    var line = "";
+
+    function pushLine(l){
+      if(l && l.trim()) lines.push(l.trim());
+    }
+
+    for(var t=0;t<tokens.length;t++){
+      var tok = tokens[t];
+      var cand = line ? (line + " " + tok) : tok;
+
+      if(estimateTextWidthPx(cand, fontSizePx) <= maxWidth){
+        line = cand;
+        continue;
+      }
+
+      if(line) pushLine(line);
+
+      if(estimateTextWidthPx(tok, fontSizePx) > maxWidth){
+        var chunk = "";
+        for(var c=0;c<tok.length;c++){
+          var ch = tok[c];
+          var cand2 = chunk + ch;
+          if(estimateTextWidthPx(cand2, fontSizePx) <= maxWidth){
+            chunk = cand2;
+          }else{
+            pushLine(chunk);
+            chunk = ch;
+          }
+          if(lines.length >= maxLines) break;
+        }
+        line = chunk;
+      }else{
+        line = tok;
+      }
+
+      if(lines.length >= maxLines) break;
+    }
+
+    if(lines.length < maxLines) pushLine(line);
+    if(lines.length > maxLines) lines.length = maxLines;
+
+    if(lines.length === maxLines){
+      var last = lines[maxLines - 1];
+      while(estimateTextWidthPx(last + "…", fontSizePx) > maxWidth && last.length > 0){
+        last = last.slice(0, -1);
+      }
+      if(last !== lines[maxLines - 1]) lines[maxLines - 1] = last + "…";
+    }
+
+    return lines;
+  }
+
+  function isMetaEdge(edge){
+    if(!edge) return false;
+    if(edge.to === "qc" || edge.from === "qc") return true;
+    if(edge.to === "manifest" || edge.from === "manifest") return true;
+    if(edge.from === "imgSrc" && edge.to === "images") return true;
+    if(edge.from === "catTerms" && edge.to === "catLabel") return true;
+    if(edge.from === "colorTerms" && edge.to === "colorLabels") return true;
+    if(String(edge.from || "").indexOf("attrTermsT") === 0 && edge.to === "attr") return true;
+    return false;
+  }
+
+  function render(){
+    var nodesGroup = document.getElementById("nodes");
+    var edgesGroup = document.getElementById("edges");
+    if(!nodesGroup || !edgesGroup) throw new Error("SVG groups (#nodes/#edges) not found.");
+    nodesGroup.innerHTML = "";
+    edgesGroup.innerHTML = "";
+
+    // edges
+    for(var i=0;i<graphData.edges.length;i++){
+      var edge = graphData.edges[i];
+      var fromNode = null, toNode = null;
+
+      for(var a=0;a<graphData.nodes.length;a++){
+        if(graphData.nodes[a].id === edge.from) fromNode = graphData.nodes[a];
+        if(graphData.nodes[a].id === edge.to) toNode = graphData.nodes[a];
+      }
+      if(!fromNode || !toNode) continue;
+
+      var path = calculateEdgePath(fromNode, toNode);
+
+      var pathEl = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      pathEl.setAttribute("class", isMetaEdge(edge) ? "edgeMeta" : "edge");
+      pathEl.setAttribute("d", path);
+      edgesGroup.appendChild(pathEl);
+
+      var label = edge.label || "";
+      var labelWidth = label.length * 7 + 20;
+
+      var pill = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      pill.setAttribute("class", isMetaEdge(edge) ? "pillMeta" : "pill");
+      pill.setAttribute("x", edge.labelX - labelWidth / 2);
+      pill.setAttribute("y", edge.labelY - 9);
+      pill.setAttribute("width", labelWidth);
+      pill.setAttribute("height", 18);
+      pill.setAttribute("data-edge-idx", String(i));
+      edgesGroup.appendChild(pill);
+
+      var text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      text.setAttribute("class", "edgeLabel");
+      text.setAttribute("x", edge.labelX);
+      text.setAttribute("y", edge.labelY + 3.5);
+      text.setAttribute("text-anchor", "middle");
+      text.setAttribute("data-edge-idx", String(i));
+      text.textContent = label;
+      edgesGroup.appendChild(text);
+    }
+
+    // nodes
+    for(var j=0;j<graphData.nodes.length;j++){
+      var node = graphData.nodes[j];
+      var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      g.setAttribute("data-node-idx", String(j));
+
+      var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      var cls = node.meta ? "nodeMeta" : (node.center ? "nodeCenter" : "node");
+      circle.setAttribute("class", cls);
+      circle.setAttribute("cx", node.x);
+      circle.setAttribute("cy", node.y);
+      circle.setAttribute("r", node.r);
+      g.appendChild(circle);
+
+      var labelEl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      labelEl.setAttribute("class", "label");
+      labelEl.setAttribute("x", node.x);
+      labelEl.setAttribute("y", node.y - 18);
+      labelEl.setAttribute("text-anchor", "middle");
+      labelEl.textContent = node.label;
+      g.appendChild(labelEl);
+
+      var SUB_FONT = 10.5;
+      var lines1 = wrapTextToRadius(node.sub1, node.r, SUB_FONT, 18, 2);
+      var lines2 = wrapTextToRadius(node.sub2, node.r, SUB_FONT, 18, 3);
+      var allLines = lines1.concat(lines2);
+      var lineGap = 12;
+      var startY = node.y + 2;
+
+      for(var k=0;k<allLines.length;k++){
+        var t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        t.setAttribute("class", "sub");
+        t.setAttribute("x", node.x);
+        t.setAttribute("y", startY + k * lineGap);
+        t.setAttribute("text-anchor", "middle");
+        t.textContent = allLines[k];
+        g.appendChild(t);
+      }
+
+      nodesGroup.appendChild(g);
+    }
+
+    renderCheckedPanel();
+  }
+
+  // ---------- scope switching ----------
+  function setScope(scope){
+    if(!graphsByScope[scope]){
+      alert("Unknown scope: " + scope);
+      return;
+    }
+    currentScope = scope;
+    initialData = deepClone(graphsByScope[currentScope]);
+    graphData   = deepClone(initialData);
+    render();
+  }
+
+  // ---------- zoom ----------
+  function updateZoom(value){
+    var canvas = document.getElementById("canvas");
+    canvas.style.transform = "scale(" + (value/100) + ")";
+    canvas.style.transformOrigin = "top left";
+    document.getElementById("zoomLevel").textContent = value + "%";
+  }
+
+  // ---------- save/load/reset/download ----------
+  function saveConfig(){
+    var json = JSON.stringify({ scope: currentScope, graph: graphData }, null, 2);
+    var blob = new Blob([json], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "df1-graph-config-" + currentScope + ".json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 100);
+    alert("Layout JSON saved (includes scope).");
+  }
+
+  function loadConfig(){
+    var input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".json";
+    input.onchange = function(e){
+      var file = e.target.files[0];
+      if(!file) return;
+      var reader = new FileReader();
+      reader.onload = function(ev){
+        try{
+          var loaded = JSON.parse(ev.target.result);
+          var loadedGraph = loaded.graph || loaded;
+          var loadedScope = loaded.scope || currentScope;
+
+          if(!loadedGraph.nodes || !loadedGraph.edges) throw new Error("JSON must contain {nodes, edges} or {scope, graph:{nodes,edges}}.");
+
+          if(graphsByScope[loadedScope]){
+            currentScope = loadedScope;
+            document.getElementById("scopeSelect").value = loadedScope;
+          }
+
+          graphData = loadedGraph;
+          render();
+          alert("Layout JSON loaded successfully.");
+        }catch(err){
+          alert("Failed to parse JSON: " + err.message);
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }
+
+  function resetGraph(){
+    if(confirm('Reset to the default layout for scope "' + currentScope + '"?')){
+      initialData = deepClone(graphsByScope[currentScope]);
+      graphData   = deepClone(initialData);
+      render();
+      alert("Reset complete.");
+    }
+  }
+
+  function downloadSVG(){
+    var svg = document.getElementById("canvas").cloneNode(true);
+    svg.removeAttribute("style");
+    var serializer = new XMLSerializer();
+    var src = serializer.serializeToString(svg);
+    if(!src.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
+      src = src.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+    }
+    var blob = new Blob([src], {type: "image/svg+xml;charset=utf-8"});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "DF1_graph_" + currentScope + ".svg";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 100);
+  }
+
+  function downloadHTML(){
+    var htmlContent = '<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>DF1 Graph Export ('+currentScope+')</title><style>body{margin:24px;font-family:system-ui}.card{border:1px solid #ddd;border-radius:14px;padding:16px}</style></head><body><h1>DF1 Graph Export ('+currentScope+')</h1><div class="card">'+ document.getElementById("canvas").outerHTML +'</div></body></html>';
+    var blob = new Blob([htmlContent], {type:"text/html;charset=utf-8"});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "DF1_graph_exported_" + currentScope + ".html";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 100);
+  }
+
+  // ---------- drag logic ----------
+  var canvas = document.getElementById("canvas");
+
+  function getSvgPoint(clientX, clientY){
+    var rect = canvas.getBoundingClientRect();
+    var svgX = (clientX - rect.left) * (1600 / rect.width);
+    var svgY = (clientY - rect.top) * (1000 / rect.height);
+    return {x: svgX, y: svgY};
+  }
+
+  canvas.addEventListener("mousedown", function(e){
+    var target = e.target;
+
+    var nodeGroup = (target && target.closest) ? target.closest('[data-node-idx]') : null;
+    if(nodeGroup){
+      var idx = parseInt(nodeGroup.getAttribute("data-node-idx"), 10);
+      draggedNode = idx;
+      var node = graphData.nodes[idx];
+      var p = getSvgPoint(e.clientX, e.clientY);
+      dragOffset = { x: p.x - node.x, y: p.y - node.y };
+      canvas.classList.add("node-dragging");
+      return;
+    }
+
+    var cls = (target && target.classList) ? target.classList : null;
+    if(cls && (cls.contains("pill") || cls.contains("pillMeta") || cls.contains("edgeLabel"))){
+      var eidx = parseInt(target.getAttribute("data-edge-idx"), 10);
+      draggedLabel = eidx;
+      var edge = graphData.edges[eidx];
+      var p2 = getSvgPoint(e.clientX, e.clientY);
+      dragOffset = { x: p2.x - edge.labelX, y: p2.y - edge.labelY };
+      canvas.classList.add("node-dragging");
+      return;
+    }
+  });
+
+  canvas.addEventListener("mousemove", function(e){
+    if(draggedNode === null && draggedLabel === null) return;
+    var p = getSvgPoint(e.clientX, e.clientY);
+
+    if(draggedNode !== null){
+      graphData.nodes[draggedNode].x = p.x - dragOffset.x;
+      graphData.nodes[draggedNode].y = p.y - dragOffset.y;
+      render();
+    }else if(draggedLabel !== null){
+      graphData.edges[draggedLabel].labelX = p.x - dragOffset.x;
+      graphData.edges[draggedLabel].labelY = p.y - dragOffset.y;
+      render();
+    }
+  });
+
+  function stopDrag(){
+    draggedNode = null;
+    draggedLabel = null;
+    canvas.classList.remove("node-dragging");
+  }
+  canvas.addEventListener("mouseup", stopDrag);
+  canvas.addEventListener("mouseleave", stopDrag);
+
+  canvas.addEventListener("contextmenu", function(e){
+    e.preventDefault();
+    var nodeGroup = (e.target && e.target.closest) ? e.target.closest('[data-node-idx]') : null;
+    if(nodeGroup){
+      var idx = parseInt(nodeGroup.getAttribute("data-node-idx"), 10);
+      var cur = graphData.nodes[idx].r;
+      var newRadius = prompt("Enter node radius (30-150):", String(cur));
+      if(newRadius && !isNaN(newRadius)){
+        graphData.nodes[idx].r = Math.max(30, Math.min(150, parseInt(newRadius, 10)));
+        render();
+      }
+    }
+  });
+
+  // ---------- wire UI ----------
+  function wire(){
+    document.getElementById("scopeSelect").addEventListener("change", function(){
+      setScope(this.value);
+    });
+
+    document.getElementById("zoomSlider").addEventListener("input", function(){
+      updateZoom(this.value);
+    });
+
+    document.getElementById("btnSave").addEventListener("click", saveConfig);
+    document.getElementById("btnLoad").addEventListener("click", loadConfig);
+    document.getElementById("btnReset").addEventListener("click", resetGraph);
+    document.getElementById("btnSvg").addEventListener("click", downloadSVG);
+    document.getElementById("btnHtml").addEventListener("click", downloadHTML);
+  }
+
+  // ---------- init ----------
+  try{
+    wire();
+    document.getElementById("scopeSelect").value = currentScope;
+    render();
+  }catch(err){
+    showErr("Init failed: " + err.message);
+  }
+})();
+</script>
+</body>
+</html>

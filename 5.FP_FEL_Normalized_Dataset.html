@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Fashionpedia (FP) — FEL Normalized Dataset</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      margin: 0;
+      padding: 32px 18px;
+      line-height: 1.55;
+      max-width: 980px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    pre { overflow: auto; padding: 14px; border-radius: 12px; }
+    code { padding: 2px 6px; border-radius: 8px; }
+    hr { margin: 28px 0; }
+    a { word-break: break-word; }
+  </style>
+</head>
+<body>
+<h1>Fashionpedia (FP) — Normalized Dataset for FEL</h1>
+
+<h2>1. Dataset Overview</h2>
+
+<p>Fashionpedia (FP) is a fashion instance segmentation dataset that combines <strong>COCO-style instance annotations</strong> (objects / bounding boxes / segmentations) with <strong>attributes</strong>, and provides an ontology structured as <strong>category–part–attribute</strong>.</p>
+
+<p>The FP FEL artifact performs a graph-friendly normalization that <strong>does not duplicate pixel data or polygon contents as the center of the representation</strong>. Instead, it preserves:</p>
+
+<ul>
+<li>instance-level semantics (category / part / attributes)</li>
+<li>spatial evidence (bounding boxes)</li>
+<li>provenance (traceability)</li>
+</ul>
+
+<h3>Key Effects</h3>
+
+<ul>
+<li>Prevents <strong>global PK collisions</strong> (especially when merging train/val JSON files)</li>
+<li>Enables a semantic graph structure: <strong>image → instance → (category/attribute)</strong></li>
+<li>Provides auditability via <strong>QC + manifest</strong> (reproducibility and verifiability)</li>
+</ul>
+
+<hr />
+
+<h2>2. Folder and File Description</h2>
+
+<h3>2.1 Original Input Data Structure (Confirmed Tree)</h3>
+
+<pre><code>fashionpedia_root/
+├── instances_attributes_train2020.json   (core)
+├── instances_attributes_val2020.json     (core)
+├── attributes_train2020.json             (optional)
+├── attributes_val2020.json               (optional)
+├── info_test2020.json                    (optional)
+└── images/                               (optional)
+    ├── train/
+    ├── val/
+    └── test/
+</code></pre>
+
+<h3>2.2 Roles of Original Files</h3>
+
+<h4><code>instances_attributes_*.json</code></h4>
+
+<p>The only reliably trusted source for:
+- instances
+- categories
+- instance-level attributes
+- segmentations</p>
+
+<h4><code>attributes_*.json</code></h4>
+
+<p>Auxiliary <strong>image-level attribute sparse</strong> signal<br />
+(not reliable as instance-level evidence)</p>
+
+<h4><code>info_test2020.json</code></h4>
+
+<p>Auxiliary image metadata for the test split</p>
+
+<h4><code>images/</code></h4>
+
+<p>Pixels for training/visualization<br />
+(not required by FEL; can be linked via paths/metadata)</p>
+
+<hr />
+
+<h2>3. Role in FEL</h2>
+
+<p>Fashionpedia strengthens <strong>InstanceItem</strong> representation within FEL.</p>
+
+<h3>3.1 Nodes (Entities)</h3>
+
+<ul>
+<li><strong>ImageItem</strong>: <code>fp_images_index.csv.gz</code> (<code>image_uid</code>)</li>
+<li><strong>InstanceItem</strong>: <code>fp_instances.csv.gz</code> (<code>instance_uid</code>)</li>
+<li><strong>CategoryTerm</strong>: <code>fp_terms_categories.csv</code> (<code>fp_cat_id</code>)</li>
+<li><strong>AttributeTerm</strong>: <code>fp_terms_attributes.csv</code> (<code>fp_attr_id</code>)</li>
+<li>(Derived) <strong>GeometrySummary</strong>: <code>fp_geometry.csv.gz</code></li>
+</ul>
+
+<h3>3.2 Edges (Relations)</h3>
+
+<ul>
+<li><code>ImageItem --contains--&gt; InstanceItem</code></li>
+<li><code>InstanceItem --has_category--&gt; CategoryTerm</code></li>
+<li><code>InstanceItem --has_attribute--&gt; AttributeTerm</code></li>
+<li><code>ImageItem --has_geometry--&gt; GeometrySummary</code></li>
+<li>(Aux) <code>ImageItem --has_attribute--&gt; AttributeTerm</code><br />
+(image-level sparse, via <code>fp_attr_sparse</code>)</li>
+</ul>
+
+<p>If DF1/DF2 emphasize image_uid-centric multimodal joining, FP reinforces <strong>instance-centric semantics</strong>, integrating naturally into FEL’s higher-level item hierarchy.</p>
+
+<hr />
+
+<h2>4. Extracted Data</h2>
+
+<h3>4.1 Core Normalized Tables (Artifact-level)</h3>
+
+<h4><code>fp_terms_categories.csv</code></h4>
+
+<p>Category/part terms (ontology nodes).<br />
+Includes <code>term_role</code> (category/part) so downstream can consistently include/exclude parts.</p>
+
+<h4><code>fp_terms_attributes.csv</code></h4>
+
+<p>Attribute terms (ontology nodes).</p>
+
+<h4><code>fp_images_index.csv.gz</code></h4>
+
+<p>Image entities (containers): <code>image_uid</code>, filename, resolution, split, sources</p>
+
+<h4><code>fp_instances.csv.gz</code> <em>(core)</em></h4>
+
+<p>Instance-level semantic unit including:
+- bbox
+- category/part role
+- instance-level attributes (JSON)
+- segmentation summary
+- area
+- QC flags
+- provenance</p>
+
+<h4><code>fp_attr_sparse.csv.gz</code></h4>
+
+<p>Image-level attributes (auxiliary signal), explicitly separated from instance-level evidence.</p>
+
+<h4><code>fp_image_categories.csv.gz</code> / <code>fp_image_categories_agg.csv.gz</code></h4>
+
+<p>Derived logs / aggregates of per-image category distributions.</p>
+
+<h4><code>fp_geometry.csv.gz</code></h4>
+
+<p>Garment-level geometry summaries (with part-exclusion policy applied).</p>
+
+<h4><code>items.csv.gz</code></h4>
+
+<p>Typed registry: registers only emitted entities (images/instances/terms) → guarantees referential integrity.</p>
+
+<h4><code>manifest.*</code>, <code>qc_summary.json</code></h4>
+
+<p>Audit and validation metadata.</p>
+
+<hr />
+
+<h3>4.2 Most Important PK Design</h3>
+
+<p><code>instance_id</code> (COCO <code>ann.id</code>) is <strong>not globally unique</strong>, so it is not suitable as a primary key.</p>
+
+<p>Solution:
+- <code>instance_uid = FP:inst/&lt;split&gt;/&lt;src_file_rel&gt;/&lt;row_index&gt;</code></p>
+
+<p>This guarantees <strong>100% global uniqueness</strong> using split + provenance + row position.</p>
+
+<hr />
+
+<h2>5. Graph Structure Description</h2>
+
+<p>Fashionpedia’s graph is centered on <strong>ImagesIndex (<code>image_uid</code>)</strong> as the hub, with instance/attribute and derived summaries attached beneath.</p>
+
+<h3>5.1 Core Hub: ImagesIndex</h3>
+
+<ul>
+<li>All annotations join through <code>image_uid</code></li>
+<li>Images act as the “instance container” layer</li>
+</ul>
+
+<h3>5.2 Instance &amp; Attribute Layer</h3>
+
+<ul>
+<li><code>fp_instances</code> connects to ImagesIndex via <code>image_uid</code></li>
+<li><code>fp_attr_sparse</code> remains a separate layer (image-level attributes only) to avoid confusion</li>
+</ul>
+
+<h3>5.3 Taxonomy Layer (Lookup)</h3>
+
+<ul>
+<li><code>TermsCategories --(fp_cat_id)--&gt; Instances</code></li>
+<li><code>TermsAttributes --(fp_attr_id)--&gt; AttrSparse / Instances (via attrs_json)</code></li>
+</ul>
+
+<p>This is best interpreted as a <strong>dictionary/lookup</strong> relationship rather than a semantic FK edge.</p>
+
+<h3>5.4 Derived / Aggregation Layer</h3>
+
+<ul>
+<li><code>ImageCategories → ImageCategoriesAgg</code> is a derived aggregation</li>
+<li><code>Geometry</code> is an image_uid-level derived summary (e.g., main garment bbox / union bbox)</li>
+</ul>
+
+<h3>5.5 Meta Layer (Dashed / Conceptual)</h3>
+
+<p><code>Manifest</code> / <code>QC</code> / <code>Report</code> are run-level artifacts for:
+- extraction integrity
+- reproducibility
+- auditability</p>
+
+<p>Therefore they are typically drawn as <strong>dashed conceptual links</strong>.</p>
+
+<hr />
+
+<h2>Unused Data and Why (Template)</h2>
+
+<ul>
+<li>Full raw segmentation polygon contents<br />
+→ large, resolution-dependent, expensive to decode downstream; FEL keeps summary stats (e.g., polygon count / point count)</li>
+<li>Not using <code>instance_id</code> as PK<br />
+→ not globally unique; replaced by <code>instance_uid</code></li>
+<li>Image pixels<br />
+→ FEL is a semantic graph layer; pixels are used by downstream models</li>
+</ul>
+
+<hr />
+
+<h2>QC Status</h2>
+
+<p>Based on your stated QC criteria:</p>
+
+<ul>
+<li><code>instance_uid duplicate: 0</code></li>
+<li><code>categories &gt; 0</code>, <code>attributes &gt; 0</code>, <code>images &gt; 0</code>, <code>instances_emitted &gt; 0</code></li>
+<li>manifest generated successfully</li>
+<li><code>hard_fail = False</code></li>
+</ul>
+
+<p>✅ Meets PK/referential integrity + ontology separation + audit requirements, consistent with DF1/DF2/DF3/MMF.</p>
+
+<hr />
+
+<h2>FP Graph (Interactive)</h2>
+
+<p>Click below to open the interactive graph in a new window:</p>
+
+<a href="file:///Users/kimyounghoe/Desktop/Graph/FP-1.html" target="_blank" rel="noopener noreferrer">
+Open FP Graph Interactive Editor
+</a>
+
+<p>⚠️ This link works only on the local machine where the file exists.</p>
+
+</body>
+</html>

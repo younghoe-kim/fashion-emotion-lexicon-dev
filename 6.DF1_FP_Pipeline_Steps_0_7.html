@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>DF1 → FP FEL v1 Pipeline (Steps 0–7)</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body{
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      margin:0;
+      padding:28px 18px;
+      line-height:1.55;
+      max-width: 1060px;
+      margin-left:auto;
+      margin-right:auto;
+    }
+    header{
+      display:flex;
+      gap:16px;
+      align-items:flex-start;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      margin-bottom:16px;
+    }
+    h1{ font-size: 26px; margin:0 0 6px 0; }
+    .subtitle{ opacity:.8; font-size: 14px; margin:0; }
+    .pill{
+      display:inline-block;
+      padding:6px 10px;
+      border:1px solid currentColor;
+      border-radius:999px;
+      font-size:12px;
+      opacity:.85;
+      margin-top:4px;
+      white-space:nowrap;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: 280px 1fr;
+      gap:14px;
+      align-items:start;
+      margin-top:18px;
+    }
+    @media (max-width: 900px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+    .toc{
+      border:1px solid rgba(127,127,127,.35);
+      border-radius:16px;
+      padding:14px 14px;
+      position: sticky;
+      top: 14px;
+      background: rgba(127,127,127,.06);
+    }
+    .toc h2{ font-size:14px; margin:0 0 10px 0; }
+    .toc a{
+      display:block;
+      padding:6px 8px;
+      border-radius:10px;
+      text-decoration:none;
+      color:inherit;
+      opacity:.92;
+    }
+    .toc a:hover{ background: rgba(127,127,127,.14); }
+    .step{
+      border:1px solid rgba(127,127,127,.35);
+      border-radius:18px;
+      padding:16px 16px;
+      margin-bottom:14px;
+      background: rgba(127,127,127,.05);
+      box-shadow: 0 1px 3px rgba(0,0,0,.08);
+    }
+    .stepHeader{
+      display:flex;
+      gap:10px;
+      align-items:baseline;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      font-weight:800;
+      letter-spacing:.2px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(127,127,127,.55);
+      background: rgba(127,127,127,.10);
+      font-size:12px;
+    }
+    .stepTitle{
+      font-size:18px;
+      font-weight:800;
+      margin:0;
+    }
+    .meta{
+      font-size:12px;
+      opacity:.85;
+      margin-left:auto;
+    }
+    .kv{
+      display:grid;
+      grid-template-columns: 120px 1fr;
+      gap:8px 12px;
+      margin-top:10px;
+      font-size:14px;
+    }
+    .k{
+      font-weight:800;
+      opacity:.9;
+    }
+    ul{ margin: 8px 0 0 18px; }
+    li{ margin: 4px 0; }
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      background: rgba(127,127,127,.18);
+    }
+    hr{ margin: 12px 0; opacity:.5; }
+    .callout{
+      border-left: 4px solid rgba(127,127,127,.55);
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(127,127,127,.08);
+      margin-top:10px;
+      font-size: 13px;
+      opacity: .98;
+    }
+    .ok{ border-left-color: rgba(34,197,94,.9); }
+    .warn{ border-left-color: rgba(245,158,11,.95); }
+    .footer{
+      margin-top: 18px;
+      font-size: 13px;
+      opacity: .8;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>DF1 → FP FEL v1 Pipeline (Steps 0–7)</h1>
+      <p class="subtitle">Normalization → Common events → Sanity checks → Raw merge → Alignment candidates → HITL bundles → Alignment template</p>
+      <span class="pill">Event schema: subject · predicate · object · evidence · provenance</span>
+    </div>
+  </header>
+
+  <div class="grid">
+    <nav class="toc">
+      <h2>Steps</h2>
+      <a href="#step0">Step 0 — DF1 Normalization (done)</a>
+      <a href="#step1">Step 1 — DF1 → Common event schema</a>
+      <a href="#step2">Step 2 — DF1+FP compatibility sanity check</a>
+      <a href="#step3">Step 3 — DF1+FP raw merge (FEL v1)</a>
+      <a href="#step4">Step 4 — Alignment candidates v1 (failed)</a>
+      <a href="#step5">Step 5 — Alignment candidates v2 (improved)</a>
+      <a href="#step6">Step 6 — Export HITL bundles</a>
+      <a href="#step7">Step 7 — Make alignment template</a>
+      <hr/>
+      <a href="#summary">One-line summary</a>
+    </nav>
+
+    <main>
+
+      <section class="step" id="step0">
+        <div class="stepHeader">
+          <span class="badge">Step 0</span>
+          <h2 class="stepTitle">DF1 normalized generation (already completed)</h2>
+          <div class="meta">Foundation layer</div>
+        </div>
+
+        <div class="kv">
+          <div class="k">Purpose</div>
+          <div>Convert DF1 raw (txt/json) into benchmark-wise <b>normalized tables</b> that are directly joinable in FEL.</div>
+
+          <div class="k">Why</div>
+          <div>
+            DF1 splits data across benchmarks with different formats and keys, which makes integration and validation hard.
+            Normalization becomes the base layer for event conversion, common merge, and alignment generation.
+          </div>
+
+          <div class="k">Inputs</div>
+          <div><code>list_eval_partition.txt</code>, <code>list_bbox*.txt</code>, <code>list_landmarks.txt</code>, <code>list_category_*</code>, <code>list_attr_*</code>, <code>list_description_inshop.json</code>, ...</div>
+
+          <div class="k">Outputs</div>
+          <div>
+            <code>df1_fel_out_split_v4_3_3/benchmarks/*/normalized/*.csv.gz</code>
+            <ul>
+              <li><code>eval_partition.csv.gz</code>, <code>bbox.csv.gz</code>, <code>landmarks_raw.csv.gz</code></li>
+              <li><code>category_terms.csv.gz</code>, <code>attr_terms.csv.gz</code></li>
+              <li><code>category_labels.csv.gz</code>, <code>attr_sparse.csv.gz</code></li>
+              <li><code>descriptions.csv.gz</code>, <code>image_sources.csv.gz</code></li>
+            </ul>
+          </div>
+
+          <div class="k">QC/Audit</div>
+          <div><code>qc_summary.json</code>, <code>manifest.csv</code>, <code>manifest.jsonl</code></div>
+        </div>
+      </section>
+
+      <section class="step" id="step1">
+        <div class="stepHeader">
+          <span class="badge">Step 1</span>
+          <h2 class="stepTitle">DF1 → Common event schema conversion</h2>
+          <div class="meta"><code>scripts/build_fel_events_df1_common_v2.py</code></div>
+        </div>
+
+        <div class="kv">
+          <div class="k">Purpose</div>
+          <div>Convert DF1 normalized tables into a <b>common event schema</b> that supports multi-source merges.</div>
+
+          <div class="k">Why</div>
+          <div>
+            DF1 and FP have different native structures. A merge requires a unified format with consistent columns, types, and UID rules.
+            The event schema is merge-friendly: <b>subject–predicate–object–evidence–provenance</b>.
+          </div>
+
+          <div class="k">Inputs</div>
+          <div><code>df1_fel_out_split_v4_3_3/benchmarks/*/normalized/*.csv.gz</code></div>
+
+          <div class="k">Outputs</div>
+          <div>
+            <code>fel_events_df1_common_v2.csv.gz</code><br/>
+            QC: <code>fel_events_df1_common_v2.csv.gz.qc.json</code>
+          </div>
+
+          <div class="k">Fixes</div>
+          <div>BBox UID/split issue was corrected; QC reached <b>0 errors</b>.</div>
+        </div>
+      </section>
+
+      <section class="step" id="step2">
+        <div class="stepHeader">
+          <span class="badge">Step 2</span>
+          <h2 class="stepTitle">DF1 + FP common schema compatibility sanity check</h2>
+          <div class="meta">
+            <code>scripts/sanity_check_df1_fp_common_v2.py</code> ·
+            <code>scripts/sanity_check_df1_fp_common_v2_strict.py</code>
+          </div>
+        </div>
+
+        <div class="kv">
+          <div class="k">Purpose</div>
+          <div>Verify DF1 common events and FP common events are <b>merge-ready</b>.</div>
+
+          <div class="k">Why</div>
+          <div>
+            Before merging, detect issues like:
+            <ul>
+              <li>Header mismatch → merge impossible</li>
+              <li>UID namespace collision → PK errors / semantic confusion</li>
+              <li>Missing required fields / type issues → downstream failure</li>
+            </ul>
+          </div>
+
+          <div class="k">Inputs</div>
+          <div>
+            <code>fel_events_df1_common_v2.csv.gz</code> + FP common events (same schema)
+          </div>
+
+          <div class="k">Outputs</div>
+          <div>Validation logs/reports (the check itself is the deliverable).</div>
+
+          <div class="k">Checks</div>
+          <div>
+            <ul>
+              <li>Header match</li>
+              <li>UID collision</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="step" id="step3">
+        <div class="stepHeader">
+          <span class="badge">Step 3</span>
+          <h2 class="stepTitle">DF1 + FP merge (FEL v1 raw merge)</h2>
+          <div class="meta"><code>scripts/build_fel_v1_df1_fp.py</code></div>
+        </div>
+
+        <div class="kv">
+          <div class="k">Purpose</div>
+          <div>Merge DF1 events and FP events into one <b>raw merged</b> event table.</div>
+
+          <div class="k">Why</div>
+          <div>
+            All later steps (alignment candidates, HITL, templates) must run on a unified event table.
+            “Raw merge” is concatenation + QC before semantic alignment.
+          </div>
+
+          <div class="k">Inputs</div>
+          <div>DF1: <code>fel_events_df1_common_v2.csv.gz</code> + FP common events</div>
+
+          <div class="k">Outputs</div>
+          <div>
+            <code>fel_events_v1_df1_fp.csv.gz</code><br/>
+            QC: <code>fel_events_v1_df1_fp.csv.gz.qc.json</code>
+          </div>
+        </div>
+
+        <div class="callout ok">
+          <b>Important:</b> <code>subject_uid_collisions</code> is expected (one subject can have many events), not an error.
+        </div>
+      </section>
+
+      <section class="step" id="step4">
+        <div class="stepHeader">
+          <span class="badge">Step 4</span>
+          <h2 class="stepTitle">Backbone alignment candidates v1 (failure / limitation)</h2>
+          <div class="meta"><code>scripts/make_alignment_candidates_df1_fp.py</code></div>
+        </div>
+
+        <div class="kv">
+          <div class="k">Purpose</div>
+          <div>Create alignment candidates to connect DF1 and FP terms with the same meaning.</div>
+
+          <div class="k">Why</div>
+          <div>Taxonomies differ; alignment enables cross-dataset learning and shared ontology construction.</div>
+
+          <div class="k">Inputs</div>
+          <div><code>fel_events_v1_df1_fp.csv.gz</code></div>
+
+          <div class="k">Observed result</div>
+          <div>Exact matching produced <b>0</b> candidates because DF1 lacked <code>term_name</code> in the event layer.</div>
+        </div>
+
+        <div class="callout warn">
+          <b>Conclusion:</b> Alignment requires a <b>term dictionary</b>, not events alone.
+        </div>
+      </section>
+
+      <section class="step" id="step5">
+        <div class="stepHeader">
+          <span class="badge">Step 5</span>
+          <h2 class="stepTitle">Backbone alignment candidates v2 (improved)</h2>
+          <div class="meta"><code>scripts/make_alignment_candidates_df1_fp_v2.py</code></div>
+        </div>
+
+        <div class="kv">
+          <div class="k">Purpose</div>
+          <div>Enrich DF1 terms with names and generate practical name-based alignment candidates.</div>
+
+          <div class="k">Why</div>
+          <div>DF1 is term-id centered; FP has strong named ontology. Bringing DF1 term dictionaries enables exact matching.</div>
+
+          <div class="k">Inputs</div>
+          <div>
+            DF1 term tables: <code>df1_out_root/benchmarks/*/normalized/*_terms.csv.gz</code>
+          </div>
+
+          <div class="k">Outputs</div>
+          <div>Exact candidates improved from <b>0</b> → <b>~46/52</b> (plus “none” sets for HITL).</div>
+        </div>
+      </section>
+
+      <section class="step" id="step6">
+        <div class="stepHeader">
+          <span class="badge">Step 6</span>
+          <h2 class="stepTitle">Export HITL bundles</h2>
+          <div class="meta"><code>scripts/export_hitl_bundles_v2.py</code></div>
+        </div>
+
+        <div class="kv">
+          <div class="k">Purpose</div>
+          <div>Export candidate matches into HITL bundles for human review and confirmation.</div>
+
+          <div class="k">Why</div>
+          <div>Automatic matching can fail (synonyms, formatting, hierarchy, ambiguous terms). Human verification is required.</div>
+
+          <div class="k">Inputs</div>
+          <div>Alignment candidates from Step 5</div>
+
+          <div class="k">Outputs</div>
+          <div>
+            <ul>
+              <li><code>hitl_bundle_exact.csv</code> — strong candidates (approve/reject)</li>
+              <li><code>hitl_bundle_none.csv</code> — no candidates (manual mapping)</li>
+              <li><code>hitl_bundle_none_with_hints.csv</code> — no candidates + hints</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="step" id="step7">
+        <div class="stepHeader">
+          <span class="badge">Step 7</span>
+          <h2 class="stepTitle">Create alignment template</h2>
+          <div class="meta"><code>scripts/augment_events_with_alignment_v2.py --make_alignment_template 1</code></div>
+        </div>
+
+        <div class="kv">
+          <div class="k">Purpose</div>
+          <div>Create a standard template for the final human-verified alignment file (<code>term_alignment.csv</code>).</div>
+
+          <div class="k">Why</div>
+          <div>
+            Standardization enables automated augmentation, reruns, versioning, and QC.
+            Without a template, inconsistent columns or conventions can break downstream pipelines.
+          </div>
+
+          <div class="k">Inputs</div>
+          <div>Step 6 HITL bundles (or reconstructed target lists)</div>
+
+          <div class="k">Outputs</div>
+          <div><code>term_alignment_template.csv</code> → fill → <code>term_alignment.csv</code></div>
+
+          <div class="k">Next</div>
+          <div>Apply the finalized alignment to events to attach aligned fields (e.g., <code>aligned_term_uid</code> / bridges).</div>
+        </div>
+      </section>
+
+      <section class="step" id="summary">
+        <div class="stepHeader">
+          <span class="badge">Summary</span>
+          <h2 class="stepTitle">One-line summary</h2>
+        </div>
+        <div class="callout ok">
+          Normalize DF1 (Step 0) → convert to common events (Step 1) → validate DF1/FP compatibility (Step 2) → raw-merge events (Step 3)
+          → generate alignment candidates (v1 fails, v2 succeeds; Steps 4–5) → export HITL bundles (Step 6) → create the alignment template for final term mapping and event augmentation (Step 7).
+        </div>
+      </section>
+
+      <p class="footer">If you want, I can add a “Run commands” section or a diagram-style pipeline block for slides.</p>
+
+    </main>
+  </div>
+</body>
+</html>
