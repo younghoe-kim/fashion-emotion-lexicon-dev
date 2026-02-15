@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>DF1 FEL Normalized Dataset</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      margin: 0;
+      padding: 32px 18px;
+      line-height: 1.55;
+      max-width: 980px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    pre { overflow: auto; padding: 14px; border-radius: 12px; }
+    code { padding: 2px 6px; border-radius: 8px; }
+    hr { margin: 28px 0; }
+    a { word-break: break-word; }
+  </style>
+</head>
+<body>
+<h1>DeepFashion (DF1) — Normalized Dataset for FEL</h1>
+
+<h2>1. Dataset Overview</h2>
+
+<p>DeepFashion (DF1) is a large-scale fashion image dataset designed for clothing recognition and retrieval research.<br />
+It reflects real-world conditions such as pose variation, deformation, occlusion, and lighting.</p>
+
+<p>In this pipeline, the original DF1 dataset has been restructured into a <strong>normalized schema</strong> for use in the<br />
+<strong>FEL (Feature Evidence Layer or Knowledge-Graph-based Learning Layer)</strong>.</p>
+
+<h3>Key Characteristics</h3>
+
+<ul>
+<li>Over <strong>800,000 images</strong> with rich annotations (categories, attributes, landmarks, etc.)</li>
+<li>Composed of five benchmarks:
+<ul>
+<li>In-shop Retrieval</li>
+<li>Consumer-to-shop Retrieval</li>
+<li>Category &amp; Attribute Prediction (CAPB)</li>
+<li>Landmark Detection</li>
+</ul></li>
+<li>All data unified using a single join key: <code>image_uid</code></li>
+<li>Multimodal information stored in separate tables:
+<ul>
+<li>Text</li>
+<li>Spatial data (bounding boxes)</li>
+<li>Structural data (landmarks)</li>
+<li>Labels (category/attribute)</li>
+<li>Evaluation pairs</li>
+</ul></li>
+<li>Provenance preserved (<code>src_file + row_index</code>) for reproducibility</li>
+</ul>
+
+<p>➡️ This converts DF1’s heterogeneous formats into a standardized schema optimized for multimodal learning and graph-based analysis.</p>
+
+<hr />
+
+<h2>2. Folder and File Structure</h2>
+
+<h3>(1) Original DF1 Structure (Input)</h3>
+
+<h4>Evaluation Splits</h4>
+
+<ul>
+<li><code>list_eval_partition.txt</code> → Train / validation / test or query / gallery partition</li>
+</ul>
+
+<h4>Bounding Box Files</h4>
+
+<ul>
+<li><code>list_bbox_inshop.txt</code></li>
+<li><code>list_bbox_consumer2shop.txt</code></li>
+<li><code>list_bbox.txt</code> → Clothing object location</li>
+</ul>
+
+<h4>Landmark Files</h4>
+
+<ul>
+<li><code>list_landmarks.txt</code> → Keypoint coordinates</li>
+</ul>
+
+<h4>Category / Attribute Files</h4>
+
+<ul>
+<li><code>list_category_*</code></li>
+<li><code>list_attr_*</code> → Taxonomy definitions and labels</li>
+</ul>
+
+<h4>Text Descriptions</h4>
+
+<ul>
+<li><code>list_description_inshop.json</code> → Natural-language descriptions</li>
+</ul>
+
+<hr />
+
+<h3>(2) Normalized Output Structure</h3>
+
+<p>Each benchmark is converted into:</p>
+
+<p>benchmarks/
+  df1<em>inshop/normalized/
+  df1</em>consumer2shop/normalized/
+  df1<em>capb</em>coarse/normalized/
+  df1<em>capb</em>fine/normalized/
+  df1_landmark/normalized/</p>
+
+<h4>Core Data Tables</h4>
+
+<ul>
+<li><code>eval_partition.csv.gz</code></li>
+<li><code>bbox.csv.gz</code></li>
+<li><code>landmarks_raw.csv.gz</code></li>
+<li><code>category_labels.csv.gz</code></li>
+<li><code>attr_sparse.csv.gz</code></li>
+<li><code>retrieval_pairs.csv.gz</code></li>
+<li><code>descriptions.csv.gz</code></li>
+<li><code>image_sources.csv.gz</code></li>
+</ul>
+
+<h4>Ontology / Term Tables</h4>
+
+<ul>
+<li><code>category_terms.csv.gz</code></li>
+<li><code>attr_terms.csv.gz</code></li>
+</ul>
+
+<h4>Management &amp; Validation</h4>
+
+<ul>
+<li><code>manifest.csv</code> / <code>manifest.jsonl</code></li>
+<li><code>qc_summary.json</code></li>
+</ul>
+
+<hr />
+
+<h2>3. Role in FEL</h2>
+
+<h3>Node Construction</h3>
+
+<ul>
+<li>Image → <code>image_uid</code></li>
+<li>Category → <code>category_terms</code></li>
+<li>Attribute → <code>attr_terms</code></li>
+<li>Text → <code>descriptions</code></li>
+<li>Optional Item → bbox/landmark derived</li>
+</ul>
+
+<h3>Relationship Construction</h3>
+
+<p>Image ─has<em>bbox──────────▶ BBoxEvidence<br />
+Image ─has</em>landmark──────▶ LandmarkEvidence<br />
+Image ─has<em>category──────▶ CategoryTerm<br />
+Image ─has</em>attribute────▶ AttributeTerm<br />
+Image ─has_description──▶ Text<br />
+Image(query) ─matches───▶ Image(gallery)</p>
+
+<h3>Core Design Principles</h3>
+
+<p><strong>Single Join Key</strong><br />
+All data linked via <code>image_uid</code></p>
+
+<p><strong>Evidence Separation</strong><br />
+Ontology / Labels / Evidence split</p>
+
+<p><strong>Provenance Preservation</strong><br />
+<code>src_file + row_index</code> stored</p>
+
+<hr />
+
+<h2>4. Extracted Benchmarks</h2>
+
+<h3>In-shop Retrieval</h3>
+
+<ul>
+<li>Images: 52,712</li>
+<li>Text descriptions: 8,081</li>
+<li>No bbox/landmark errors</li>
+</ul>
+
+<h3>Consumer-to-Shop Retrieval</h3>
+
+<ul>
+<li>Images: 239,557</li>
+<li>Retrieval pairs: 195,540</li>
+<li>Real shopping scenario matching</li>
+</ul>
+
+<h3>CAPB</h3>
+
+<p>Coarse:
+- Images: 289,222
+- Categories: 50
+- Attributes: 1,000</p>
+
+<p>Fine:
+- Images: 20,000
+- Attributes: 26</p>
+
+<h3>Landmark Benchmark</h3>
+
+<ul>
+<li>Images: 123,016</li>
+<li>No landmark errors</li>
+</ul>
+
+<h3>Excluded Data</h3>
+
+<p>Original image files not included (metadata‑focused FEL design).</p>
+
+<hr />
+
+<h2>5. Graph Structure Description</h2>
+
+<h3>Central Node</h3>
+
+<p><strong>Images</strong> — anchor for all connections</p>
+
+<h3>Data Ingestion</h3>
+
+<p>ImageSources → Images (canonicalization)</p>
+
+<h3>Labels &amp; Attributes</h3>
+
+<p>CategoryTerms → CategoryLabels → Images<br />
+AttrTerms → AttrSparse → Images<br />
+ColorTerms → ColorLabels → Images</p>
+
+<h3>Evaluation Structure</h3>
+
+<ul>
+<li>EvalPartition → dataset splits</li>
+<li>RetrievalPairs → retrieval evaluation</li>
+<li>Descriptions → text data</li>
+</ul>
+
+<h3>Reproducibility</h3>
+
+<p>Manifest → artifact audit<br />
+QCSummary → pipeline validation</p>
+
+<hr />
+
+<h2>DF1 Normalized Graph (Interactive)</h2>
+
+<p>Click below to open the interactive graph in a new window:</p>
+
+<a href="file:///Users/kimyounghoe/Desktop/Graph/DF1-3.html" target="_blank" rel="noopener noreferrer">
+Open DF1 Graph Interactive Editor
+</a>
+
+<p>⚠️ This link works only on the local machine where the file exists.</p>
+
+<hr />
+
+<h2>Final Summary</h2>
+
+<p>The normalized DF1 dataset:</p>
+
+<ul>
+<li>Integrates complex original structures into a unified schema</li>
+<li>Optimized for multimodal AI and knowledge graph learning</li>
+<li>Includes reproducibility and quality validation</li>
+<li>Supports multiple benchmarks in a single data model</li>
+</ul>
+
+<p>➡️ Core input for FEL‑based clothing recognition, retrieval, and recommendation systems.</p>
+
+</body>
+</html>
