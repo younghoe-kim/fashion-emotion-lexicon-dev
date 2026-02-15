@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Comprehensive Comparison of Major Fashion Vision Resources</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      margin: 0;
+      padding: 28px 18px;
+      line-height: 1.55;
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    h1 { font-size: 28px; margin: 0 0 10px 0; }
+    h2 { font-size: 18px; margin: 26px 0 10px; }
+    p { margin: 8px 0; opacity: .95; }
+    .subtitle { opacity: .8; margin-top: 0; }
+    .card {
+      border: 1px solid rgba(127,127,127,.35);
+      border-radius: 18px;
+      padding: 16px 16px;
+      background: rgba(127,127,127,.05);
+      box-shadow: 0 1px 3px rgba(0,0,0,.08);
+      margin-top: 14px;
+    }
+    .tableWrap {
+      overflow: auto;
+      border-radius: 14px;
+      border: 1px solid rgba(127,127,127,.25);
+      background: rgba(127,127,127,.06);
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 980px;
+      font-size: 13px;
+    }
+    th, td {
+      border-bottom: 1px solid rgba(127,127,127,.22);
+      padding: 10px 12px;
+      vertical-align: top;
+    }
+    th {
+      position: sticky;
+      top: 0;
+      background: rgba(127,127,127,.12);
+      text-align: left;
+      font-weight: 800;
+      z-index: 1;
+    }
+    tr:hover td { background: rgba(127,127,127,.08); }
+    .muted { opacity: .75; font-size: 13px; }
+    .yes { font-weight: 800; }
+    .no { opacity: .8; }
+    .chip {
+      display:inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(127,127,127,.4);
+      background: rgba(127,127,127,.10);
+      font-size: 12px;
+      margin-right: 6px;
+      white-space: nowrap;
+    }
+    ul { margin: 8px 0 0 18px; }
+    li { margin: 4px 0; }
+    .note {
+      border-left: 4px solid rgba(127,127,127,.55);
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(127,127,127,.08);
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1> Comprehensive Comparison of Major Fashion Vision Resources</h1>
+  <p class="subtitle">A structured, research-oriented overview of DeepFashion family datasets and related fashion vision resources.</p>
+
+  <div class="card">
+    <h2>1) Side-by-side Comparison</h2>
+    <div class="tableWrap">
+      <table aria-label="Comparison table">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>DeepFashion</th>
+            <th>DeepFashion2</th>
+            <th>DeepFashion3D</th>
+            <th>MMFashion</th>
+            <th>Fashionpedia</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><b>Resource Type</b></td><td>Dataset + Model</td><td>Dataset + Benchmark</td><td>Dataset + Methodology</td><td>Platform / Toolkit</td><td>Ontology + Dataset</td></tr>
+          <tr><td><b>Year / Venue</b></td><td>2016 / CVPR</td><td>2019 / CVPR</td><td>2020 / CVPR</td><td>2020 / arXiv</td><td>2020 / CVPR</td></tr>
+          <tr><td><b>Primary Goal</b></td><td>Large-scale 2D clothing recognition &amp; retrieval</td><td>Real-world, multi-task fashion understanding</td><td>Single-image 3D garment reconstruction</td><td>Unified execution framework for fashion vision tasks</td><td>Structuring fashion knowledge via explicit ontology</td></tr>
+          <tr><td><b>Problem Motivation</b></td><td>Limited scale &amp; labels in earlier datasets</td><td>Sparse landmarks &amp; single-garment bias in DF</td><td>Severe lack of 3D garment data</td><td>Fragmented fashion AI codebases</td><td>Inconsistent definition of fashion concepts</td></tr>
+          <tr><td><b>Data Dimensionality</b></td><td>2D images</td><td>2D multi-instance scenes</td><td>3D meshes + images</td><td>2D (uses external datasets)</td><td>2D pixel-level annotations</td></tr>
+          <tr><td><b>Dataset Scale</b></td><td>800K+ images</td><td>491K images / 801K garments</td><td>2,078 3D garment models</td><td>No proprietary dataset</td><td>48K+ images</td></tr>
+          <tr><td><b>Garment Categories</b></td><td>50+</td><td>13</td><td>~10 garment types</td><td>Dataset-dependent</td><td>27</td></tr>
+          <tr><td><b>Core Annotations</b></td><td>Category, attributes, sparse landmarks</td><td>BBox, mask, dense landmarks (39), pose, pairing</td><td>Mesh, UV, camera, pose, feature lines</td><td>Models, configs, pipelines</td><td>Instance, part, attribute, mask</td></tr>
+          <tr><td><b>Landmark Concept</b></td><td>Sparse 2D keypoints</td><td>Dense pose-aware landmarks</td><td>3D structural feature lines</td><td>Task-dependent module</td><td>Encoded via part boundaries</td></tr>
+          <tr><td><b>Pose Information</b></td><td class="no">❌</td><td>Clothing pose</td><td>Body–garment pose (SMPL)</td><td>Task-dependent</td><td class="no">❌</td></tr>
+          <tr><td><b>Segmentation</b></td><td class="no">❌</td><td>Instance mask</td><td>Implicit via mesh surface</td><td>Supported</td><td>Part-level masks</td></tr>
+          <tr><td><b>Attributes</b></td><td>Image-level</td><td>Image-level</td><td>Texture (not semantic)</td><td>Supported</td><td>Part-localized</td></tr>
+          <tr><td><b>Ontology Explicitness</b></td><td class="no">❌</td><td class="no">❌</td><td class="no">❌</td><td class="no">❌</td><td class="yes">✅ Core contribution</td></tr>
+          <tr><td><b>Main Tasks</b></td><td>Classification, retrieval, attribute prediction</td><td>Detection, pose, segmentation, Re-ID</td><td>3D reconstruction, registration, texture recovery</td><td>Attribute, retrieval, parsing, compatibility</td><td>Detection, segmentation, attribute localization</td></tr>
+          <tr><td><b>Proposed Model</b></td><td>FashionNet</td><td>Match R-CNN baseline</td><td>Hybrid mesh + implicit surface</td><td>Backbone–Head modular framework</td><td>Mask R-CNN baseline</td></tr>
+          <tr><td><b>Methodological Core</b></td><td>Landmark-aware pooling</td><td>Multi-task unified evaluation</td><td>Template adaptation + physics-aware features</td><td>Modular engineering design</td><td>Ontology-driven annotation</td></tr>
+          <tr><td><b>Evaluation Metrics</b></td><td>Top-k accuracy, recall</td><td>AP, OKS, PCK, ReID recall</td><td>Chamfer, EMD, Normal Consistency, 3D IoU</td><td>Task-standard metrics</td><td>mIoU, AP (det/attr)</td></tr>
+          <tr><td><b>Major Strength</b></td><td>First large-scale fashion dataset</td><td>Real-world complexity &amp; multi-task scope</td><td>Provides true 3D structural evidence</td><td>Easy experimentation &amp; extensibility</td><td>Explicit semantic structure of fashion</td></tr>
+          <tr><td><b>Main Limitation</b></td><td>Lacks structural &amp; semantic depth</td><td>Limited semantic/ontological reasoning</td><td>Computationally heavy, frontal bias</td><td>Limited theoretical contribution</td><td>No aesthetic/emotional modeling</td></tr>
+          <tr><td><b>Emotion / Aesthetics Modeled</b></td><td class="no">❌</td><td class="no">❌</td><td class="no">❌</td><td class="no">❌</td><td class="no">❌</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="muted">Tip: On smaller screens, scroll horizontally to view all columns.</p>
+  </div>
+
+  <div class="card">
+    <h2>2) Conceptual Evolution in Fashion Vision</h2>
+    <div class="tableWrap">
+      <table aria-label="Conceptual evolution">
+        <thead>
+          <tr>
+            <th>Stage</th>
+            <th>Resource</th>
+            <th>Key Question Answered</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="chip">Appearance Level</span></td><td>DeepFashion</td><td>What clothing is visible?</td></tr>
+          <tr><td><span class="chip">Structural 2D Level</span></td><td>DeepFashion2</td><td>Where are parts under real-world variations?</td></tr>
+          <tr><td><span class="chip">Semantic-Part Level</span></td><td>Fashionpedia</td><td>Which part has which property?</td></tr>
+          <tr><td><span class="chip">Geometric 3D Level</span></td><td>DeepFashion3D</td><td>What is the physical garment shape?</td></tr>
+          <tr><td><span class="chip">Engineering Layer</span></td><td>MMFashion</td><td>How do we implement and experiment efficiently?</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>3) Research-Oriented Selection Guide</h2>
+    <div class="tableWrap">
+      <table aria-label="Selection guide">
+        <thead>
+          <tr>
+            <th>Research Goal</th>
+            <th>Most Suitable Resource</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Attribute learning</td><td>DeepFashion, Fashionpedia</td></tr>
+          <tr><td>Detection in complex scenes</td><td>DeepFashion2, Fashionpedia</td></tr>
+          <tr><td>Landmark / garment pose</td><td>DeepFashion2</td></tr>
+          <tr><td>Part-based reasoning</td><td>Fashionpedia</td></tr>
+          <tr><td>Clothing retrieval / Re-ID</td><td>DeepFashion, DeepFashion2</td></tr>
+          <tr><td>Virtual try-on / simulation</td><td>DeepFashion3D</td></tr>
+          <tr><td>3D garment reconstruction</td><td>DeepFashion3D</td></tr>
+          <tr><td>Multi-task unified training</td><td>Fashionpedia + DeepFashion2</td></tr>
+          <tr><td>Rapid experimentation</td><td>MMFashion</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>4) Big-Picture Insight</h2>
+    <div class="note">
+      These resources form complementary layers rather than replacements:
+      <b>DeepFashion → DeepFashion2 → Fashionpedia → DeepFashion3D</b> progressively moves fashion AI from
+      <b>visual appearance → structural layout → semantic understanding → physical geometry</b>,
+      while <b>MMFashion</b> provides the engineering backbone to operationalize all of them.
+    </div>
+  </div>
+
+  <p class="muted" style="margin-top:16px;">Generated as a standalone HTML page for easy publishing via GitHub Pages or any static hosting.</p>
+</body>
+</html>
