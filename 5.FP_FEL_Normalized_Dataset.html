@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Fashionpedia (FP) — FEL Normalized Dataset</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      margin: 0;
+      padding: 32px 18px;
+      line-height: 1.55;
+      max-width: 980px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    pre { overflow: auto; padding: 14px; border-radius: 12px; }
+    code { padding: 2px 6px; border-radius: 8px; }
+    hr { margin: 28px 0; }
+    a { word-break: break-word; }
+    table { border-collapse: collapse; width: 100%; overflow:auto; display:block; }
+    th, td { border: 1px solid rgba(127,127,127,.35); padding: 8px 10px; vertical-align: top; }
+    th { font-weight: 700; }
+  </style>
+</head>
+<body>
+
+<h1>Fashionpedia (FP) — Normalized Dataset for FEL</h1>
+
+<h2>1. Dataset Overview</h2>
+
+<p><b>Fashionpedia</b> is a COCO-style fashion understanding dataset that combines <b>instance annotations</b> (object/box/segmentation)
+with <b>attributes</b> and an explicit <b>category–part–attribute ontology</b>. Its key contribution is enabling <b>part-level attribute localization</b>
+(e.g., “the sleeve is striped”) within a unified benchmark for detection, segmentation, and attribute prediction.</p>
+
+<h3>Research Objective</h3>
+<p>Earlier fashion datasets typically emphasized either categories or attributes, but did not explicitly model <b>the relationship between garment parts and attributes</b>.
+Fashionpedia addresses this by providing a structured ontology and detailed part-aware annotations.</p>
+
+<h3>Key Components</h3>
+<table>
+  <thead>
+    <tr><th>Component</th><th>Description</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Categories</td><td>27 high-level clothing categories</td></tr>
+    <tr><td>Parts</td><td>19 clothing part labels (e.g., collar, sleeve)</td></tr>
+    <tr><td>Attributes</td><td>46 attribute tags (e.g., solid, floral, knit)</td></tr>
+    <tr><td>Ontology</td><td>Hierarchical links between category–part–attribute</td></tr>
+    <tr><td>Masks</td><td>Pixel-level segmentation masks for garments and parts</td></tr>
+    <tr><td>Attributes (part-level)</td><td>Attributes annotated at the part level</td></tr>
+  </tbody>
+</table>
+
+<p>The dataset is distributed as COCO-style JSON annotations and supports multi-task learning and ontology-aware evaluation.</p>
+
+<hr />
+
+<h2>2. Folder and File Structure</h2>
+
+<h3>(1) Original Fashionpedia Structure (Input)</h3>
+
+<pre><code>fashionpedia_root/
+├── instances_attributes_train2020.json   (core)
+├── instances_attributes_val2020.json     (core)
+├── attributes_train2020.json             (optional)
+├── attributes_val2020.json               (optional)
+├── info_test2020.json                    (optional)
+└── images/                               (optional)
+    ├── train/
+    ├── val/
+    └── test/</code></pre>
+
+<h3>(2) Normalized Output Structure (FEL v1.3)</h3>
+
+<p>The FEL extractor normalizes Fashionpedia into ontology (terms), observation (instances/labels), and audit (manifest/QC) layers.</p>
+
+<h4>Core ontology tables</h4>
+<ul>
+  <li><code>fp_terms_categories.csv</code> (category + part terms; includes <code>term_role</code>)</li>
+  <li><code>fp_terms_attributes.csv</code> (attribute terms)</li>
+</ul>
+
+<h4>Core entity / observation tables</h4>
+<ul>
+  <li><code>fp_images_index.csv.gz</code> (ImageItem hub keyed by <code>image_uid</code>)</li>
+  <li><code>fp_instances.csv.gz</code> (InstanceItem core table)</li>
+  <li><code>fp_attr_sparse.csv.gz</code> (image-level attribute sparse; separated to avoid confusion)</li>
+  <li><code>fp_image_categories.csv.gz</code> and <code>fp_image_categories_agg.csv.gz</code> (derived category log + aggregation)</li>
+  <li><code>fp_geometry.csv.gz</code> (derived geometry summary per image)</li>
+  <li><code>items.csv.gz</code> (typed registry for emitted entities)</li>
+</ul>
+
+<h4>Run artifacts</h4>
+<ul>
+  <li><code>manifest.csv</code> / <code>manifest.jsonl</code></li>
+  <li><code>qc_summary.json</code></li>
+  <li><code>report.md</code></li>
+</ul>
+
+<hr />
+
+<h2>3. Role in FEL</h2>
+
+<p>Fashionpedia strengthens FEL’s <b>InstanceItem</b> layer: meaning is expressed at the instance level (garment/part) with category + attributes + spatial evidence.</p>
+
+<h3>Node Construction</h3>
+<ul>
+  <li><b>ImageItem</b>: <code>image_uid</code> from <code>fp_images_index.csv.gz</code></li>
+  <li><b>InstanceItem</b>: <code>instance_uid</code> from <code>fp_instances.csv.gz</code></li>
+  <li><b>CategoryTerm</b>: <code>fp_cat_id</code> from <code>fp_terms_categories.csv</code></li>
+  <li><b>AttributeTerm</b>: <code>fp_attr_id</code> from <code>fp_terms_attributes.csv</code></li>
+  <li><b>GeometrySummary</b>: derived per <code>image_uid</code> from <code>fp_geometry.csv.gz</code></li>
+</ul>
+
+<h3>Relationship Construction</h3>
+<p>
+ImageItem ─contains────────▶ InstanceItem<br />
+InstanceItem ─has_category──▶ CategoryTerm<br />
+InstanceItem ─has_attribute─▶ AttributeTerm<br />
+ImageItem ─has_geometry────▶ GeometrySummary<br />
+(Separate) ImageItem ─has_attribute──▶ AttributeTerm (image-level sparse; <code>fp_attr_sparse.csv.gz</code>)
+</p>
+
+<hr />
+
+<h2>4. Extracted Benchmarks</h2>
+
+<p>Fashionpedia extraction is driven by the COCO-style JSONs; there is no benchmark folder split like DF1.
+Instead, the normalized schema supports multiple tasks (detection/segmentation/attributes) from one consistent graph layer.</p>
+
+<h3>Most important PK design</h3>
+<p><b>COCO <code>ann.id</code> is not globally unique</b> across JSONs (e.g., train vs val), so it is not safe as a primary key.</p>
+
+<p><b>FEL v1.3 solution (deterministic, globally unique):</b></p>
+<pre><code>instance_uid = FP:inst/&lt;split&gt;/&lt;src_file_rel&gt;/&lt;row_index&gt;</code></pre>
+
+<p>This ensures 100% uniqueness via split + dataset-relative provenance + JSON row position.</p>
+
+<hr />
+
+<h2>5. Graph Structure Description</h2>
+
+<p>The Fashionpedia normalized graph is <b>image-hub</b> with strong instance-level semantics.</p>
+
+<h3>1) Central hub: ImagesIndex</h3>
+<ul>
+  <li><code>fp_images_index.csv.gz</code> is the hub keyed by <code>image_uid</code>.</li>
+  <li>All major observation tables join through this key.</li>
+</ul>
+
+<h3>2) Instance &amp; attribute layer</h3>
+<ul>
+  <li><b>Instances</b> (<code>fp_instances.csv.gz</code>): instance_uid + bbox + seg summary + instance-level attributes</li>
+  <li><b>AttrSparse</b> (<code>fp_attr_sparse.csv.gz</code>): image-level sparse attributes (kept separate)</li>
+</ul>
+
+<h3>3) Taxonomy layer</h3>
+<ul>
+  <li><b>TermsCategories</b> (<code>fp_terms_categories.csv</code>) lookup by <code>fp_cat_id</code></li>
+  <li><b>TermsAttributes</b> (<code>fp_terms_attributes.csv</code>) lookup by <code>fp_attr_id</code></li>
+</ul>
+
+<h3>4) Derived layers</h3>
+<ul>
+  <li><b>ImageCategories</b> → <b>ImageCategoriesAgg</b>: category log and aggregation</li>
+  <li><b>Geometry</b> (<code>fp_geometry.csv.gz</code>): derived geometry summary per <code>image_uid</code></li>
+</ul>
+
+<h3>5) Typed registry + run artifacts</h3>
+<ul>
+  <li><b>Items</b> (<code>items.csv.gz</code>) is a lightweight typed registry abstraction.</li>
+  <li><b>Manifest / Report / QCSummary</b> are run-level artifacts (audit/validation), typically shown as dashed conceptual edges.</li>
+</ul>
+
+<hr />
+
+<h2>FEL Integrity Checks (v1.3 Patch Verification Summary)</h2>
+
+<p>Based on the finalized v1.3 extractor policy, the following checks define “artifact correctness” for FEL ingestion:</p>
+
+<ul>
+  <li><b>Patch A — items referential integrity:</b> instance entries in <code>items.csv.gz</code> must be a subset of emitted <code>fp_instances.instance_uid</code>.</li>
+  <li><b>Patch B — dataset-relative provenance:</b> <code>fp_instances.src_file</code> is POSIX, dataset-relative, and is embedded into <code>instance_uid</code>.</li>
+  <li><b>NEW-C — PK/QC hardening:</b> <code>instance_uid</code> duplicates are hard-fail; <code>instance_id</code> duplicates are allowed but counted/reported.</li>
+</ul>
+
+<p>Expected QC outcomes under this policy:</p>
+<ul>
+  <li><code>instance_uid duplicate = 0</code> (hard-fail if &gt; 0)</li>
+  <li><code>hard_fail = False</code> when required entities exist and PK/integrity conditions hold</li>
+</ul>
+
+<hr />
+
+<h2>Unused Data and Rationale</h2>
+
+<ul>
+  <li><b>Raw segmentation polygon contents:</b> not fully replicated/decoded in FEL due to size and resolution dependence; FEL keeps summaries for joinability and audit.</li>
+  <li><b>instance_id as PK:</b> not used because it is not globally unique; replaced by deterministic <code>instance_uid</code>.</li>
+  <li><b>Image pixels:</b> FEL prioritizes meaning graphs and evidence links; pixels are consumed downstream by models.</li>
+</ul>
+
+<hr />
+
+<h2>QC Verdict</h2>
+
+<p>Under the stated FEL v1.3 QC policy, a “submittable” run satisfies:</p>
+<ul>
+  <li><code>instance_uid duplicate = 0</code></li>
+  <li><code>categories &gt; 0</code>, <code>attributes &gt; 0</code>, <code>images &gt; 0</code>, <code>instances_emitted &gt; 0</code></li>
+  <li>manifest generated</li>
+  <li><code>hard_fail = False</code></li>
+</ul>
+
+<p>➡️ This indicates PK stability, referential integrity, ontology separation, and auditability are all satisfied for FEL ingestion.</p>
+
+<hr />
+
+<h2>Fashionpedia Normalized Graph (Interactive)</h2>
+<p>Click below to open the interactive graph in a new window:</p>
+<a href="10.FP-1.html" target="_blank" rel="noopener noreferrer">Open Fashionpedia Graph Interactive Editor</a>
+
+<p>⚠️ Use a relative link (as above) for GitHub Pages. Avoid <code>file:///</code> links.</p>
+
+<hr />
+
+<h2>Final Summary</h2>
+<ul>
+  <li>Fashionpedia adds strong <b>instance-centric semantics</b> to FEL: image → instance → (category/attribute) with spatial evidence.</li>
+  <li>Ontology terms (categories/parts/attributes) are separated from observations (instances/labels) for consistent graph learning.</li>
+  <li>Deterministic <code>instance_uid</code> eliminates COCO ID collisions across splits and files.</li>
+  <li>Manifest + QC + report provide reproducibility and auditability at the run level.</li>
+</ul>
+
+<p>➡️ Core FEL input for ontology-aware segmentation, part-level attribute localization, and instance-level reasoning across fashion datasets.</p>
+
+</body>
+</html>
