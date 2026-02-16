@@ -37,23 +37,6 @@ The FEL v1.6 artifact is a graph-friendly normalization where <strong>captions (
 - Supports optional modalities (keypoints, masks) via auto-discovery and indexing
 - Preserves provenance (<code>src_file</code>, <code>row_index</code>) for reproducibility and traceability</p>
 
-<hr />
-
-<h3>Fashionpedia (Conceptual summary only)</h3>
-
-<p>Fashionpedia links <strong>category–part–attribute</strong> into an ontology and provides <strong>part-level attributes</strong> plus <strong>pixel masks</strong> for fashion understanding.</p>
-
-<p>From a FEL perspective, the most natural approach is to normalize COCO-style JSON into:
-1) <strong>Ontology (terms)</strong> tables and<br />
-2) <strong>Observations / evidence</strong> (labels, masks, boxes, part–attribute links).</p>
-
-<blockquote>
-  <p>Note: This message does not include Fashionpedia’s actual normalized outputs (<code>manifest</code>, <code>qc_summary</code>, normalized tables).<br />
-  Therefore, the Fashionpedia section below is a <strong>paper/format-based generalization</strong> rather than an artifact-backed report.</p>
-</blockquote>
-
-<hr />
-
 <h2>2. Folder and File Description</h2>
 
 <h3>2.1 MMF Original Input Structure (manifest + auto-discovery + <code>captions.json</code>)</h3>
