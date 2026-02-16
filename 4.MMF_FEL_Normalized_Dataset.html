@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>MMF FEL Normalized Dataset</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      margin: 0;
+      padding: 32px 18px;
+      line-height: 1.55;
+      max-width: 980px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    pre { overflow: auto; padding: 14px; border-radius: 12px; }
+    code { padding: 2px 6px; border-radius: 8px; }
+    hr { margin: 28px 0; }
+    a { word-break: break-word; }
+  </style>
+</head>
+<body>
+<h1>MultiModalFashion (MMF / DeepFashion-MultiModal) — Normalized Dataset for FEL</h1>
+
+<h2>1. Dataset Overview</h2>
+
+<p><b>MMF</b> is an image–text (caption) paired multimodal fashion dataset.
+FEL v1.6 normalizes MMF into a <b>pair-centric</b> schema where <b>ImageTextPairs</b> is the hub relationship layer,
+and Images/Text entities are separated for graph-friendly joins.</p>
+
+<p>Unlike DF1/DF2 (image evidence-heavy) or DF3 (pose_key 3D evidence), MMF’s core signal is <b>caption semantics</b>.
+The pipeline is designed so extraction is possible from <code>captions.json</code> alone, reflecting a text-centric multimodal design.</p>
+
+<h3>Key Characteristics</h3>
+<ul>
+  <li>Hub relation: <code>image_text_pairs.csv.gz</code> (pair_id, image_uid, text_uid)</li>
+  <li>Entity tables: <code>images.csv.gz</code>, <code>texts.csv.gz</code></li>
+  <li>Typed registry: <code>items.csv.gz</code> (emitted entity registry ensuring referential integrity)</li>
+  <li>Optional evidence: <code>keypoints_raw.jsonl.gz</code>, <code>masks_index.csv.gz</code></li>
+  <li>PK collision prevention (v1.6): <code>image_uid = MMF:img/&lt;encoded_relpath_without_ext&gt;</code></li>
+  <li>QC status (artifact basis): <code>hard_fail = False</code>, image_uid collision = 0</li>
+</ul>
+
+<hr />
+
+<h2>2. Folder and File Structure</h2>
+
+<h3>(1) Original MMF Structure (Input)</h3>
+
+<p>MMF is annotation-driven; <code>captions.json</code> is the only hard requirement. Other assets are optional and linked if present.</p>
+
+<pre><code>mmf_root/
+├── captions.json                (REQUIRED)
+├── images/                      (OPTIONAL)
+├── keypoints/                   (OPTIONAL)
+└── masks|segm|parsing/          (OPTIONAL)</code></pre>
+
+<h4>Key input files</h4>
+<ul>
+  <li><code>captions.json</code> → image ↔ caption annotation source (hard-fail if missing)</li>
+  <li><code>images/</code> → image pixels (optional; paths linked only)</li>
+  <li><code>keypoints/keypoints_loc.txt</code>, <code>keypoints/keypoints_vis.txt</code> → optional keypoint evidence</li>
+  <li><code>masks|segm|parsing/</code> → optional mask/segmentation assets (auto-discovered)</li>
+</ul>
+
+<hr />
+
+<h3>(2) Normalized Output Structure</h3>
+
+<h4>Core Tables</h4>
+<ul>
+  <li><code>images.csv.gz</code> → Image entities (PK: image_uid)</li>
+  <li><code>texts.csv.gz</code> → Text entities (PK: text_uid; 1 row = 1 caption)</li>
+  <li><code>image_text_pairs.csv.gz</code> → Hub relations (PK: pair_id)</li>
+  <li><code>items.csv.gz</code> → Typed registry (image/text) ensuring referential integrity</li>
+</ul>
+
+<h4>Optional Evidence</h4>
+<ul>
+  <li><code>keypoints_raw.jsonl.gz</code> → raw keypoint evidence (JSONL)</li>
+  <li><code>masks_index.csv.gz</code> → mask path index (no pixel decoding)</li>
+</ul>
+
+<h4>Management &amp; Validation</h4>
+<ul>
+  <li><code>manifest.csv</code> / <code>manifest.jsonl</code></li>
+  <li><code>qc_summary.json</code></li>
+</ul>
+
+<hr />
+
+<h2>3. Role in FEL</h2>
+
+<h3>Node Construction</h3>
+<ul>
+  <li>ImageItem → <code>image_uid</code> (from images.csv.gz)</li>
+  <li>TextItem → <code>text_uid</code> (from texts.csv.gz)</li>
+  <li>Optional Evidence → keypoints/masks (joined by image_uid)</li>
+</ul>
+
+<h3>Relationship Construction</h3>
+<p>
+ImageTextPairs (pair_id) links: <code>image_uid</code> ↔ <code>text_uid</code><br />
+ImageItem ─has_caption──▶ TextItem (via image_text_pairs)<br />
+ImageItem ─has_keypoints▶ KeypointEvidence (optional)<br />
+ImageItem ─has_mask────▶ MaskEvidence (optional)
+</p>
+
+<h3>Core Design Principles</h3>
+<p><b>Pair-centric hub</b><br />
+MMF is fundamentally a relationship dataset; the pair table must be an independent hub for many-to-many and multi-caption support.</p>
+
+<p><b>PK stability</b><br />
+Path-based <code>image_uid</code> prevents collisions across folders (e.g., tops/0001.jpg vs pants/0001.jpg).</p>
+
+<p><b>Typed registry</b><br />
+<code>items.csv.gz</code> records only emitted entities and enforces referential integrity for graph construction.</p>
+
+<hr />
+
+<h2>4. Extracted Benchmarks</h2>
+
+<p>MMF is not benchmark-split like DF1; it is extracted as a unified pair dataset with optional modality extensions.</p>
+
+<ul>
+  <li><b>images</b>: 42,537</li>
+  <li><b>texts</b>: 42,537</li>
+  <li><b>pairs</b>: 42,537</li>
+  <li><b>items</b>: 85,074 (image + text)</li>
+  <li><b>keypoints_written</b>: 12,695 (optional)</li>
+  <li><b>masks_index_rows</b>: 12,324 (optional)</li>
+</ul>
+
+<p>Manifest snapshot (dataset scope):</p>
+<ul>
+  <li><code>manifest_total_files = 100,529</code></li>
+  <li><code>total_size_gb = 15.089894</code></li>
+  <li><code>ext top: png 56,427 / jpg 44,096 / txt 5 / json 1</code></li>
+</ul>
+
+<hr />
+
+<h2>5. Graph Structure Description</h2>
+
+<h3>Central Node</h3>
+<p><b>ImageTextPairs</b> — the pair-centric hub relationship table.</p>
+
+<h3>Entity Layer</h3>
+<p>
+ImageTextPairs ──(image_uid)──▶ Images<br />
+ImageTextPairs ──(text_uid)──▶ Texts
+</p>
+
+<h3>Typed Registry Layer</h3>
+<p>
+Items (item_type + ref_uid) abstracts Images and Texts:<br />
+ref_uid → image_uid (if item_type=image), ref_uid → text_uid (if item_type=text)
+</p>
+
+<h3>Optional Modality Layer</h3>
+<p>KeypointsRaw and MasksIndex attach to Images via <code>image_uid</code>.</p>
+
+<h3>Meta Layer</h3>
+<p>Manifest and QCSummary are run-level metadata (audit/validation), typically drawn as dashed conceptual edges.</p>
+
+<hr />
+
+<h2>MMF Normalized Graph (Interactive)</h2>
+<p>Click below to open the interactive graph in a new window:</p>
+
+<a href="11.MMF-1.html" target="_blank" rel="noopener noreferrer">
+Open MMF Graph Interactive Editor
+</a>
+
+<p>⚠️ Use a relative link (as above) for GitHub Pages. Avoid <code>file:///</code> links.</p>
+
+<hr />
+
+<h2>Final Summary</h2>
+<ul>
+  <li>MMF is normalized around a pair-centric hub (ImageTextPairs) to represent image–caption relationships safely.</li>
+  <li>Entities (Images/Text) are separated, with a typed registry to guarantee referential integrity.</li>
+  <li>Optional modalities (keypoints/masks) are indexed as evidence without decoding heavy pixel content.</li>
+  <li>QC + manifest provide reproducibility and auditability for FEL ingestion.</li>
+</ul>
+
+<p>➡️ Core FEL input for text-centric multimodal graph learning and caption-based fashion understanding.</p>
+
+</body>
+</html>

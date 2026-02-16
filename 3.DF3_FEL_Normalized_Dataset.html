@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>DF3 FEL Normalized Dataset</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      margin: 0;
+      padding: 32px 18px;
+      line-height: 1.55;
+      max-width: 980px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    pre { overflow: auto; padding: 14px; border-radius: 12px; }
+    code { padding: 2px 6px; border-radius: 8px; }
+    hr { margin: 28px 0; }
+    a { word-break: break-word; }
+  </style>
+</head>
+<body>
+<h1>DeepFashion3D (DF3 V2) — Normalized Dataset for FEL</h1>
+
+<h2>1. Dataset Overview</h2>
+
+<p><b>DeepFashion3D</b> is a large-scale benchmark for <b>3D garment reconstruction from a single RGB image</b>.
+While DF1/DF2 focus on 2D evidence (bbox/landmarks/segmentation/re-ID), DF3 enables evaluation of <b>true 3D garment geometry</b>
+including wrinkles, thickness, and asymmetry.</p>
+
+<p>In this pipeline, DF3 outputs (<code>df3_fel_out.zip</code>) are normalized into a <b>graph-friendly, join-stable reference layer</b> for FEL.
+Instead of copying or fully parsing heavy 3D assets (OBJ/PLY/PKL/PNG), the extractor builds <b>index tables + a pose-centric hub</b> so that downstream loaders can parse 3D contents safely and on-demand.</p>
+
+<h3>Key Characteristics</h3>
+<ul>
+  <li>Primary join key: <code>pose_key = garment_id-pose_id</code></li>
+  <li>Hub table: <code>items.csv.gz</code> (one row per pose_key; modality coverage flags + representative file refs)</li>
+  <li>Modality indices separated by type (pose params / pointcloud / mesh bundle / feature lines)</li>
+  <li>Provenance + auditability via <code>manifest.*</code> and <code>qc_summary.json</code></li>
+  <li>QC status (artifact basis): <code>hard_fail = False</code>, warnings/errors = 0</li>
+</ul>
+
+<p>➡️ This converts DF3’s file-centric 3D structure into a standardized, joinable schema optimized for knowledge-graph construction and multimodal evidence linkage.</p>
+
+<hr />
+
+<h2>2. Folder and File Structure</h2>
+
+<h3>(1) Original DF3 Structure (Input)</h3>
+
+<p>The following input structure is reconstructed from manifest path patterns and extractor auto-discovery rules:</p>
+
+<ul>
+  <li><code>featureline_annotation/</code> → feature line (curve) annotations as <code>.ply</code></li>
+  <li><code>point_cloud/&lt;garment_id&gt;/&lt;garment-pose&gt;.ply</code> → per-pose point clouds</li>
+  <li><code>packed_pose/&lt;garment_id&gt;/&lt;garment-pose&gt;.pkl</code> → per-pose parameters</li>
+  <li><code>filtered_registered_mesh-001/&lt;garment-pose&gt;/</code> → mesh bundle (<code>.obj</code>, <code>.mtl</code>, <code>*_tex.png</code>)</li>
+  <li><code>garment_type_list.txt</code> → garment_id → garment_type mapping</li>
+</ul>
+
+<hr />
+
+<h3>(2) Normalized Output Structure</h3>
+
+<p>Normalized outputs are written to <code>out_dir/normalized/</code>:</p>
+
+<h4>Core Hub + Indices</h4>
+<ul>
+  <li><code>items.csv.gz</code> → PoseItem hub (pose_key universe)</li>
+  <li><code>poses_index.csv.gz</code> → pose PKL index</li>
+  <li><code>pointcloud_index.csv.gz</code> → point cloud PLY index (+ optional vertex_count)</li>
+  <li><code>meshes_index.csv.gz</code> → mesh bundle index (OBJ/MTL/TEX refs + existence QC)</li>
+  <li><code>featureline_index.csv.gz</code> → featureline PLY index (1 file = 1 row; includes curve_type_id)</li>
+  <li><code>garments.csv.gz</code> → garment_id aggregation</li>
+</ul>
+
+<h4>Management &amp; Validation</h4>
+<ul>
+  <li><code>manifest.csv</code> / <code>manifest.jsonl</code> → input audit</li>
+  <li><code>qc_summary.json</code> → run-level QC / coverage / stats</li>
+</ul>
+
+<hr />
+
+<h2>3. Role in FEL</h2>
+
+<p>DF3 is pose-centric: the primary semantic unit is a <b>3D pose instance</b> (<code>pose_key</code>), not an image.</p>
+
+<h3>Node Construction</h3>
+<ul>
+  <li>Garment → <code>garment_id</code></li>
+  <li>PoseItem → <code>item_uid = DF3:pose/&lt;pose_key&gt;</code></li>
+  <li>Evidence refs (indices): PosePKLFileRef / PointCloudFileRef / MeshFileRef / FeatureLineFileRef</li>
+</ul>
+
+<h3>Relationship Construction</h3>
+<p>
+Garment ─has_pose──────────▶ PoseItem<br />
+PoseItem ─has_pose_params──▶ PosePKLFileRef<br />
+PoseItem ─has_pointcloud───▶ PointCloudFileRef<br />
+PoseItem ─has_mesh─────────▶ MeshFileRef<br />
+PoseItem ─has_featureline──▶ FeatureLineFileRef (one-to-many)
+</p>
+
+<h3>Core Design Principles</h3>
+<p><b>Single Join Key</b><br />
+All modalities join via <code>pose_key</code></p>
+
+<p><b>Evidence Separation</b><br />
+Heavy 3D contents are not parsed here; only references + coverage/QC are normalized</p>
+
+<p><b>Provenance Preservation</b><br />
+Auditability via <code>manifest.*</code> and run validation via <code>qc_summary.json</code></p>
+
+<hr />
+
+<h2>4. Extracted Benchmarks</h2>
+
+<p>DF3 is not benchmark-split like DF1/DF2; instead it is organized by modalities over the pose_key universe.</p>
+
+<ul>
+  <li><b>pose_pkls</b>: 1,783 pose_key</li>
+  <li><b>pointclouds</b>: 1,783 pose_key</li>
+  <li><b>meshes</b>: 1,212 pose_key</li>
+  <li><b>featurelines_rows</b>: 7,952 (1 featureline PLY = 1 row)</li>
+  <li><b>pose_keys_union</b>: 1,783 (matches <code>items.csv.gz</code> rows)</li>
+</ul>
+
+<p>Coverage/QC highlights:</p>
+<ul>
+  <li><code>meshes_missing_obj = 0</code></li>
+  <li><code>meshes_missing_tex = 0</code></li>
+  <li><code>only_pose_pkl = 0</code>, <code>only_pointcloud = 0</code>, <code>only_mesh = 0</code></li>
+</ul>
+
+<hr />
+
+<h2>5. Graph Structure Description</h2>
+
+<h3>Central Node</h3>
+<p><b>Items</b> — the pose_key hub that integrates all modalities.</p>
+
+<h3>Pose-based Modality Joins</h3>
+<p>
+Items ──(pose_key)──▶ PosesIndex<br />
+Items ──(pose_key)──▶ PointcloudIndex<br />
+Items ──(pose_key)──▶ MeshesIndex<br />
+Items ──(pose_key)──▶ FeaturelineIndex
+</p>
+
+<h3>Garment-level Aggregation</h3>
+<p>Items ──(garment_id)──▶ Garments (aggregation layer, not a strict FK dependency)</p>
+
+<h3>Meta Layer</h3>
+<p>Manifest and QCSummary are run-level metadata (audit/validation), typically shown as dashed conceptual edges.</p>
+
+<hr />
+
+<h2>DF3 Normalized Graph (Interactive)</h2>
+<p>Click below to open the interactive graph in a new window:</p>
+
+<a href="9.DF3-1.html" target="_blank" rel="noopener noreferrer">
+Open DF3 Graph Interactive Editor
+</a>
+
+<p>⚠️ Use a relative link (as above) for GitHub Pages. Avoid <code>file:///</code> links.</p>
+
+<hr />
+
+<h2>Final Summary</h2>
+<ul>
+  <li>DF3 is normalized around <code>pose_key</code> to unify multi-modal 3D evidence under one stable join key.</li>
+  <li>Index tables provide reference stability, coverage measurement, and safe downstream parsing.</li>
+  <li>QC and manifest provide reproducibility and auditability for FEL ingestion.</li>
+</ul>
+
+<p>➡️ Core FEL input for pose-centric 3D garment evidence linking and downstream 3D reconstruction/registration research.</p>
+
+</body>
+</html>
