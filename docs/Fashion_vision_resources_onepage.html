@@ -424,36 +424,6 @@
       </div>
     </section>
 
-    <section class="section" id="comparison">
-      <h2>Comprehensive Comparison</h2>
-      <div class="tableWrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Category</th>
-              <th>DeepFashion</th>
-              <th>DeepFashion2</th>
-              <th>DeepFashion3D</th>
-              <th>MMFashion</th>
-              <th>Fashionpedia</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td>Resource Type</td><td>Dataset + Model</td><td>Dataset + Benchmark</td><td>Dataset + Methodology</td><td>Platform / Toolkit</td><td>Ontology + Dataset</td></tr>
-            <tr><td>Year / Venue</td><td>2016 / CVPR</td><td>2019 / CVPR</td><td>2020 / CVPR</td><td>2020 / arXiv</td><td>2020 / CVPR</td></tr>
-            <tr><td>Primary Goal</td><td>Large-scale 2D clothing recognition & retrieval</td><td>Real-world, multi-task fashion understanding</td><td>Single-image 3D garment reconstruction</td><td>Unified execution framework for fashion vision tasks</td><td>Structuring fashion knowledge via explicit ontology</td></tr>
-            <tr><td>Data Dimensionality</td><td>2D images</td><td>2D multi-instance scenes</td><td>3D meshes + images</td><td>2D framework using external datasets</td><td>2D pixel-level annotations</td></tr>
-            <tr><td>Dataset Scale</td><td>800K+ images</td><td>491K images / 801K garments</td><td>200K+ images / 2,078 3D models</td><td>No proprietary dataset</td><td>48K+ images</td></tr>
-            <tr><td>Core Annotations</td><td>Category, 1K attributes, sparse landmarks, paired images</td><td>BBox, mask, dense landmarks (39), pose, pairing, deformation levels</td><td>Mesh, UV, camera, pose, feature lines, texture</td><td>Models, configs, pipelines</td><td>Instance, part, attribute, mask, ontology</td></tr>
-            <tr><td>Main Tasks</td><td>Classification, retrieval, attribute prediction</td><td>Detection, pose, segmentation, Re-ID</td><td>3D reconstruction, registration, texture recovery</td><td>Attribute, retrieval, parsing, compatibility</td><td>Detection, segmentation, attribute localization</td></tr>
-            <tr><td>Major Strength</td><td>First large-scale fashion dataset with rich annotations</td><td>Real-world complexity and multi-task scope</td><td>Provides true 3D structural evidence</td><td>Easy experimentation and extensibility</td><td>Explicit semantic structure of fashion</td></tr>
-            <tr><td>Main Limitation</td><td>Lacks structural and semantic depth</td><td>Limited semantic / ontological reasoning</td><td>Computationally heavy, frontal bias</td><td>Limited theoretical contribution as a data resource</td><td>No aesthetic or emotional modeling</td></tr>
-            <tr><td>Best Use</td><td>Attribute learning, retrieval</td><td>Detection, pose, segmentation, re-ID</td><td>3D garment reconstruction</td><td>Rapid implementation and benchmarking</td><td>Part-aware parsing and attribute localization</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
     <section class="section" id="papers">
       <h2>Paper Detail Table</h2>
       <div class="tableWrap">
@@ -537,43 +507,7 @@
         </div>
       </div>
     </section>
-
-    <section class="section">
-      <h2>Conceptual Evolution and Research Fit</h2>
-      <div class="duo">
-        <div>
-          <table class="listTable">
-            <thead>
-              <tr><th>Stage</th><th>Resource</th><th>Key Question</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>Appearance Level</td><td>DeepFashion</td><td>What clothing is visible?</td></tr>
-              <tr><td>Structural 2D Level</td><td>DeepFashion2</td><td>Where are items and parts under realistic variation?</td></tr>
-              <tr><td>Semantic-Part Level</td><td>Fashionpedia</td><td>Which part has which attribute?</td></tr>
-              <tr><td>Geometric 3D Level</td><td>DeepFashion3D</td><td>What is the actual garment shape?</td></tr>
-              <tr><td>Engineering Layer</td><td>MMFashion</td><td>How do we implement and evaluate efficiently?</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div>
-          <table class="listTable">
-            <thead>
-              <tr><th>Research Goal</th><th>Recommended Resource</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>Attribute learning</td><td>DeepFashion, Fashionpedia</td></tr>
-              <tr><td>Detection in complex scenes</td><td>DeepFashion2, Fashionpedia</td></tr>
-              <tr><td>Landmark / garment pose</td><td>DeepFashion2</td></tr>
-              <tr><td>Part-based reasoning</td><td>Fashionpedia</td></tr>
-              <tr><td>Retrieval / Re-ID</td><td>DeepFashion, DeepFashion2</td></tr>
-              <tr><td>Virtual try-on / simulation</td><td>DeepFashion3D</td></tr>
-              <tr><td>Rapid experimentation</td><td>MMFashion</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
+    
     <footer>
       One-page research summary with direct links to official sites and papers, designed for clear cross-resource understanding.
     </footer>
