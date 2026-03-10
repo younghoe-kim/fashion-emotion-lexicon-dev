@@ -81,26 +81,43 @@
     }
 
     .sideBox{
-      padding: 18px;
+      padding: 20px;
       display:grid;
-      gap: 12px;
-      align-content:start;
+      gap: 14px;
+      align-content:stretch;
+      min-height: 320px;
     }
-
+    
     .action{
-      display:block;
-      padding: 16px 18px;
-      border-radius: 22px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      min-height: 92px;
+      padding: 20px 22px;
+      border-radius: 24px;
       text-decoration:none;
       color:inherit;
       background: linear-gradient(180deg, rgba(127,127,127,.10), rgba(127,127,127,.04));
       border:1px solid rgba(127,127,127,.18);
       transition: .22s ease;
     }
-    .action:hover{ transform: translateY(-2px) scale(1.015); }
-
-    .action strong{ display:block; margin-bottom: 4px; font-size: 16px; }
-    .action span{ color: var(--muted); font-size: 13px; }
+    
+    .action:hover{
+      transform: translateY(-2px) scale(1.015);
+    }
+    
+    .action strong{
+      display:block;
+      margin-bottom: 6px;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+    
+    .action span{
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+    }
 
     .grid{
       display:grid;
@@ -165,34 +182,34 @@
       </div>
       <div class="sideBox">
 
-          <a class="action"
-          href="/fashion-emotion-lexicon-dev/docs/Fashion_vision_resources_onepage.html"
-          target="_blank" rel="noopener noreferrer">
-          <strong>Papers & Sites</strong>
-          <span>Fashion Resources</span>
-          </a>
-          
-          <a class="action"
-          href="/fashion-emotion-lexicon-dev/comparisons/Datasets_Comparison.html"
-          target="_blank" rel="noopener noreferrer">
-          <strong>Comparison</strong>
-          <span>Comprehensive comparison</span>
-          </a>
-          
-          <a class="action"
-          href="/fashion-emotion-lexicon-dev/pipeline/DF1_FP_Pipeline.html"
-          target="_blank" rel="noopener noreferrer">
-          <strong>Pipeline</strong>
-          <span>DeepFashion ↔ Fashionpedia alignment pipeline for FEL</span>
-          </a>
-          
-          <a class="action"
-          href="https://younghoe-kim.github.io/fashion-emotion-lexicon-dev/"
-          target="_blank" rel="noopener noreferrer">
-          <strong>Published Site</strong>
-          <span>Open Pages root</span>
-          </a>
-
+      <a class="action"
+      href="/fashion-emotion-lexicon-dev/docs/Fashion_vision_resources_onepage.html"
+      target="_blank" rel="noopener noreferrer">
+      <strong>Papers & Sites</strong>
+      <span>Official papers, project websites, and a one-page research overview of the major fashion resources.</span>
+      </a>
+      
+      <a class="action"
+      href="/fashion-emotion-lexicon-dev/comparisons/Datasets_Comparison.html"
+      target="_blank" rel="noopener noreferrer">
+      <strong>Comparison</strong>
+      <span>A compact comparative view across DeepFashion, DeepFashion2, DeepFashion3D, MMFashion, and Fashionpedia.</span>
+      </a>
+      
+      <a class="action"
+      href="/fashion-emotion-lexicon-dev/pipeline/DF1_FP_Pipeline.html"
+      target="_blank" rel="noopener noreferrer">
+      <strong>Pipeline</strong>
+      <span>The DF1 ↔ Fashionpedia alignment workflow for FEL, from normalization to integration and review.</span>
+      </a>
+      
+      <a class="action"
+      href="https://younghoe-kim.github.io/fashion-emotion-lexicon-dev/"
+      target="_blank" rel="noopener noreferrer">
+      <strong>Published Site</strong>
+      <span>Open the full GitHub Pages site and browse the complete FEL project structure.</span>
+      </a>
+    
     </div>
     </section>
 
