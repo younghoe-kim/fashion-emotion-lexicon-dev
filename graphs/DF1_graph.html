@@ -6,68 +6,57 @@
   <title>DF1 Graph Interactive Editor (v4.3.3 zip-aligned)</title>
   <style>
     body{
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
       margin: 0;
       padding: 24px;
-      color: rgba(0,0,0,.88);
-      background: #f5f2eb;
+      color: #111;
+      background: #f9fafb;
     }
     .toolbar{
-      background: rgba(255,255,255,.72);
-      border:1px solid rgba(0,0,0,.10);
-      border-radius:18px;
+      background:#fff;
+      border:1px solid #ddd;
+      border-radius:14px;
       padding:16px;
       margin-bottom:16px;
       display:flex;
       gap:12px;
       flex-wrap:wrap;
       align-items:center;
-      box-shadow: 0 10px 30px rgba(0,0,0,.06);
-      backdrop-filter: blur(8px);
+      box-shadow: 0 1px 3px rgba(0,0,0,.06);
     }
     button, select{
       padding:10px 16px;
-      border-radius:12px;
-      border:1px solid rgba(0,0,0,.14);
-      background: rgba(255,255,255,.82);
+      border-radius:10px;
+      border:1px solid #111;
+      background:#fff;
       cursor:pointer;
       font-weight:600;
-      color: rgba(0,0,0,.86);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      transition:.18s ease;
     }
-    button:hover, select:hover{
-      background: rgba(255,255,255,.96);
-      border-color: rgba(0,0,0,.22);
-      transform: translateY(-1px);
-    }
+    button:hover{ background:#f6f6f6; }
     select{ padding-right: 32px; }
     .card{
-      border:1px solid rgba(0,0,0,.10);
-      border-radius:18px;
+      border:1px solid #ddd;
+      border-radius:14px;
       padding:16px;
-      background: rgba(255,255,255,.78);
-      box-shadow: 0 10px 30px rgba(0,0,0,.06);
+      background:#fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06);
       overflow:auto;
-      backdrop-filter: blur(8px);
     }
     .info{
-      background: rgba(255,248,220,.75);
-      border:1px solid rgba(180,140,40,.35);
+      background:#fef3c7;
+      border:1px solid #f59e0b;
       padding:12px 16px;
-      border-radius:14px;
+      border-radius:8px;
       margin-bottom:16px;
       font-size:13px;
-      color: rgba(0,0,0,.78);
     }
     .checkedPanel{
-      background: rgba(240,248,255,.78);
-      border:1px solid rgba(0,102,204,.20);
+      background:#ecfeff;
+      border:1px solid #06b6d4;
       padding:14px 16px;
-      border-radius:16px;
+      border-radius:10px;
       margin-bottom:16px;
       font-size:13px;
-      color: rgba(0,0,0,.82);
     }
     .checkedPanel h3{
       margin:0 0 10px 0;
@@ -82,29 +71,24 @@
     .checkedPanel li{ margin:4px 0; line-height:1.3; }
     .badge{
       display:inline-block;
-      padding:3px 9px;
+      padding:2px 8px;
       border-radius:999px;
       font-size:11px;
       font-weight:700;
-      border:1px solid rgba(0,0,0,.14);
-      background: rgba(255,255,255,.82);
+      border:1px solid #111;
+      background:#fff;
       margin-left:8px;
     }
-    .badge.ok{ border-color: rgba(22,163,74,.35); color: #15803d; }
-    .badge.meta{ border-color: rgba(2,132,199,.28); color: #0369a1; }
-    .badge.warn{ border-color: rgba(220,38,38,.28); color: #b91c1c; }
+    .badge.ok{ border-color:#16a34a; color:#16a34a; }
+    .badge.meta{ border-color:#0284c7; color:#0284c7; }
+    .badge.warn{ border-color:#dc2626; color:#dc2626; }
     #canvas{ cursor:grab; user-select:none; }
     #canvas.dragging{ cursor:grabbing; }
     .node-dragging{ cursor:move !important; }
     input[type="range"]{ width:120px; }
-    label{ font-size:13px; font-weight:600; margin-left:12px; color: rgba(0,0,0,.82); }
-    .muted{ color: rgba(0,0,0,.62); }
-    code{
-      background: rgba(0,0,0,.06);
-      padding:2px 6px;
-      border-radius:8px;
-      color: rgba(0,0,0,.82);
-    }
+    label{ font-size:13px; font-weight:600; margin-left:12px; }
+    .muted{ color:#334155; }
+    code{ background:#f1f5f9; padding:2px 6px; border-radius:6px; }
 
     /* error box (debug) */
     #errBox{
@@ -191,93 +175,27 @@
     <svg id="canvas" xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000">
       <defs>
         <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
-          <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(0,0,0,.78)"/>
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#111"/>
         </marker>
         <style>
-          .node {
-            fill: rgba(255,255,255,.96);
-            stroke: rgba(0,0,0,.78);
-            stroke-width:2;
-            cursor: move;
-          }
-          .node:hover {
-            stroke: rgba(0,0,0,.95);
-            stroke-width:2.6;
-          }
-          .nodeCenter {
-            fill: rgba(240,248,255,.96);
-            stroke: rgba(0,86,179,.78);
-            stroke-width:2.2;
-            cursor: move;
-          }
-          .nodeCenter:hover {
-            stroke: rgba(0,68,140,.92);
-            stroke-width:2.8;
-          }
-          .nodeMeta {
-            fill: rgba(255,247,237,.96);
-            stroke: rgba(194,102,32,.78);
-            stroke-width:2.2;
-            cursor: move;
-          }
-          .nodeMeta:hover {
-            stroke: rgba(160,82,20,.92);
-            stroke-width:2.8;
-          }
+          .node { fill:#fff; stroke:#111; stroke-width:2.2; cursor: move; }
+          .node:hover { stroke:#0066cc; stroke-width:3; }
+          .nodeCenter { fill:#f0f9ff; stroke:#0066cc; stroke-width:2.5; cursor: move; }
+          .nodeCenter:hover { stroke:#0044aa; stroke-width:3; }
+          .nodeMeta { fill:#fff7ed; stroke:#f97316; stroke-width:2.5; cursor: move; }
+          .nodeMeta:hover { stroke:#ea580c; stroke-width:3; }
 
-          .label {
-            font:700 13px Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-            fill: rgba(0,0,0,.88);
-            pointer-events:none;
-          }
-          .sub {
-            font:400 10.5px Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-            fill: rgba(0,0,0,.60);
-            pointer-events:none;
-          }
+          .label { font:700 13px system-ui; fill:#111; pointer-events:none; }
+          .sub { font:400 10.5px system-ui; fill:#555; pointer-events:none; }
 
-          .edge {
-            stroke: rgba(0,0,0,.78);
-            stroke-width:2;
-            fill:none;
-            marker-end:url(#arrow);
-          }
-          .edgeMeta {
-            stroke: rgba(0,0,0,.58);
-            stroke-width:1.9;
-            fill:none;
-            marker-end:url(#arrow);
-            stroke-dasharray:7 6;
-          }
+          .edge { stroke:#111; stroke-width:2.1; fill:none; marker-end:url(#arrow); }
+          .edgeMeta { stroke:#111; stroke-width:2.1; fill:none; marker-end:url(#arrow); stroke-dasharray:7 6; }
 
-          .edgeLabel {
-            font:600 11px Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-            fill: rgba(0,0,0,.84);
-            cursor: move;
-          }
-          .pill {
-            fill: rgba(245,245,245,.96);
-            stroke: rgba(0,0,0,.42);
-            stroke-width:1.2;
-            rx:999;
-            ry:999;
-            cursor: move;
-          }
-          .pill:hover {
-            fill: rgba(235,235,235,.98);
-          }
-          .pillMeta {
-            fill: rgba(245,245,245,.96);
-            stroke: rgba(0,0,0,.38);
-            stroke-width:1.2;
-            rx:999;
-            ry:999;
-            cursor: move;
-            stroke-dasharray:6 5;
-          }
-          .pillMeta:hover {
-            fill: rgba(235,235,235,.98);
-          }
+          .edgeLabel { font:600 11px system-ui; fill:#111; cursor: move; }
+          .pill { fill:#f3f4f6; stroke:#111; stroke-width:1.4; rx:999; ry:999; cursor: move; }
+          .pill:hover { fill:#e5e7eb; }
+          .pillMeta { fill:#f3f4f6; stroke:#111; stroke-width:1.4; rx:999; ry:999; cursor: move; stroke-dasharray:6 5; }
+          .pillMeta:hover { fill:#e5e7eb; }
         </style>
       </defs>
       <g id="edges"></g>
@@ -549,7 +467,7 @@
     var maxWidth = Math.max(30, (radius * 2) - paddingPx);
     if(!text) return [];
     var raw = String(text);
-    var tokens = raw.split(/\\s+/).filter(function(x){ return !!x; });
+    var tokens = raw.split(/\s+/).filter(function(x){ return !!x; });
     var lines = [];
     var line = "";
 
@@ -788,7 +706,7 @@
     svg.removeAttribute("style");
     var serializer = new XMLSerializer();
     var src = serializer.serializeToString(svg);
-    if(!src.match(/^<svg[^>]+xmlns="http\\:\\/\\/www\\.w3\\.org\\/2000\\/svg"/)){
+    if(!src.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
       src = src.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
     }
     var blob = new Blob([src], {type: "image/svg+xml;charset=utf-8"});
