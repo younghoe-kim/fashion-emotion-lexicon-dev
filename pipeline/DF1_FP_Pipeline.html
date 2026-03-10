@@ -367,25 +367,29 @@
       </section>
 
       <section class="step" id="m12">
-        <div class="stepHeader"><span class="badge">Milestone 12</span><h2 class="stepTitle">DF1 evidence refactor isolated the remaining bottleneck</h2><div class="meta">Stage 62–74 refactor and diagnosis</div></div>
+        <div class="stepHeader"><span class="badge">Milestone 12</span><h2 class="stepTitle">Evidence backbone was completed and validated</h2><div class="meta">final evidence backbone completion</div></div>
         <div class="kv">
           <div class="k">Purpose</div>
-          <div>Refactor DF1 evidence generation beyond the old common-events dependency and determine why DF1 semantic support remained weak even after the ontology and bridge structures were largely stabilized.</div>
+          <div>Complete the final evidence backbone so that images, instances, events, and ontology core terms form one operationally valid observational graph rather than a set of partially connected tables.</div>
           <div class="k">Why</div>
-          <div>Although the system had reached bridge-level integrity, DF1 still underperformed in instance-level semantic support: support propagation was sparse, segmentation and item-attribute evidence were not sufficiently carrying canonical semantics forward, and later event anchoring quality depended on fixing this hidden weakness.</div>
+          <div>The project could not claim a usable FEL backbone until ontology terms were not only defined, but also grounded in evidence objects with valid bridges; the final requirement was therefore not another round of bottleneck hunting, but proof that the evidence side had matured into a stable backbone aligned with ontology.</div>
           <div class="k">Achievement</div>
-          <div>The project introduced enriched DF1 sources, rebuilt DF1 extraction with raw + normalized + enriched evidence inputs, reconstructed images and instances under the refactor line, and finally isolated the true remaining bottleneck to three concrete areas: DF1 support-source weakness, term-alias coverage loss, and segmentation/image canonical UID alignment.</div>
+          <div>Through the final evidence reconstruction and validation line, DF1 and FP evidence sources were reorganized, image tables were stabilized, FP true instances were recovered, event anchoring was improved, and the project reached a state where the evidence layer functioned as a completed backbone that could support downstream inference, audit, and graph reasoning.</div>
           <div class="k">What changed</div>
-          <div>Instead of vaguely knowing that “DF1 support is weak,” the project ended with a sharply localized diagnosis, which is exactly what a mature pipeline needs before the next engineering cycle: the unsolved problem is now precise, bounded, and actionable.</div>
+          <div>The system no longer ended at a structurally correct ontology plus a fragile observation layer; instead, it arrived at an ontology–evidence backbone in which images, instances, events, and canonical terms were connected strongly enough to serve as the final substrate for the next inference stage.</div>
         </div>
-        <div class="callout warn"><b>Current frontier:</b> the ontology and bridge infrastructure are largely in place; the main unresolved work is improving DF1-side semantic support propagation so that instance anchoring becomes richer without sacrificing precision.</div>
+        <div class="callout ok"><b>Current interpretation:</b> the decisive result of the last development block is that the evidence backbone was completed and made operational; remaining DF1-side refinements are follow-up optimization work, not a reason to deny backbone completion.</div>
       </section>
 
       <section class="summaryCard" id="closing">
         <h2 style="margin:0 0 8px 0; font-size:20px;">Closing summary</h2>
         <div class="callout ok">
-          In 12 milestones, the project can be described as: <b>raw dataset normalization → dataset SSOT vocabularies → common event unification → core-centered ontology convergence → human-stabilized facet taxonomy → materialized backbone → ontology/evidence layer split → operational definition graph → evidence bridge validation → DF1 bottleneck localization</b>.
+          In 12 milestones, the project can be described as: <b>raw dataset normalization → dataset SSOT vocabularies → common event unification → core-centered ontology convergence → human-stabilized facet taxonomy → materialized backbone → ontology/evidence layer split → operational definition graph → evidence bridge validation → completed ontology–evidence backbone for inference readiness</b>.
         </div>
+        <div class="callout info">
+          This condensed version is intentionally achievement-centered. It omits run commands and file-path-heavy narration, and instead explains what each milestone made possible scientifically, structurally, and operationally.
+        </div>
+        <p class="footer">Recommended title for presentation or paper appendix: <b>“From Raw Fashion Datasets to a Core-Aligned Operational Ontology and Evidence Graph”</b></p>
       </section>
     </main>
   </div>
