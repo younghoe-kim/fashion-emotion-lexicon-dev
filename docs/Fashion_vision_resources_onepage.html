@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Fashion Vision Resources — One-Page Research Overview</title>
+  <style>
+    :root{
+      color-scheme: light dark;
+      --bg: #0b0b0d;
+      --panel: rgba(255,255,255,.04);
+      --panel-strong: rgba(255,255,255,.06);
+      --border: rgba(255,255,255,.12);
+      --text: rgba(255,255,255,.94);
+      --muted: rgba(255,255,255,.68);
+      --accent: rgba(255,255,255,.16);
+      --shadow: 0 20px 60px rgba(0,0,0,.28);
+    }
+    @media (prefers-color-scheme: light){
+      :root{
+        --bg: #f5f2eb;
+        --panel: rgba(0,0,0,.03);
+        --panel-strong: rgba(0,0,0,.05);
+        --border: rgba(0,0,0,.10);
+        --text: rgba(0,0,0,.92);
+        --muted: rgba(0,0,0,.58);
+        --accent: rgba(0,0,0,.14);
+        --shadow: 0 18px 50px rgba(0,0,0,.08);
+      }
+    }
+
+    *{ box-sizing:border-box; }
+    html{ scroll-behavior:smooth; }
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1000px 520px at 0% 0%, rgba(255,255,255,.09), transparent 55%),
+        radial-gradient(900px 520px at 100% 12%, rgba(255,255,255,.06), transparent 45%),
+        linear-gradient(180deg, var(--bg), var(--bg));
+      line-height:1.6;
+      padding:36px 18px 70px;
+    }
+
+    .wrap{ max-width:1120px; margin:0 auto; }
+
+    .hero{
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap:18px;
+      margin-bottom:18px;
+    }
+    @media (max-width: 980px){
+      .hero{ grid-template-columns: 1fr; }
+    }
+
+    .heroMain, .heroSide, .section{
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, var(--panel-strong), var(--panel));
+      border-radius:30px;
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .heroMain{
+      padding:30px;
+      min-height:320px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+    }
+    .heroSide{
+      padding:18px;
+      display:grid;
+      gap:12px;
+      align-content:start;
+    }
+
+    .kicker{
+      font-size:12px;
+      letter-spacing:.22em;
+      text-transform:uppercase;
+      color:var(--muted);
+      margin-bottom:12px;
+    }
+    h1{
+      margin:0;
+      font-size:clamp(40px, 7vw, 74px);
+      line-height:.94;
+      letter-spacing:-.05em;
+      font-weight:800;
+      max-width:700px;
+    }
+    .heroText{
+      max-width:700px;
+      color:var(--muted);
+      font-size:15px;
+      margin-top:14px;
+    }
+
+    .chips{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:18px;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .miniCard{
+      display:block;
+      text-decoration:none;
+      color:inherit;
+      padding:18px 18px;
+      border-radius:22px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      transition: transform .18s ease, border-color .18s ease, background .18s ease;
+    }
+    .miniCard:hover{
+      transform: translateY(-2px) scale(1.01);
+      border-color: var(--accent);
+      background: rgba(255,255,255,.05);
+    }
+    .miniCard strong{
+      display:block;
+      font-size:16px;
+      margin-bottom:4px;
+      letter-spacing:-.02em;
+    }
+    .miniCard span{
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .section{
+      padding:22px;
+      margin-top:18px;
+    }
+    .section h2{
+      margin:0 0 14px;
+      font-size:13px;
+      text-transform:uppercase;
+      letter-spacing:.16em;
+      color:var(--muted);
+    }
+
+    .resourceGrid{
+      display:grid;
+      grid-template-columns: repeat(5, minmax(0,1fr));
+      gap:12px;
+    }
+    @media (max-width: 1120px){
+      .resourceGrid{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+    }
+    @media (max-width: 680px){
+      .resourceGrid{ grid-template-columns: 1fr; }
+    }
+
+    .resource{
+      border:1px solid var(--border);
+      border-radius:24px;
+      padding:18px;
+      background: rgba(255,255,255,.03);
+      transition: transform .18s ease, border-color .18s ease;
+    }
+    .resource:hover{
+      transform: translateY(-2px);
+      border-color: var(--accent);
+    }
+    .resource h3{
+      margin:0 0 4px;
+      font-size:20px;
+      letter-spacing:-.03em;
+    }
+    .sub{
+      margin:0 0 12px;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .kv{
+      display:grid;
+      gap:8px;
+      margin-top:10px;
+    }
+    .kv div{
+      font-size:13px;
+      color:var(--muted);
+    }
+    .kv b{
+      color:var(--text);
+      font-weight:600;
+    }
+    .links{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+    .links a{
+      text-decoration:none;
+      color:inherit;
+      font-size:12px;
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.04);
+    }
+    .links a:hover{ border-color: var(--accent); }
+
+    .tableWrap{
+      overflow:auto;
+      border-radius:20px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.02);
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:920px;
+      font-size:13px;
+    }
+    th, td{
+      border-bottom:1px solid var(--border);
+      padding:12px 14px;
+      text-align:left;
+      vertical-align:top;
+    }
+    th{
+      position:sticky;
+      top:0;
+      background: rgba(255,255,255,.05);
+      font-weight:700;
+    }
+    td:first-child, th:first-child{
+      min-width: 170px;
+      font-weight:600;
+    }
+
+    .duo{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:18px;
+    }
+    @media (max-width: 900px){
+      .duo{ grid-template-columns: 1fr; }
+    }
+
+    .essay{
+      border:1px solid var(--border);
+      border-radius:22px;
+      padding:18px;
+      background: rgba(255,255,255,.025);
+    }
+    .essay h3{
+      margin:0 0 10px;
+      font-size:18px;
+      letter-spacing:-.02em;
+    }
+    .essay p{
+      margin:10px 0;
+      color:var(--muted);
+      font-size:14px;
+    }
+    .essay strong{ color:var(--text); }
+
+    .listTable{
+      width:100%;
+      border-collapse:collapse;
+      font-size:14px;
+      min-width: auto;
+    }
+    .listTable td, .listTable th{
+      padding:11px 0;
+      border-bottom:1px solid var(--border);
+      text-align:left;
+      vertical-align:top;
+    }
+    .listTable th{
+      background:none;
+      position:static;
+      color:var(--muted);
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      font-weight:700;
+    }
+
+    footer{
+      margin-top:18px;
+      color:var(--muted);
+      font-size:12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <section class="hero">
+      <div class="heroMain">
+        <div>
+          <div class="kicker">Fashion Vision Resources</div>
+          <h1>From Recognition to Geometry</h1>
+          <p class="heroText">
+            A one-page, research-oriented overview of the major fashion vision resources:
+            DeepFashion, DeepFashion2, DeepFashion3D, MMFashion, and Fashionpedia.
+            This synthesis integrates dataset scope, benchmark role, annotation philosophy,
+            and how each resource relates to the Fashion Emotion Lexicon (FEL).
+          </p>
+        </div>
+
+        <div class="chips">
+          <span class="chip">Appearance</span>
+          <span class="chip">Structure</span>
+          <span class="chip">Semantics</span>
+          <span class="chip">Geometry</span>
+          <span class="chip">Engineering</span>
+        </div>
+      </div>
+
+      <div class="heroSide">
+        <a class="miniCard" href="#comparison">
+          <strong>Master Comparison</strong>
+          <span>One compact, publication-ready comparison across all five resources.</span>
+        </a>
+        <a class="miniCard" href="#papers">
+          <strong>Paper Detail Table</strong>
+          <span>Core paper goals, contributions, tasks, and strongest evidence.</span>
+        </a>
+        <a class="miniCard" href="#fel">
+          <strong>Relationship to FEL</strong>
+          <span>How each resource functions inside a unified fashion knowledge framework.</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Resource Profiles</h2>
+      <div class="resourceGrid">
+        <article class="resource">
+          <h3>DeepFashion</h3>
+          <p class="sub">Dataset + model · 2016 / CVPR</p>
+          <div class="kv">
+            <div><b>Focus:</b> large-scale 2D clothing recognition and retrieval</div>
+            <div><b>Scale:</b> 800K+ images</div>
+            <div><b>Strength:</b> rich categories, 1K attributes, landmarks, paired retrieval images</div>
+            <div><b>Best for:</b> attribute learning, landmark-aware recognition, retrieval</div>
+          </div>
+          <div class="links">
+            <a href="https://mmlab.ie.cuhk.edu.hk/projects/DeepFashion.html" target="_blank" rel="noopener noreferrer">Site</a>
+            <a href="https://ieeexplore.ieee.org/document/7780493" target="_blank" rel="noopener noreferrer">Paper</a>
+          </div>
+        </article>
+
+        <article class="resource">
+          <h3>DeepFashion2</h3>
+          <p class="sub">Dataset + benchmark · 2019 / CVPR</p>
+          <div class="kv">
+            <div><b>Focus:</b> detection, pose, segmentation, re-identification</div>
+            <div><b>Scale:</b> 491K images / 801K garments</div>
+            <div><b>Strength:</b> dense landmarks, masks, deformation labels, same-clothing pairs</div>
+            <div><b>Best for:</b> multi-task clothing understanding in the wild</div>
+          </div>
+          <div class="links">
+            <a href="https://github.com/switchablenorms/DeepFashion2" target="_blank" rel="noopener noreferrer">Site</a>
+            <a href="https://arxiv.org/pdf/1901.07973" target="_blank" rel="noopener noreferrer">Paper</a>
+          </div>
+        </article>
+
+        <article class="resource">
+          <h3>DeepFashion3D</h3>
+          <p class="sub">Dataset + methodology · 2020 / CVPR</p>
+          <div class="kv">
+            <div><b>Focus:</b> single-image 3D garment reconstruction</div>
+            <div><b>Scale:</b> 200K+ images / 2,078 3D models</div>
+            <div><b>Strength:</b> mesh, UV, texture, camera/pose, geometry-grounded evaluation</div>
+            <div><b>Best for:</b> 3D reconstruction, registration, virtual try-on simulation</div>
+          </div>
+          <div class="links">
+            <a href="https://kv2000.github.io/2023/06/20/deepFashion3DV2/" target="_blank" rel="noopener noreferrer">Site</a>
+            <a href="https://www.ecva.net/papers/eccv_2020/papers_ECCV/papers/123460494-supp.pdf" target="_blank" rel="noopener noreferrer">Paper</a>
+          </div>
+        </article>
+
+        <article class="resource">
+          <h3>MMFashion</h3>
+          <p class="sub">Platform / toolkit · 2020 / arXiv</p>
+          <div class="kv">
+            <div><b>Focus:</b> unified execution framework for fashion vision tasks</div>
+            <div><b>Scale:</b> no proprietary dataset</div>
+            <div><b>Strength:</b> modular engineering, reusable heads, fast experiment pipeline</div>
+            <div><b>Best for:</b> implementation, benchmarking, reproducible experimentation</div>
+          </div>
+          <div class="links">
+            <a href="https://github.com/open-mmlab/mmfashion" target="_blank" rel="noopener noreferrer">Site</a>
+            <a href="https://arxiv.org/pdf/2005.08847" target="_blank" rel="noopener noreferrer">Paper</a>
+          </div>
+        </article>
+
+        <article class="resource">
+          <h3>Fashionpedia</h3>
+          <p class="sub">Ontology + dataset · 2020 / CVPR</p>
+          <div class="kv">
+            <div><b>Focus:</b> ontology, segmentation, attribute localization</div>
+            <div><b>Scale:</b> 48K+ images / 200K+ objects</div>
+            <div><b>Strength:</b> explicit category–part–attribute structure</div>
+            <div><b>Best for:</b> part-aware parsing, ontology-driven reasoning, localization</div>
+          </div>
+          <div class="links">
+            <a href="https://fashionpedia.github.io/home/" target="_blank" rel="noopener noreferrer">Site</a>
+            <a href="https://arxiv.org/pdf/2004.12276" target="_blank" rel="noopener noreferrer">Paper</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="comparison">
+      <h2>Comprehensive Comparison</h2>
+      <div class="tableWrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>DeepFashion</th>
+              <th>DeepFashion2</th>
+              <th>DeepFashion3D</th>
+              <th>MMFashion</th>
+              <th>Fashionpedia</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Resource Type</td><td>Dataset + Model</td><td>Dataset + Benchmark</td><td>Dataset + Methodology</td><td>Platform / Toolkit</td><td>Ontology + Dataset</td></tr>
+            <tr><td>Year / Venue</td><td>2016 / CVPR</td><td>2019 / CVPR</td><td>2020 / CVPR</td><td>2020 / arXiv</td><td>2020 / CVPR</td></tr>
+            <tr><td>Primary Goal</td><td>Large-scale 2D clothing recognition & retrieval</td><td>Real-world, multi-task fashion understanding</td><td>Single-image 3D garment reconstruction</td><td>Unified execution framework for fashion vision tasks</td><td>Structuring fashion knowledge via explicit ontology</td></tr>
+            <tr><td>Data Dimensionality</td><td>2D images</td><td>2D multi-instance scenes</td><td>3D meshes + images</td><td>2D framework using external datasets</td><td>2D pixel-level annotations</td></tr>
+            <tr><td>Dataset Scale</td><td>800K+ images</td><td>491K images / 801K garments</td><td>200K+ images / 2,078 3D models</td><td>No proprietary dataset</td><td>48K+ images</td></tr>
+            <tr><td>Core Annotations</td><td>Category, 1K attributes, sparse landmarks, paired images</td><td>BBox, mask, dense landmarks (39), pose, pairing, deformation levels</td><td>Mesh, UV, camera, pose, feature lines, texture</td><td>Models, configs, pipelines</td><td>Instance, part, attribute, mask, ontology</td></tr>
+            <tr><td>Main Tasks</td><td>Classification, retrieval, attribute prediction</td><td>Detection, pose, segmentation, Re-ID</td><td>3D reconstruction, registration, texture recovery</td><td>Attribute, retrieval, parsing, compatibility</td><td>Detection, segmentation, attribute localization</td></tr>
+            <tr><td>Major Strength</td><td>First large-scale fashion dataset with rich annotations</td><td>Real-world complexity and multi-task scope</td><td>Provides true 3D structural evidence</td><td>Easy experimentation and extensibility</td><td>Explicit semantic structure of fashion</td></tr>
+            <tr><td>Main Limitation</td><td>Lacks structural and semantic depth</td><td>Limited semantic / ontological reasoning</td><td>Computationally heavy, frontal bias</td><td>Limited theoretical contribution as a data resource</td><td>No aesthetic or emotional modeling</td></tr>
+            <tr><td>Best Use</td><td>Attribute learning, retrieval</td><td>Detection, pose, segmentation, re-ID</td><td>3D garment reconstruction</td><td>Rapid implementation and benchmarking</td><td>Part-aware parsing and attribute localization</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="papers">
+      <h2>Paper Detail Table</h2>
+      <div class="tableWrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Resource</th>
+              <th>Core Paper Contribution</th>
+              <th>What It Adds Beyond Earlier Resources</th>
+              <th>Most Defining Evidence</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>DeepFashion</td>
+              <td>Introduces a very large 2D fashion dataset and FashionNet, which jointly learns attributes and landmarks.</td>
+              <td>Moves the field from small, weakly annotated collections to rich, large-scale supervised clothing understanding.</td>
+              <td>800K+ images, 1K attributes, 300K+ consumer–shop pairs, landmark-aware recognition and retrieval gains.</td>
+            </tr>
+            <tr>
+              <td>DeepFashion2</td>
+              <td>Builds a clothing-centered multi-task benchmark for detection, pose, segmentation, and re-ID under realistic variation.</td>
+              <td>Adds dense landmarks, masks, deformation labels, and integrated evaluation under occlusion, zoom, and overlap.</td>
+              <td>491K images, 801K+ items, 39 landmarks, 873K same-clothing pairs, stronger real-scene benchmark design.</td>
+            </tr>
+            <tr>
+              <td>DeepFashion3D</td>
+              <td>Shifts from 2D appearance to true 3D garment geometry with reconstruction, registration, and texture recovery tasks.</td>
+              <td>Introduces mesh-level supervision, UV space, and physically meaningful garment geometry.</td>
+              <td>200K+ images, 2,078 3D garments, mesh/UV/texture annotations, Chamfer and 3D IoU evaluation.</td>
+            </tr>
+            <tr>
+              <td>MMFashion</td>
+              <td>Provides a unified PyTorch toolbox covering major fashion vision tasks through modular engineering design.</td>
+              <td>Does not mainly add a new dataset; instead it operationalizes task development and experimentation at scale.</td>
+              <td>Shared backbone–head framework, config-driven pipeline, support for attribute, retrieval, parsing, and compatibility tasks.</td>
+            </tr>
+            <tr>
+              <td>Fashionpedia</td>
+              <td>Introduces the first large-scale benchmark integrating categories, parts, attributes, and ontology structure.</td>
+              <td>Adds explicit semantic structure and part-level attribute localization beyond image-level labels.</td>
+              <td>27 categories, 19 parts, 46 attributes, pixel-level masks, ontology-aware evaluation and localization tasks.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="fel">
+      <h2>How These Resources Relate to FEL</h2>
+      <div class="duo">
+        <div class="essay">
+          <h3>Integrated View</h3>
+          <p>
+            In FEL, these resources are not treated as redundant competitors. They act as <strong>complementary evidence layers</strong>
+            contributing different kinds of knowledge about fashion items.
+          </p>
+          <p>
+            <strong>DeepFashion</strong> anchors the system in <strong>2D appearance evidence</strong>: category, attribute, landmark, and paired retrieval supervision.
+            <strong>DeepFashion2</strong> strengthens this with <strong>structure-aware real-world evidence</strong>, especially detection, dense landmarks,
+            segmentation, and re-identification under difficult conditions.
+          </p>
+          <p>
+            <strong>Fashionpedia</strong> provides the <strong>semantic grounding layer</strong> by explicitly organizing categories, parts, and attributes into a more ontology-like structure.
+            <strong>DeepFashion3D</strong> extends the system into <strong>physical garment geometry</strong>, supplying pose-aware 3D evidence rather than only 2D appearance.
+            <strong>MMFashion</strong> serves as the <strong>engineering layer</strong>, helping operationalize experiments and benchmark implementations across tasks.
+          </p>
+        </div>
+        <div class="essay">
+          <h3>FEL Role Summary</h3>
+          <p><strong>DeepFashion</strong>: “What is visible?”</p>
+          <p><strong>DeepFashion2</strong>: “How is it arranged under real-world conditions?”</p>
+          <p><strong>Fashionpedia</strong>: “Which part has which meaning or property?”</p>
+          <p><strong>DeepFashion3D</strong>: “What is the garment’s physical form?”</p>
+          <p><strong>MMFashion</strong>: “How do we implement, benchmark, and iterate efficiently?”</p>
+          <p style="color:var(--muted);">
+            From an FEL perspective, the progression is:
+            <strong>appearance → structure → semantics → geometry</strong>,
+            while the toolkit layer enables reproducible experimentation around all of them.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Conceptual Evolution and Research Fit</h2>
+      <div class="duo">
+        <div>
+          <table class="listTable">
+            <thead>
+              <tr><th>Stage</th><th>Resource</th><th>Key Question</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Appearance Level</td><td>DeepFashion</td><td>What clothing is visible?</td></tr>
+              <tr><td>Structural 2D Level</td><td>DeepFashion2</td><td>Where are items and parts under realistic variation?</td></tr>
+              <tr><td>Semantic-Part Level</td><td>Fashionpedia</td><td>Which part has which attribute?</td></tr>
+              <tr><td>Geometric 3D Level</td><td>DeepFashion3D</td><td>What is the actual garment shape?</td></tr>
+              <tr><td>Engineering Layer</td><td>MMFashion</td><td>How do we implement and evaluate efficiently?</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <table class="listTable">
+            <thead>
+              <tr><th>Research Goal</th><th>Recommended Resource</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Attribute learning</td><td>DeepFashion, Fashionpedia</td></tr>
+              <tr><td>Detection in complex scenes</td><td>DeepFashion2, Fashionpedia</td></tr>
+              <tr><td>Landmark / garment pose</td><td>DeepFashion2</td></tr>
+              <tr><td>Part-based reasoning</td><td>Fashionpedia</td></tr>
+              <tr><td>Retrieval / Re-ID</td><td>DeepFashion, DeepFashion2</td></tr>
+              <tr><td>Virtual try-on / simulation</td><td>DeepFashion3D</td></tr>
+              <tr><td>Rapid experimentation</td><td>MMFashion</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      One-page research summary with direct links to official sites and papers, designed for clear cross-resource understanding.
+    </footer>
+  </div>
+</body>
+</html>
