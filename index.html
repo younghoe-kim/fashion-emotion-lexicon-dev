@@ -3,245 +3,206 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>FEL — Docs & Graphs</title>
-
+  <title>FEL — Portal</title>
   <style>
     :root{
       color-scheme: light dark;
-      --border: rgba(127,127,127,.22);
-      --border2: rgba(127,127,127,.32);
-      --text: rgba(255,255,255,.92);
-      --muted: rgba(255,255,255,.70);
-      --shadow: 0 10px 30px rgba(0,0,0,.18);
-      --shadowHover: 0 18px 45px rgba(0,0,0,.28);
-      --radius: 20px;
+      --text: rgba(255,255,255,.94);
+      --muted: rgba(255,255,255,.68);
+      --border: rgba(127,127,127,.24);
+      --accent: rgba(127,127,127,.14);
     }
     @media (prefers-color-scheme: light){
       :root{
-        --text: rgba(0,0,0,.88);
-        --muted: rgba(0,0,0,.62);
-        --shadow: 0 10px 30px rgba(0,0,0,.08);
-        --shadowHover: 0 18px 45px rgba(0,0,0,.12);
+        --text: rgba(0,0,0,.92);
+        --muted: rgba(0,0,0,.58);
+        --accent: rgba(127,127,127,.08);
       }
     }
 
-    *{ box-sizing: border-box; }
+    *{ box-sizing:border-box; }
     body{
       margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      line-height: 1.5;
-      color: var(--text);
+      min-height:100vh;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      color:var(--text);
       background:
-        radial-gradient(1200px 800px at 20% 10%, rgba(127,127,127,.14), transparent 60%),
-        radial-gradient(1000px 700px at 90% 20%, rgba(127,127,127,.12), transparent 55%),
-        radial-gradient(900px 650px at 50% 95%, rgba(127,127,127,.10), transparent 60%);
-      padding: 34px 18px 54px;
-      min-height: 100vh;
+        conic-gradient(from 180deg at 50% 50%, rgba(127,127,127,.05), transparent 25%, rgba(127,127,127,.08), transparent 60%, rgba(127,127,127,.04)),
+        linear-gradient(180deg, rgba(127,127,127,.03), rgba(127,127,127,.01));
+      padding: 22px;
     }
 
-    .wrap{ max-width: 1040px; margin: 0 auto; }
+    .wrap{ max-width: 1200px; margin: 0 auto; }
 
-    header{
+    .hero{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+    @media (max-width: 960px){
+      .hero{ grid-template-columns: 1fr; }
+    }
+
+    .titleBox, .sideBox, .panel{
+      border:1px solid var(--border);
+      border-radius: 32px;
+      background: rgba(127,127,127,.04);
+    }
+
+    .titleBox{
+      padding: 26px;
+      min-height: 280px;
       display:flex;
-      align-items:flex-end;
+      flex-direction:column;
       justify-content:space-between;
-      gap: 14px;
-      flex-wrap: wrap;
-      margin-bottom: 22px;
     }
-    .brand{ display:flex; flex-direction: column; gap: 6px; min-width: 260px; }
-    .kicker{
-      font-size: 12px;
-      letter-spacing: .18em;
-      text-transform: uppercase;
-      opacity: .75;
-    }
-    h1{ margin:0; font-size: 28px; letter-spacing: -0.02em; }
 
-    .actions{ display:flex; gap:10px; align-items:center; }
-    .btn{
-      padding: 8px 14px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: rgba(127,127,127,.06);
+    .eyebrow{
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .2em;
+      color: var(--muted);
+    }
+
+    .titleBox h1{
+      margin: 0;
+      font-size: clamp(44px, 10vw, 90px);
+      line-height: .9;
+      letter-spacing: -.06em;
+      font-weight: 800;
+    }
+
+    .titleBox p{
+      margin: 0;
+      max-width: 540px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .sideBox{
+      padding: 18px;
+      display:grid;
+      gap: 12px;
+      align-content:start;
+    }
+
+    .action{
+      display:block;
+      padding: 16px 18px;
+      border-radius: 22px;
       text-decoration:none;
       color:inherit;
-      transition:.2s;
+      background: linear-gradient(180deg, rgba(127,127,127,.10), rgba(127,127,127,.04));
+      border:1px solid rgba(127,127,127,.18);
+      transition: .22s ease;
     }
-    .btn:hover{
-      transform:scale(1.05);
-      border-color:var(--border2);
-    }
+    .action:hover{ transform: translateY(-2px) scale(1.015); }
+
+    .action strong{ display:block; margin-bottom: 4px; font-size: 16px; }
+    .action span{ color: var(--muted); font-size: 13px; }
 
     .grid{
       display:grid;
       grid-template-columns: 1fr 1fr;
-      gap: 14px;
+      gap: 18px;
     }
-    @media (max-width: 920px){ .grid{ grid-template-columns: 1fr; } }
-
-    .section{
-      border: 1px solid var(--border);
-      background: rgba(127,127,127,.045);
-      border-radius: var(--radius);
-      padding: 16px;
-      backdrop-filter: blur(6px);
+    @media (max-width: 960px){
+      .grid{ grid-template-columns: 1fr; }
     }
 
-    .sectionHead{
-      display:flex;
-      justify-content:space-between;
-      margin-bottom: 12px;
-    }
-    h2{
-      margin:0;
+    .panel{ padding: 20px; }
+
+    .panel h2{
+      margin: 0 0 14px;
       font-size: 14px;
-      font-weight: 800;
       text-transform: uppercase;
+      letter-spacing: .14em;
+      color: var(--muted);
     }
 
-    .cards{
+    .stack{
       display:grid;
-      gap:10px;
+      gap: 12px;
     }
 
-    a.card{
+    .link{
       display:flex;
       justify-content:space-between;
       align-items:center;
-      padding: 12px;
-      border-radius: 16px;
-      border: 1px solid rgba(127,127,127,.20);
-      background: linear-gradient(180deg, rgba(127,127,127,.07), rgba(127,127,127,.03));
+      gap: 14px;
+      padding: 16px 18px;
+      border-radius: 20px;
       text-decoration:none;
       color:inherit;
-      box-shadow: var(--shadow);
-      transition:.2s;
+      background: rgba(127,127,127,.05);
+      border:1px solid rgba(127,127,127,.18);
+      transition:.22s ease;
+    }
+    .link:hover{
+      transform: translateX(4px) scale(1.01);
+      background: rgba(127,127,127,.08);
     }
 
-    a.card:hover{
-      transform: translateY(-2px) scale(1.02);
-      box-shadow: var(--shadowHover);
-      border-color:var(--border2);
+    .link strong{ font-size: 15px; }
+    .tag{
+      font-size: 11px;
+      color: var(--muted);
+      border:1px solid rgba(127,127,127,.22);
+      padding: 5px 9px;
+      border-radius: 999px;
+      white-space: nowrap;
     }
-
-    .title{
-      font-weight:600;
-      font-size:14px;
-    }
-
-    .badge{
-      font-size:11px;
-      padding:4px 10px;
-      border-radius:999px;
-      border:1px solid rgba(127,127,127,.28);
-      background:rgba(127,127,127,.08);
-    }
-
   </style>
 </head>
-
 <body>
-<div class="wrap">
+  <div class="wrap">
+    <section class="hero">
+      <div class="titleBox">
+        <div class="eyebrow">FEL Project</div>
+        <h1>Fashion<br>Emotion & Aesthetics<br>Lexicon</h1>
+        <p>A research portal for normalized datasets, graph interfaces, cross-dataset interpretation and pipeline.</p>
+      </div>
 
-<header>
-  <div class="brand">
-    <div class="kicker">Fashion Emotion Lexicon</div>
-    <h1>Docs & Graphs</h1>
+      <div class="sideBox">
+        <a class="action" href="docs/DF1_FP_Pipeline_Steps_0_7.html" target="_blank" rel="noopener noreferrer">
+          <strong>Pipeline</strong>
+          <span>DF1 ↔ FP alignment workflow</span>
+        </a>
+        <a class="action" href="comparisons/Datasets_Comparison.html" target="_blank" rel="noopener noreferrer">
+          <strong>Comparison</strong>
+          <span>Comprehensive comparison of datasets</span>
+        </a>
+        <a class="action" href="https://younghoe-kim.github.io/fashion-emotion-lexicon-dev/" target="_blank" rel="noopener noreferrer">
+          <strong>Published Site</strong>
+          <span>Open GitHub Pages root</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="panel">
+        <h2>Reports</h2>
+        <div class="stack">
+          <a class="link" href="docs/DF1_FEL_Normalized_Dataset.html" target="_blank" rel="noopener noreferrer"><strong>DF1 — FEL Normalized Dataset</strong><span class="tag">Open</span></a>
+          <a class="link" href="docs/DF2_FEL_Normalized_Dataset.html" target="_blank" rel="noopener noreferrer"><strong>DF2 — FEL Normalized Dataset</strong><span class="tag">Open</span></a>
+          <a class="link" href="docs/DF3_FEL_Normalized_Dataset.html" target="_blank" rel="noopener noreferrer"><strong>DF3 — FEL Normalized Dataset</strong><span class="tag">Open</span></a>
+          <a class="link" href="docs/MMF_FEL_Normalized_Dataset.html" target="_blank" rel="noopener noreferrer"><strong>MMF — FEL Normalized Dataset</strong><span class="tag">Open</span></a>
+          <a class="link" href="docs/FP_FEL_Normalized_Dataset.html" target="_blank" rel="noopener noreferrer"><strong>Fashionpedia — FEL Normalized Dataset</strong><span class="tag">Open</span></a>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Graphs</h2>
+        <div class="stack">
+          <a class="link" href="graphs/DF1_graph.html" target="_blank" rel="noopener noreferrer"><strong>DF1 Graph</strong><span class="tag">Open</span></a>
+          <a class="link" href="graphs/DF2_graph.html" target="_blank" rel="noopener noreferrer"><strong>DF2 Graph</strong><span class="tag">Open</span></a>
+          <a class="link" href="graphs/DF3_graph.html" target="_blank" rel="noopener noreferrer"><strong>DF3 Graph</strong><span class="tag">Open</span></a>
+          <a class="link" href="graphs/MMF_graph.html" target="_blank" rel="noopener noreferrer"><strong>MMF Graph</strong><span class="tag">Open</span></a>
+          <a class="link" href="graphs/FP_graph.html" target="_blank" rel="noopener noreferrer"><strong>FP Graph</strong><span class="tag">Open</span></a>
+        </div>
+      </div>
+    </section>
   </div>
-  <div class="actions">
-    <a class="btn" href="https://younghoe-kim.github.io/fashion-emotion-lexicon-dev/" target="_blank">Site ↗</a>
-  </div>
-</header>
-
-<div class="grid">
-
-  <!-- LEFT COLUMN -->
-  <section class="section">
-    <div class="sectionHead">
-      <h2>Reports</h2>
-    </div>
-
-    <div class="cards">
-
-      <a class="card" href="1.DF1_FEL_Normalized_Dataset.html" target="_blank">
-        <div class="title">DF1 — FEL Normalized Dataset</div>
-        <span class="badge">Open</span>
-      </a>
-
-      <a class="card" href="2.DF2_FEL_Normalized_Dataset.html" target="_blank">
-        <div class="title">DF2 — FEL Normalized Dataset</div>
-        <span class="badge">Open</span>
-      </a>
-
-      <a class="card" href="3.DF3_FEL_Normalized_Dataset.html" target="_blank">
-        <div class="title">DF3 — FEL Normalized Dataset</div>
-        <span class="badge">Open</span>
-      </a>
-
-      <a class="card" href="4.MMF_FEL_Normalized_Dataset.html" target="_blank">
-        <div class="title">MMF — FEL Normalized Dataset</div>
-        <span class="badge">Open</span>
-      </a>
-
-      <a class="card" href="5.FP_FEL_Normalized_Dataset.html" target="_blank">
-        <div class="title">Fashionpedia — FEL Normalized Dataset</div>
-        <span class="badge">Open</span>
-      </a>
-
-      <!-- NEW: 동일 카드 스타일 -->
-      <a class="card" href="12.Comparison.html" target="_blank">
-        <div class="title">Comprehensive Comparison of Datasets</div>
-        <span class="badge">Open</span>
-      </a>
-
-    </div>
-  </section>
-
-  <!-- RIGHT COLUMN -->
-  <section class="section">
-    <div class="sectionHead">
-      <h2>Graphs</h2>
-    </div>
-
-    <div class="cards">
-
-      <!-- moved pipeline here -->
-      
-      <a class="card" href="7.DF1-3.html" target="_blank">
-        <div class="title">DF1 Graph</div>
-        <span class="badge">Open</span>
-      </a>
-
-      <a class="card" href="8.DF2-1.html" target="_blank">
-        <div class="title">DF2 Graph</div>
-        <span class="badge">Open</span>
-      </a>
-
-      <a class="card" href="9.DF3-1.html" target="_blank">
-        <div class="title">DF3 Graph</div>
-        <span class="badge">Open</span>
-      </a>
-
-      <a class="card" href="11.MMF-1.html" target="_blank">
-        <div class="title">MMF Graph</div>
-        <span class="badge">Open</span>
-      </a>
-
-      <a class="card" href="10.FP-1.html" target="_blank">
-        <div class="title">Fashionpedia Graph</div>
-        <span class="badge">Open</span>
-      </a>
-
-      <a class="card" href="6.DF1_FP_Pipeline_Steps_0_7.html" target="_blank">
-        <div class="title">DF1 ↔ FP Pipeline (Steps 1–17)</div>
-        <span class="badge">Open</span>
-      </a>
-
-    </div>
-  </section>
-
-</div>
-</div>
 </body>
 </html>
