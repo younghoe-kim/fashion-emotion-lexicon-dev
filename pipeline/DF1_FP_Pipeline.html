@@ -1,515 +1,1498 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>DF1 + FP → FEL Pipeline: 12 Critical Milestones</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>DF1 + FP → FEL Pipeline: 12 Critical Milestones</title>
+  <style>
+    :root{
+      color-scheme: light dark;
+      --bg: rgba(127,127,127,.05);
+      --bg2: rgba(127,127,127,.08);
+      --bg3: rgba(127,127,127,.12);
+      --bd: rgba(127,127,127,.28);
+      --bd2: rgba(127,127,127,.45);
+      --txt: inherit;
+      --ok: rgba(34,197,94,.92);
+      --info: rgba(59,130,246,.92);
+      --warn: rgba(245,158,11,.95);
+      --violet: rgba(139,92,246,.92);
+      --shadow: 0 1px 3px rgba(0,0,0,.08);
+      --shadow2: 0 6px 18px rgba(0,0,0,.08);
+    }
+    html{ scroll-behavior:smooth; }
+    body{
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      margin:0;
+      padding:28px 18px 40px;
+      line-height:1.6;
+      max-width:1220px;
+      margin-left:auto;
+      margin-right:auto;
+      color:var(--txt);
+    }
+    header{
+      display:flex;
+      gap:16px;
+      align-items:flex-start;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      margin-bottom:18px;
+    }
+    h1{ font-size:30px; margin:0 0 8px 0; line-height:1.2; }
+    h2{ line-height:1.25; }
+    .subtitle{ opacity:.84; font-size:14px; margin:0; max-width:940px; }
+    .pill{
+      display:inline-block;
+      padding:6px 10px;
+      border:1px solid currentColor;
+      border-radius:999px;
+      font-size:12px;
+      opacity:.85;
+      margin-top:8px;
+      white-space:nowrap;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: 320px 1fr;
+      gap:16px;
+      align-items:start;
+      margin-top:18px;
+    }
+    @media (max-width: 980px){
+      .grid{ grid-template-columns:1fr; }
+      .toc{ position:static !important; }
+    }
+    .toc{
+      border:1px solid var(--bd);
+      border-radius:20px;
+      padding:14px;
+      position:sticky;
+      top:14px;
+      background:var(--bg);
+      max-height: calc(100vh - 28px);
+      overflow:auto;
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(6px);
+    }
+    .toc h2{ font-size:14px; margin:0 0 10px 0; }
+    .toc a{
+      display:block;
+      padding:7px 9px;
+      border-radius:10px;
+      text-decoration:none;
+      color:inherit;
+      font-size:13px;
+      opacity:.93;
+    }
+    .toc a:hover{ background:rgba(127,127,127,.12); }
+    .toc hr{ margin:10px 0; opacity:.5; }
 
-<style>
+    .summaryCard,
+    .step{
+      border:1px solid var(--bd);
+      border-radius:22px;
+      padding:18px;
+      margin-bottom:16px;
+      background:var(--bg);
+      box-shadow:var(--shadow);
+    }
 
-body{
-font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-margin:0;
-padding:30px;
-max-width:1200px;
-margin-left:auto;
-margin-right:auto;
-line-height:1.6;
-}
+    .summaryGrid{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap:10px;
+      margin-top:12px;
+    }
+    @media (max-width: 900px){
+      .summaryGrid{ grid-template-columns: repeat(2, 1fr); }
+    }
+    .stat{
+      border:1px solid var(--bd);
+      border-radius:16px;
+      padding:12px;
+      background:rgba(127,127,127,.04);
+      transition:transform .15s ease, box-shadow .15s ease;
+    }
+    .stat:hover{
+      transform:translateY(-2px);
+      box-shadow:var(--shadow2);
+    }
+    .stat .n{ font-size:22px; font-weight:800; margin-bottom:4px; }
 
-h1{font-size:28px;margin-bottom:10px}
-h2{font-size:20px;margin:0}
-h3{font-size:15px;margin:10px 0 4px}
+    .stepHeader{
+      display:flex;
+      gap:10px;
+      align-items:baseline;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      font-weight:800;
+      letter-spacing:.2px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--bd2);
+      background:rgba(127,127,127,.10);
+      font-size:12px;
+      white-space:nowrap;
+    }
+    .stepTitle{ font-size:20px; font-weight:800; margin:0; }
+    .meta{ font-size:12px; opacity:.82; margin-left:auto; }
 
-.step{
-border:1px solid #ddd;
-border-radius:16px;
-padding:16px;
-margin-bottom:16px;
-background:#fafafa;
-}
+    .kv{
+      display:grid;
+      grid-template-columns: 170px 1fr;
+      gap:10px 14px;
+      margin-top:12px;
+      font-size:14px;
+    }
+    @media (max-width: 760px){
+      .kv{ grid-template-columns:1fr; }
+    }
+    .k{ font-weight:800; opacity:.94; }
 
-.badge{
-font-weight:700;
-font-size:12px;
-border:1px solid #ccc;
-padding:4px 8px;
-border-radius:999px;
-margin-right:8px;
-}
+    .callout{
+      border-left:4px solid var(--info);
+      padding:11px 12px;
+      border-radius:12px;
+      background:var(--bg2);
+      margin-top:12px;
+      font-size:13px;
+    }
+    .ok{ border-left-color:var(--ok); }
+    .warn{ border-left-color:var(--warn); }
+    .violet{ border-left-color:var(--violet); }
 
-.diagram{
-background:#111;
-color:#eee;
-padding:12px;
-border-radius:10px;
-font-family:monospace;
-font-size:12px;
-margin-top:8px;
-}
+    .miniSection{
+      margin-top:14px;
+      border:1px solid var(--bd);
+      border-radius:16px;
+      background:rgba(127,127,127,.035);
+      overflow:hidden;
+    }
+    .miniHead{
+      padding:12px 14px;
+      font-weight:800;
+      font-size:13px;
+      letter-spacing:.1px;
+      border-bottom:1px solid var(--bd);
+      background:rgba(127,127,127,.05);
+    }
+    .miniBody{ padding:14px; }
 
-.outputs{
-background:#f3f4f6;
-border-radius:10px;
-padding:10px;
-font-size:13px;
-margin-top:8px;
-}
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:2px;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      border:1px solid var(--bd);
+      background:rgba(127,127,127,.06);
+    }
 
-.summary{
-border:1px solid #ddd;
-border-radius:16px;
-padding:16px;
-margin-bottom:20px;
-background:#f8fafc;
-}
+    .outputs{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap:10px;
+    }
+    @media (max-width: 700px){
+      .outputs{ grid-template-columns:1fr; }
+    }
+    .outputCard{
+      border:1px solid var(--bd);
+      border-radius:14px;
+      padding:12px;
+      background:rgba(127,127,127,.04);
+      transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    .outputCard:hover{
+      transform:translateY(-2px);
+      box-shadow:var(--shadow2);
+      background:rgba(127,127,127,.07);
+    }
+    .outputTitle{
+      font-size:12px;
+      font-weight:800;
+      opacity:.86;
+      margin-bottom:6px;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+    }
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:12.5px;
+      padding:2px 6px;
+      border-radius:8px;
+      background:rgba(127,127,127,.18);
+      word-break:break-word;
+    }
 
-</style>
+    details{
+      border-top:1px dashed var(--bd);
+      margin-top:14px;
+      padding-top:10px;
+    }
+    summary{
+      cursor:pointer;
+      font-weight:700;
+      font-size:13px;
+      opacity:.9;
+      user-select:none;
+      list-style:none;
+    }
+    summary::-webkit-details-marker{ display:none; }
+    summary::after{
+      content:"＋";
+      float:right;
+      opacity:.7;
+    }
+    details[open] summary::after{ content:"－"; }
+
+    /* Diagram cards */
+    .diagramWrap{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+      margin-top:8px;
+    }
+    .diagramCard{
+      border:1px solid var(--bd);
+      border-radius:18px;
+      background:
+        radial-gradient(circle at top right, rgba(59,130,246,.10), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(139,92,246,.10), transparent 25%),
+        rgba(127,127,127,.035);
+      overflow:hidden;
+      box-shadow:var(--shadow);
+    }
+    .diagramTop{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      padding:12px 14px;
+      border-bottom:1px solid var(--bd);
+      background:rgba(127,127,127,.05);
+    }
+    .diagramTitle{
+      font-weight:800;
+      font-size:13px;
+      letter-spacing:.02em;
+    }
+    .diagramHint{
+      font-size:12px;
+      opacity:.72;
+    }
+    .diagramScroll{
+      overflow:auto;
+      padding:10px;
+    }
+    svg{
+      width:100%;
+      min-width:680px;
+      height:auto;
+      display:block;
+    }
+    .legend{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      padding:0 14px 14px;
+    }
+    .legend span{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      font-size:12px;
+      opacity:.88;
+      border:1px solid var(--bd);
+      border-radius:999px;
+      padding:5px 9px;
+      background:rgba(127,127,127,.04);
+    }
+    .dot{
+      width:10px; height:10px; border-radius:999px; display:inline-block;
+      border:1px solid rgba(255,255,255,.35);
+    }
+
+    .footer{ margin-top:18px; font-size:13px; opacity:.8; }
+    .muted{ opacity:.78; }
+  </style>
 </head>
-
 <body>
-
-<h1>DF1 + FP → FEL Pipeline: 12 Critical Milestones</h1>
-
-<div class="summary">
-This document summarizes the full 74-stage development history into the 12 decisive milestones that produced the FEL ontology–evidence backbone.
-</div>
-
-<!-- M1 -->
-
-<div class="step">
-
-<span class="badge">Milestone 1</span>
-<h2>DF1 normalization foundation</h2>
-
-DF1 raw benchmarks were normalized into stable tables enabling reproducible downstream processing.
-
-<h3>Architecture diagram</h3>
-
-<div class="diagram">
-
-Raw DF1 Benchmarks
-   │
-   ▼
-Normalization
-   │
-   ▼
-df1_normalized_tables
-   │
-   ├── images
-   ├── annotations
-   └── partitions
-
-</div>
-
-<h3>Key outputs</h3>
-
-<div class="outputs">
-
-df1_fel_extract_and_qc_split.py  
-df1_normalized tables  
-image_uid global keys
-
-</div>
-
-</div>
-
-<!-- M2 -->
-
-<div class="step">
-
-<span class="badge">Milestone 2</span>
-<h2>FP normalization foundation</h2>
-
-Fashionpedia dataset normalized into FEL-compatible schema.
-
-<h3>Architecture diagram</h3>
-
-<div class="diagram">
-
-Fashionpedia Raw
-   │
-   ▼
-FP Normalization
-   │
-   ▼
-fp_normalized_tables
-   │
-   ├── images
-   ├── instances
-   └── annotations
-
-</div>
-
-<h3>Key outputs</h3>
-
-<div class="outputs">
-
-fp_terms_categories.csv  
-fp_instances_normalized.csv
-
-</div>
-
-</div>
-
-<!-- M3 -->
-
-<div class="step">
-
-<span class="badge">Milestone 3</span>
-<h2>Dataset-specific term SSOT fixed</h2>
-
-Each dataset vocabulary stabilized before cross-dataset alignment.
-
-<h3>Architecture diagram</h3>
-
-<div class="diagram">
-
-DF1 Terms ──► DF1 Registry
-FP Terms ──► FP Registry
-
-Dataset-specific SSOT
-
-</div>
-
-<h3>Key outputs</h3>
-
-<div class="outputs">
-
-df1_term_registry.csv  
-fp_term_registry.csv
-
-</div>
-
-</div>
-
-<!-- M4 -->
-
-<div class="step">
-
-<span class="badge">Milestone 4</span>
-<h2>Common event schema established</h2>
-
-DF1 and FP annotations converted into a shared event representation.
-
-<h3>Architecture diagram</h3>
-
-<div class="diagram">
-
-DF1 tables
-      │
-      ▼
-Common Event Builder
-      │
-      ▼
-fel_events_df1_common_v2.csv
-
-FP tables
-      │
-      ▼
-Common Event Builder
-      │
-      ▼
-fel_events_fp_common.csv
-
-</div>
-
-<h3>Key outputs</h3>
-
-<div class="outputs">
-
-fel_events_df1_common_v2.csv  
-event schema v2
-
-</div>
-
-</div>
-
-<!-- M5 -->
-
-<div class="step">
-
-<span class="badge">Milestone 5</span>
-<h2>Core Hub alignment strategy</h2>
-
-Pairwise dataset alignment abandoned in favor of Core Hub.
-
-<h3>Architecture diagram</h3>
-
-<div class="diagram">
-
-DF1 terms ──┐
-            │
-            ▼
-        FEL Core
-            ▲
-            │
-FP terms ───┘
-
-</div>
-
-<h3>Key outputs</h3>
-
-<div class="outputs">
-
-core_terms.seed.csv  
-source_to_core_alignment_candidates.csv
-
-</div>
-
-</div>
-
-<!-- M6 -->
-
-<div class="step">
-
-<span class="badge">Milestone 6</span>
-<h2>Selective HITL semantic validation</h2>
-
-Human review used only for ambiguous mappings.
-
-<h3>Architecture diagram</h3>
-
-<div class="diagram">
-
-Auto Alignment
-      │
-      ▼
-Candidate Queue
-      │
-      ├── auto_accept
-      └── HITL_review
-
-</div>
-
-<h3>Key outputs</h3>
-
-<div class="outputs">
-
-hitl_term_alignment.csv  
-validated_core_alignment.csv
-
-</div>
-
-</div>
-
-<!-- M7 -->
-
-<div class="step">
-
-<span class="badge">Milestone 7</span>
-<h2>Facet taxonomy finalized</h2>
-
-All canonical terms assigned to semantic facets.
-
-<h3>Architecture diagram</h3>
-
-<div class="diagram">
-
-Core Terms
-     │
-     ▼
-Facet Assignment
-     │
-     ▼
-category / part / material
-pattern / color_palette
-details / structure
-
-</div>
-
-<h3>Key outputs</h3>
-
-<div class="outputs">
-
-core_facets.final.csv  
-core_terms.final.csv
-
-</div>
-
-</div>
-
-<!-- M8 -->
-
-<div class="step">
-
-<span class="badge">Milestone 8</span>
-<h2>Backbone ontology materialized</h2>
-
-Ontology nodes and edges exported as graph structure.
-
-<h3>Architecture diagram</h3>
-
-<div class="diagram">
-
-Core Terms
-     │
-     ├── ALIAS_OF
-     ├── IN_FACET
-     ▼
-Ontology Graph
-
-</div>
-
-<h3>Key outputs</h3>
-
-<div class="outputs">
-
-ontology_nodes.csv  
-ontology_edges.csv
-
-</div>
-
-</div>
-
-<!-- M9 -->
-
-<div class="step">
-
-<span class="badge">Milestone 9</span>
-<h2>Ontology and Evidence architecture separation</h2>
-
-System redesigned into layered architecture.
-
-<h3>Architecture diagram</h3>
-
-<div class="diagram">
-
-Inference Layer
-       ▲
-Evidence Layer
-       ▲
-Ontology Layer
-
-</div>
-
-<h3>Key outputs</h3>
-
-<div class="outputs">
-
-ontology SSOT  
-evidence SSOT
-
-</div>
-
-</div>
-
-<!-- M10 -->
-
-<div class="step">
-
-<span class="badge">Milestone 10</span>
-<h2>Operational definition graph</h2>
-
-Ontology upgraded with semantic relations.
-
-<h3>Architecture diagram</h3>
-
-<div class="diagram">
-
-Category
-   │
-   ├── HAS_PART
-   │
-   ▼
-Part
-   │
-   └── HAS_ATTRIBUTE
-       ▼
-Attribute
-
-</div>
-
-<h3>Key outputs</h3>
-
-<div class="outputs">
-
-ontology_edges.final.csv  
-SUBCATEGORY_OF  
-HAS_PART  
-HAS_ATTRIBUTE
-
-</div>
-
-</div>
-
-<!-- M11 -->
-
-<div class="step">
-
-<span class="badge">Milestone 11</span>
-<h2>Evidence bridge integrity achieved</h2>
-
-Image, instance, event, and ontology layers connected.
-
-<h3>Architecture diagram</h3>
-
-<div class="diagram">
-
-Image
-  │
-  ▼
-Instance
-  │
-  ▼
-Event
-  │
-  ▼
-Core Term
-
-</div>
-
-<h3>Key outputs</h3>
-
-<div class="outputs">
-
-images.final.v5.csv  
-instances.final.v9.csv  
-evidence_events.final.v7.csv
-
-</div>
-
-</div>
-
-<!-- M12 -->
-
-<div class="step">
-
-<span class="badge">Milestone 12</span>
-<h2>Completed ontology–evidence backbone</h2>
-
-Final validated structure enabling inference stage.
-
-<h3>Architecture diagram</h3>
-
-<div class="diagram">
-
-        Ontology
-           ▲
-           │
-      Evidence Graph
-           ▲
-           │
-        Images
-        Instances
-        Events
-
-</div>
-
-<h3>Key outputs</h3>
-
-<div class="outputs">
-
-core_terms.final.csv  
-core_facets.final.csv  
-ontology_edges.final.csv  
-images.final.v5.csv  
-instances.final.v9.csv  
-evidence_events.final.v7.csv
-
-</div>
-
-</div>
-
+  <header>
+    <div>
+      <h1>DF1 + FP → FEL Pipeline: 12 Critical Milestones</h1>
+      <p class="subtitle">
+        This version condenses the full 74-stage development history into the 12 decisive milestones, while preserving the original layered visual style and adding responsive, card-based diagrams, milestone outputs, and a clearer operational narrative from raw dataset normalization to a completed ontology–evidence backbone.
+      </p>
+      <span class="pill">Condensed from the full 74-stage ontology + evidence development history</span>
+    </div>
+  </header>
+
+  <div class="grid">
+    <nav class="toc">
+      <h2>12 Critical Milestones</h2>
+      <a href="#m1">1. DF1 normalization foundation</a>
+      <a href="#m2">2. FP normalization foundation</a>
+      <a href="#m3">3. Dataset-specific term SSOT fixed</a>
+      <a href="#m4">4. Common event schema established</a>
+      <a href="#m5">5. Pairwise alignment abandoned for Core Hub</a>
+      <a href="#m6">6. FEL Core seed and selective HITL</a>
+      <a href="#m7">7. Facet taxonomy fixed by human review</a>
+      <a href="#m8">8. Backbone ontology materialized</a>
+      <a href="#m9">9. Ontology and evidence split into separate SSOT layers</a>
+      <a href="#m10">10. Ontology final became an operational definition graph</a>
+      <a href="#m11">11. Evidence final achieved bridge-level integrity</a>
+      <a href="#m12">12. Evidence backbone completed and validated</a>
+      <hr/>
+      <a href="#global-architecture">Global architecture</a>
+      <a href="#closing">Closing summary</a>
+    </nav>
+
+    <main>
+      <section class="summaryCard">
+        <h2 style="margin:0 0 8px 0; font-size:21px;">Executive summary</h2>
+        <div class="callout ok">
+          The full project progressed from raw dataset normalization, through registry stabilization and core-centered ontology convergence, to a final ontology–evidence bridge that is structurally valid. The decisive endpoint is not merely a cleaned ontology, but a completed ontology–evidence backbone strong enough to support the next traceable inference stage.
+        </div>
+        <div class="summaryGrid">
+          <div class="stat"><div class="n">74</div><div>full stages in the original development history</div></div>
+          <div class="stat"><div class="n">12</div><div>critical milestones distilled for reporting</div></div>
+          <div class="stat"><div class="n">3101</div><div>final canonical core terms stabilized</div></div>
+          <div class="stat"><div class="n">3</div><div>final semantic layers: ontology, evidence, inference</div></div>
+        </div>
+      </section>
+
+      <section class="summaryCard" id="global-architecture">
+        <h2 style="margin:0 0 10px 0; font-size:21px;">Global architecture at the current endpoint</h2>
+        <div class="diagramWrap">
+          <div class="diagramCard">
+            <div class="diagramTop">
+              <div class="diagramTitle">FEL ontology–evidence architecture</div>
+              <div class="diagramHint">Responsive overview diagram</div>
+            </div>
+            <div class="diagramScroll">
+              <svg viewBox="0 0 1120 520" aria-label="Global FEL architecture diagram" role="img">
+                <defs>
+                  <linearGradient id="g1" x1="0" x2="1">
+                    <stop offset="0%" stop-color="rgba(59,130,246,.9)"/>
+                    <stop offset="100%" stop-color="rgba(139,92,246,.95)"/>
+                  </linearGradient>
+                  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(127,127,127,.75)"></path>
+                  </marker>
+                  <style>
+                    .box{ fill:rgba(127,127,127,.08); stroke:rgba(127,127,127,.35); stroke-width:1.6; rx:18; ry:18; }
+                    .box2{ fill:rgba(59,130,246,.08); stroke:rgba(59,130,246,.45); stroke-width:1.6; rx:18; ry:18; }
+                    .box3{ fill:rgba(34,197,94,.08); stroke:rgba(34,197,94,.45); stroke-width:1.6; rx:18; ry:18; }
+                    .box4{ fill:rgba(139,92,246,.08); stroke:rgba(139,92,246,.45); stroke-width:1.6; rx:18; ry:18; }
+                    .title{ font: 800 19px system-ui, sans-serif; fill: currentColor; }
+                    .sub{ font: 600 13px system-ui, sans-serif; fill: currentColor; opacity:.9; }
+                    .small{ font: 12px system-ui, sans-serif; fill: currentColor; opacity:.82; }
+                    .line{ stroke:rgba(127,127,127,.72); stroke-width:2.2; fill:none; marker-end:url(#arrow); }
+                  </style>
+                </defs>
+
+                <rect x="390" y="26" width="340" height="88" class="box4"/>
+                <text x="560" y="56" text-anchor="middle" class="title">Inference Layer</text>
+                <text x="560" y="78" text-anchor="middle" class="sub">Aesthetic / Emotion / Trace</text>
+                <text x="560" y="97" text-anchor="middle" class="small">next-stage reasoning outputs</text>
+
+                <rect x="165" y="180" width="790" height="128" class="box3"/>
+                <text x="560" y="212" text-anchor="middle" class="title">Evidence Layer</text>
+                <text x="560" y="234" text-anchor="middle" class="sub">Images · Instances · Evidence Events</text>
+                <text x="560" y="253" text-anchor="middle" class="small">multi-anchor observation graph</text>
+
+                <rect x="62" y="358" width="998" height="128" class="box2"/>
+                <text x="560" y="391" text-anchor="middle" class="title">Ontology Layer</text>
+                <text x="560" y="414" text-anchor="middle" class="sub">Core Terms · Facets · Alias Bridge · Definition Graph</text>
+                <text x="560" y="433" text-anchor="middle" class="small">canonical semantic substrate</text>
+
+                <rect x="245" y="236" width="140" height="44" class="box"/>
+                <text x="315" y="263" text-anchor="middle" class="sub">Images</text>
+
+                <rect x="490" y="236" width="140" height="44" class="box"/>
+                <text x="560" y="263" text-anchor="middle" class="sub">Instances</text>
+
+                <rect x="735" y="236" width="170" height="44" class="box"/>
+                <text x="820" y="263" text-anchor="middle" class="sub">Evidence Events</text>
+
+                <rect x="150" y="414" width="150" height="44" class="box"/>
+                <text x="225" y="441" text-anchor="middle" class="sub">Core Terms</text>
+
+                <rect x="355" y="414" width="150" height="44" class="box"/>
+                <text x="430" y="441" text-anchor="middle" class="sub">Core Facets</text>
+
+                <rect x="560" y="414" width="150" height="44" class="box"/>
+                <text x="635" y="441" text-anchor="middle" class="sub">Alias Bridge</text>
+
+                <rect x="765" y="414" width="195" height="44" class="box"/>
+                <text x="862" y="441" text-anchor="middle" class="sub">Definition Edges</text>
+
+                <path d="M560,114 L560,180" class="line"/>
+                <path d="M560,308 L560,358" class="line"/>
+
+                <path d="M315,280 L315,358" class="line"/>
+                <path d="M560,280 L560,358" class="line"/>
+                <path d="M820,280 L820,358" class="line"/>
+
+                <text x="560" y="154" text-anchor="middle" class="small">reasoning consumes ontology-grounded evidence</text>
+                <text x="560" y="338" text-anchor="middle" class="small">events resolve into canonical terms through validated bridges</text>
+              </svg>
+            </div>
+            <div class="legend">
+              <span><i class="dot" style="background:rgba(139,92,246,.92)"></i>Inference target layer</span>
+              <span><i class="dot" style="background:rgba(34,197,94,.92)"></i>Validated evidence backbone</span>
+              <span><i class="dot" style="background:rgba(59,130,246,.92)"></i>Validated ontology backbone</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Milestone 1 -->
+      <section class="step" id="m1">
+        <div class="stepHeader">
+          <span class="badge">Milestone 1</span>
+          <h2 class="stepTitle">DF1 normalization foundation</h2>
+          <div class="meta">covers early DF1 extraction / QC / split standardization</div>
+        </div>
+        <div class="kv">
+          <div class="k">Purpose</div>
+          <div>Convert DeepFashion1’s benchmark-fragmented raw files into a stable normalized substrate that every later registry, event table, alignment pass, and QC procedure can trust.</div>
+          <div class="k">Why</div>
+          <div>DF1 was not a single coherent table but a collection of benchmark-specific formats, file conventions, label structures, and partition contracts. Without normalization, every downstream module would have been forced to reinterpret raw DF1 differently, causing schema drift, duplicate logic, and untraceable errors.</div>
+          <div class="k">Achievement</div>
+          <div>DF1 was transformed into a reproducible normalized root with benchmark-wise standardized tables, global join keys such as image-level identifiers, split normalization, and audit-friendly separated term/evidence/event outputs.</div>
+          <div class="k">What changed</div>
+          <div>The project moved from raw-file handling to a reusable DF1 substrate that could support SSOT term construction, common event conversion, provenance tracking, and later enriched evidence extraction without reopening raw benchmark logic each time.</div>
+        </div>
+
+        <div class="miniSection">
+          <div class="miniHead">Diagram</div>
+          <div class="miniBody">
+            <div class="diagramCard">
+              <div class="diagramTop">
+                <div class="diagramTitle">DF1 raw → normalized substrate</div>
+                <div class="diagramHint">Benchmark fragmentation resolved into one stable root</div>
+              </div>
+              <div class="diagramScroll">
+                <svg viewBox="0 0 940 300" aria-label="DF1 normalization diagram">
+                  <defs>
+                    <marker id="arrow-m1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                      <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(127,127,127,.75)"></path>
+                    </marker>
+                    <style>
+                      .b{ fill:rgba(127,127,127,.08); stroke:rgba(127,127,127,.35); stroke-width:1.5; rx:16; ry:16; }
+                      .t{ font: 700 14px system-ui, sans-serif; fill: currentColor; }
+                      .s{ font: 12px system-ui, sans-serif; fill: currentColor; opacity:.8; }
+                      .l{ stroke:rgba(127,127,127,.72); stroke-width:2; fill:none; marker-end:url(#arrow-m1); }
+                    </style>
+                  </defs>
+                  <rect x="20" y="45" width="165" height="58" class="b"/><text x="102.5" y="70" text-anchor="middle" class="t">CAPB coarse/fine</text><text x="102.5" y="89" text-anchor="middle" class="s">category / attribute / bbox / landmark</text>
+                  <rect x="20" y="125" width="165" height="58" class="b"/><text x="102.5" y="150" text-anchor="middle" class="t">Consumer2Shop</text><text x="102.5" y="169" text-anchor="middle" class="s">pairs / partitions / geometry</text>
+                  <rect x="20" y="205" width="165" height="58" class="b"/><text x="102.5" y="230" text-anchor="middle" class="t">In-shop / Landmark</text><text x="102.5" y="249" text-anchor="middle" class="s">item grouping / landmark cues</text>
+
+                  <rect x="312" y="104" width="170" height="98" class="b"/><text x="397" y="132" text-anchor="middle" class="t">Normalization + QC</text><text x="397" y="154" text-anchor="middle" class="s">schema standardization</text><text x="397" y="172" text-anchor="middle" class="s">global image keys</text><text x="397" y="190" text-anchor="middle" class="s">manifest + audit outputs</text>
+
+                  <rect x="610" y="104" width="300" height="98" class="b"/><text x="760" y="132" text-anchor="middle" class="t">DF1 normalized root</text><text x="760" y="154" text-anchor="middle" class="s">benchmarks/*/normalized/*.csv.gz</text><text x="760" y="172" text-anchor="middle" class="s">split-stable substrate</text><text x="760" y="190" text-anchor="middle" class="s">reusable source contract</text>
+
+                  <path d="M185 74 C240 74, 255 128, 312 128" class="l"/>
+                  <path d="M185 154 C240 154, 255 154, 312 154" class="l"/>
+                  <path d="M185 234 C240 234, 255 180, 312 180" class="l"/>
+                  <path d="M482 153 L610 153" class="l"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <details>
+          <summary>Key outputs</summary>
+          <div class="miniBody" style="padding:12px 0 0 0;">
+            <div class="outputs">
+              <div class="outputCard">
+                <div class="outputTitle">Primary outputs</div>
+                <code>benchmarks/*/normalized/*.csv.gz</code><br/>
+                <code>qc_summary.json</code><br/>
+                <code>manifest.csv</code><br/>
+                <code>manifest.jsonl</code>
+              </div>
+              <div class="outputCard">
+                <div class="outputTitle">Unlocked capability</div>
+                Stable DF1 source contract for registries, common events, evidence extraction, and later refactor passes.
+              </div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- Milestone 2 -->
+      <section class="step" id="m2">
+        <div class="stepHeader">
+          <span class="badge">Milestone 2</span>
+          <h2 class="stepTitle">FP normalization foundation</h2>
+          <div class="meta">covers FP extraction / normalization / audit-ready separation</div>
+        </div>
+        <div class="kv">
+          <div class="k">Purpose</div>
+          <div>Bring Fashionpedia into the same FEL-normalized operational world as DF1 so that both datasets can later share registries, event contracts, and ontology alignment logic.</div>
+          <div class="k">Why</div>
+          <div>Even though FP already had stronger ontology structure than DF1, it still needed to be converted into FEL’s normalized contract; otherwise DF1 and FP would remain incomparable not because of semantics, but because of incompatible data engineering assumptions.</div>
+          <div class="k">Achievement</div>
+          <div>FP was normalized, QC’d, and separated into term/evidence/event-friendly outputs, giving the pipeline a second ontology-rich anchor rather than a single-dataset system.</div>
+          <div class="k">What changed</div>
+          <div>The system stopped being a DF1-only pipeline and became a real cross-dataset ontology project with one dataset optimized for broad evidence and another optimized for structured semantic annotation.</div>
+        </div>
+
+        <div class="miniSection">
+          <div class="miniHead">Diagram</div>
+          <div class="miniBody">
+            <div class="diagramCard">
+              <div class="diagramTop">
+                <div class="diagramTitle">FP raw → normalized structured source</div>
+                <div class="diagramHint">Strong object semantics made pipeline-ready</div>
+              </div>
+              <div class="diagramScroll">
+                <svg viewBox="0 0 940 260" aria-label="FP normalization diagram">
+                  <defs>
+                    <marker id="arrow-m2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                      <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(127,127,127,.75)"></path>
+                    </marker>
+                    <style>
+                      .b{ fill:rgba(127,127,127,.08); stroke:rgba(127,127,127,.35); stroke-width:1.5; rx:16; ry:16; }
+                      .t{ font: 700 14px system-ui, sans-serif; fill: currentColor; }
+                      .s{ font: 12px system-ui, sans-serif; fill: currentColor; opacity:.8; }
+                      .l{ stroke:rgba(127,127,127,.72); stroke-width:2; fill:none; marker-end:url(#arrow-m2); }
+                    </style>
+                  </defs>
+                  <rect x="30" y="78" width="220" height="92" class="b"/>
+                  <text x="140" y="108" text-anchor="middle" class="t">Fashionpedia raw</text>
+                  <text x="140" y="132" text-anchor="middle" class="s">images</text>
+                  <text x="140" y="150" text-anchor="middle" class="s">instances / segmentation</text>
+
+                  <rect x="360" y="78" width="220" height="92" class="b"/>
+                  <text x="470" y="108" text-anchor="middle" class="t">Normalization + QC</text>
+                  <text x="470" y="132" text-anchor="middle" class="s">stable schema</text>
+                  <text x="470" y="150" text-anchor="middle" class="s">audit-friendly split outputs</text>
+
+                  <rect x="690" y="52" width="210" height="44" class="b"/>
+                  <text x="795" y="79" text-anchor="middle" class="t">fp normalized images</text>
+                  <rect x="690" y="105" width="210" height="44" class="b"/>
+                  <text x="795" y="132" text-anchor="middle" class="t">fp normalized instances</text>
+                  <rect x="690" y="158" width="210" height="44" class="b"/>
+                  <text x="795" y="185" text-anchor="middle" class="t">fp normalized annotations</text>
+
+                  <path d="M250 124 L360 124" class="l"/>
+                  <path d="M580 124 C625 124, 635 74, 690 74" class="l"/>
+                  <path d="M580 124 L690 127" class="l"/>
+                  <path d="M580 124 C625 124, 635 180, 690 180" class="l"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <details>
+          <summary>Key outputs</summary>
+          <div class="miniBody" style="padding:12px 0 0 0;">
+            <div class="outputs">
+              <div class="outputCard">
+                <div class="outputTitle">Primary outputs</div>
+                <code>fp normalized root</code><br/>
+                <code>images / instances / annotations tables</code><br/>
+                <code>FP QC artifacts</code>
+              </div>
+              <div class="outputCard">
+                <div class="outputTitle">Unlocked capability</div>
+                FP became a clean structured source for category, part, instance, and attribute semantics inside the FEL pipeline.
+              </div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- Milestone 3 -->
+      <section class="step" id="m3">
+        <div class="stepHeader">
+          <span class="badge">Milestone 3</span>
+          <h2 class="stepTitle">Dataset-specific term SSOT fixed</h2>
+          <div class="meta">DF1 registry + FP registry stabilization</div>
+        </div>
+        <div class="kv">
+          <div class="k">Purpose</div>
+          <div>Freeze each dataset’s vocabulary into a stable, dataset-internal source of truth before attempting any cross-dataset semantic mapping.</div>
+          <div class="k">Why</div>
+          <div>You cannot build trustworthy ontology alignment on top of shifting local vocabularies. First the project needed deterministic term registries for DF1 and FP so that every raw id, label, and variant could resolve into a stable term identity.</div>
+          <div class="k">Achievement</div>
+          <div>DF1 and FP each received a fixed term registry covering their local vocabularies, creating stable term UIDs, stable join behavior, and a proper basis for QC, alignment generation, alias management, and later canonicalization into FEL Core.</div>
+          <div class="k">What changed</div>
+          <div>Term logic moved from ad hoc parsing inside event builders to dedicated registry-based resolution, which sharply improved reproducibility and made semantic debugging possible at the vocabulary level instead of only at the row level.</div>
+        </div>
+
+        <div class="miniSection">
+          <div class="miniHead">Diagram</div>
+          <div class="miniBody">
+            <div class="diagramCard">
+              <div class="diagramTop">
+                <div class="diagramTitle">Local vocabulary stabilization</div>
+                <div class="diagramHint">Canonicalization begins only after source registries are frozen</div>
+              </div>
+              <div class="diagramScroll">
+                <svg viewBox="0 0 940 250" aria-label="Dataset registry diagram">
+                  <defs>
+                    <marker id="arrow-m3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                      <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(127,127,127,.75)"></path>
+                    </marker>
+                    <style>
+                      .b{ fill:rgba(127,127,127,.08); stroke:rgba(127,127,127,.35); stroke-width:1.5; rx:16; ry:16; }
+                      .t{ font: 700 14px system-ui, sans-serif; fill: currentColor; }
+                      .s{ font: 12px system-ui, sans-serif; fill: currentColor; opacity:.8; }
+                      .l{ stroke:rgba(127,127,127,.72); stroke-width:2; fill:none; marker-end:url(#arrow-m3); }
+                    </style>
+                  </defs>
+                  <rect x="70" y="84" width="200" height="82" class="b"/>
+                  <text x="170" y="112" text-anchor="middle" class="t">DF1 local terms</text>
+                  <text x="170" y="136" text-anchor="middle" class="s">category / attribute / color / attr_type</text>
+
+                  <rect x="370" y="84" width="200" height="82" class="b"/>
+                  <text x="470" y="112" text-anchor="middle" class="t">FP local terms</text>
+                  <text x="470" y="136" text-anchor="middle" class="s">category / part / attribute</text>
+
+                  <rect x="670" y="58" width="190" height="44" class="b"/>
+                  <text x="765" y="85" text-anchor="middle" class="t">df1_term_registry.csv</text>
+                  <rect x="670" y="118" width="190" height="44" class="b"/>
+                  <text x="765" y="145" text-anchor="middle" class="t">fp_term_registry.csv</text>
+
+                  <path d="M270 125 L670 80" class="l"/>
+                  <path d="M570 125 L670 140" class="l"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <details>
+          <summary>Key outputs</summary>
+          <div class="miniBody" style="padding:12px 0 0 0;">
+            <div class="outputs">
+              <div class="outputCard">
+                <div class="outputTitle">Primary outputs</div>
+                <code>df1_term_registry.csv</code><br/>
+                <code>fp_term_registry.csv</code><br/>
+                dataset-level vocabulary QC
+              </div>
+              <div class="outputCard">
+                <div class="outputTitle">Unlocked capability</div>
+                Stable source vocabularies became the base contract for alignment, alias generation, and ontology construction.
+              </div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- Milestone 4 -->
+      <section class="step" id="m4">
+        <div class="stepHeader">
+          <span class="badge">Milestone 4</span>
+          <h2 class="stepTitle">Common event schema established</h2>
+          <div class="meta">DF1/FP common v2 + merge readiness</div>
+        </div>
+        <div class="kv">
+          <div class="k">Purpose</div>
+          <div>Convert normalized dataset tables into a shared event contract so that DF1 and FP can be merged, queried, and aligned through one operational event language.</div>
+          <div class="k">Why</div>
+          <div>Without a shared event schema, ontology alignment would still be trapped at the vocabulary layer. The project needed a unified event representation so that subjects, terms, partitions, labels, and evidence could be interpreted consistently across datasets.</div>
+          <div class="k">Achievement</div>
+          <div>Both datasets were converted into common v2 events, DF1 split vocabulary was normalized, compatibility QC was added, and a merged FEL event table became possible, turning two independent sources into one mergeable semantic event space.</div>
+          <div class="k">What changed</div>
+          <div>The pipeline crossed the boundary from parallel dataset preparation to integrated multi-source semantic event processing.</div>
+        </div>
+
+        <div class="miniSection">
+          <div class="miniHead">Diagram</div>
+          <div class="miniBody">
+            <div class="diagramCard">
+              <div class="diagramTop">
+                <div class="diagramTitle">Two datasets, one event language</div>
+                <div class="diagramHint">Common event schema became the first unified observational contract</div>
+              </div>
+              <div class="diagramScroll">
+                <svg viewBox="0 0 980 260" aria-label="Common event schema diagram">
+                  <defs>
+                    <marker id="arrow-m4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                      <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(127,127,127,.75)"></path>
+                    </marker>
+                    <style>
+                      .b{ fill:rgba(127,127,127,.08); stroke:rgba(127,127,127,.35); stroke-width:1.5; rx:16; ry:16; }
+                      .t{ font: 700 14px system-ui, sans-serif; fill: currentColor; }
+                      .s{ font: 12px system-ui, sans-serif; fill: currentColor; opacity:.8; }
+                      .l{ stroke:rgba(127,127,127,.72); stroke-width:2; fill:none; marker-end:url(#arrow-m4); }
+                    </style>
+                  </defs>
+
+                  <rect x="40" y="92" width="210" height="74" class="b"/>
+                  <text x="145" y="120" text-anchor="middle" class="t">DF1 normalized tables</text>
+                  <text x="145" y="143" text-anchor="middle" class="s">registry-linked benchmark outputs</text>
+
+                  <rect x="385" y="92" width="210" height="74" class="b"/>
+                  <text x="490" y="120" text-anchor="middle" class="t">Common Event Builder</text>
+                  <text x="490" y="143" text-anchor="middle" class="s">shared event contract</text>
+
+                  <rect x="730" y="46" width="200" height="48" class="b"/>
+                  <text x="830" y="76" text-anchor="middle" class="t">DF1 common v2 events</text>
+                  <rect x="730" y="116" width="200" height="48" class="b"/>
+                  <text x="830" y="146" text-anchor="middle" class="t">FP common v2 events</text>
+                  <rect x="730" y="186" width="200" height="48" class="b"/>
+                  <text x="830" y="216" text-anchor="middle" class="t">merge compatibility QC</text>
+
+                  <path d="M250 129 L385 129" class="l"/>
+                  <path d="M595 129 C655 129, 660 70, 730 70" class="l"/>
+                  <path d="M595 129 L730 140" class="l"/>
+                  <path d="M595 129 C655 129, 660 208, 730 208" class="l"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <details>
+          <summary>Key outputs</summary>
+          <div class="miniBody" style="padding:12px 0 0 0;">
+            <div class="outputs">
+              <div class="outputCard">
+                <div class="outputTitle">Primary outputs</div>
+                <code>fel_events_df1_common_v2.csv.gz</code><br/>
+                <code>fel_events_fp_common_v2.csv.gz</code><br/>
+                compatibility QC / merge-ready events
+              </div>
+              <div class="outputCard">
+                <div class="outputTitle">Unlocked capability</div>
+                Cross-dataset observational unification became possible before ontology convergence.
+              </div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- Milestone 5 -->
+      <section class="step" id="m5">
+        <div class="stepHeader">
+          <span class="badge">Milestone 5</span>
+          <h2 class="stepTitle">Pairwise alignment was abandoned for Core Hub</h2>
+          <div class="meta">strategic pivot from HITL-A to HITL-B</div>
+        </div>
+        <div class="kv">
+          <div class="k">Purpose</div>
+          <div>Replace direct DF1↔FP pairwise term alignment with a hub-and-spoke strategy in which every source maps to a neutral FEL Core.</div>
+          <div class="k">Why</div>
+          <div>Pairwise alignment looked workable for two datasets but would not scale to three, four, or more sources. It also risked making FP’s ontology structure silently become the FEL global standard.</div>
+          <div class="k">Achievement</div>
+          <div>The project made its most important architectural decision: FP ceased to be the implicit destination ontology, and FEL Core became the real hub, changing the problem from repeated pairwise harmonization to one-time source-to-core convergence.</div>
+          <div class="k">What changed</div>
+          <div>This pivot converted the system from a brittle alignment project into a scalable ontology platform where new datasets can be added by mapping into Core instead of reopening every earlier relationship.</div>
+        </div>
+        <div class="callout violet"><b>Strategic consequence:</b> this was the moment the project became a true ontology infrastructure rather than a two-dataset reconciliation exercise.</div>
+
+        <div class="miniSection">
+          <div class="miniHead">Diagram</div>
+          <div class="miniBody">
+            <div class="diagramCard">
+              <div class="diagramTop">
+                <div class="diagramTitle">Pairwise alignment → Core Hub alignment</div>
+                <div class="diagramHint">The decisive architectural pivot</div>
+              </div>
+              <div class="diagramScroll">
+                <svg viewBox="0 0 980 300" aria-label="Core Hub alignment diagram">
+                  <defs>
+                    <marker id="arrow-m5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                      <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(127,127,127,.75)"></path>
+                    </marker>
+                    <style>
+                      .b{ fill:rgba(127,127,127,.08); stroke:rgba(127,127,127,.35); stroke-width:1.5; rx:16; ry:16; }
+                      .c{ fill:rgba(139,92,246,.10); stroke:rgba(139,92,246,.5); stroke-width:2; rx:18; ry:18; }
+                      .t{ font: 700 14px system-ui, sans-serif; fill: currentColor; }
+                      .s{ font: 12px system-ui, sans-serif; fill: currentColor; opacity:.8; }
+                      .l{ stroke:rgba(127,127,127,.72); stroke-width:2; fill:none; marker-end:url(#arrow-m5); }
+                    </style>
+                  </defs>
+
+                  <text x="210" y="34" text-anchor="middle" class="t">Before</text>
+                  <rect x="60" y="72" width="120" height="48" class="b"/><text x="120" y="101" text-anchor="middle" class="t">DF1</text>
+                  <rect x="240" y="72" width="120" height="48" class="b"/><text x="300" y="101" text-anchor="middle" class="t">FP</text>
+                  <rect x="150" y="180" width="120" height="48" class="b"/><text x="210" y="209" text-anchor="middle" class="t">Future dataset</text>
+                  <path d="M180 96 L240 96" class="l"/>
+                  <path d="M210 180 C210 155, 210 140, 210 120" class="l"/>
+
+                  <text x="760" y="34" text-anchor="middle" class="t">After</text>
+                  <rect x="650" y="72" width="120" height="48" class="b"/><text x="710" y="101" text-anchor="middle" class="t">DF1</text>
+                  <rect x="830" y="72" width="120" height="48" class="b"/><text x="890" y="101" text-anchor="middle" class="t">FP</text>
+                  <rect x="740" y="160" width="120" height="58" class="c"/><text x="800" y="193" text-anchor="middle" class="t">FEL Core</text>
+                  <text x="800" y="210" text-anchor="middle" class="s">neutral canonical hub</text>
+                  <rect x="740" y="248" width="120" height="40" class="b"/><text x="800" y="273" text-anchor="middle" class="t">New source</text>
+
+                  <path d="M710 120 C710 138, 742 148, 770 160" class="l"/>
+                  <path d="M890 120 C890 138, 858 148, 830 160" class="l"/>
+                  <path d="M800 248 L800 218" class="l"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <details>
+          <summary>Key outputs</summary>
+          <div class="miniBody" style="padding:12px 0 0 0;">
+            <div class="outputs">
+              <div class="outputCard">
+                <div class="outputTitle">Primary outputs</div>
+                <code>core seed strategy</code><br/>
+                <code>source_to_core candidate logic</code><br/>
+                alignment governance redesign
+              </div>
+              <div class="outputCard">
+                <div class="outputTitle">Unlocked capability</div>
+                Scalable ontology growth without repeated pairwise alignment explosion.
+              </div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- Milestone 6 -->
+      <section class="step" id="m6">
+        <div class="stepHeader">
+          <span class="badge">Milestone 6</span>
+          <h2 class="stepTitle">FEL Core seed and selective HITL created</h2>
+          <div class="meta">core seed + review queue + validated core alignment</div>
+        </div>
+        <div class="kv">
+          <div class="k">Purpose</div>
+          <div>Generate a canonical core vocabulary, create source-to-core candidates, and use selective human review only where automation is risky rather than forcing full manual inspection of all rows.</div>
+          <div class="k">Why</div>
+          <div>A fully manual pass over thousands of apparently exact candidates is wasteful and low-value. The project needed a mechanism that kept human oversight where ambiguity, noise, or semantic risk was high while letting straightforward cases scale automatically.</div>
+          <div class="k">Achievement</div>
+          <div>FEL Core seed terms and source-to-core candidates were generated, review queues isolated the hard cases, human decisions were QC’d, and a validated source-to-core alignment layer was established.</div>
+          <div class="k">What changed</div>
+          <div>Datasets began speaking through Core, enabling later alias consolidation, canonical event remapping, and ontology node stabilization.</div>
+        </div>
+
+        <div class="miniSection">
+          <div class="miniHead">Diagram</div>
+          <div class="miniBody">
+            <div class="diagramCard">
+              <div class="diagramTop">
+                <div class="diagramTitle">Selective HITL semantic governance</div>
+                <div class="diagramHint">Human review concentrated only on semantic risk</div>
+              </div>
+              <div class="diagramScroll">
+                <svg viewBox="0 0 980 270" aria-label="Selective HITL diagram">
+                  <defs>
+                    <marker id="arrow-m6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                      <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(127,127,127,.75)"></path>
+                    </marker>
+                    <style>
+                      .b{ fill:rgba(127,127,127,.08); stroke:rgba(127,127,127,.35); stroke-width:1.5; rx:16; ry:16; }
+                      .r{ fill:rgba(245,158,11,.10); stroke:rgba(245,158,11,.52); stroke-width:1.5; rx:16; ry:16; }
+                      .g{ fill:rgba(34,197,94,.10); stroke:rgba(34,197,94,.48); stroke-width:1.5; rx:16; ry:16; }
+                      .t{ font: 700 14px system-ui, sans-serif; fill: currentColor; }
+                      .s{ font: 12px system-ui, sans-serif; fill: currentColor; opacity:.8; }
+                      .l{ stroke:rgba(127,127,127,.72); stroke-width:2; fill:none; marker-end:url(#arrow-m6); }
+                    </style>
+                  </defs>
+
+                  <rect x="40" y="92" width="190" height="72" class="b"/>
+                  <text x="135" y="120" text-anchor="middle" class="t">Auto candidates</text>
+                  <text x="135" y="143" text-anchor="middle" class="s">source → core proposals</text>
+
+                  <rect x="350" y="92" width="220" height="72" class="b"/>
+                  <text x="460" y="120" text-anchor="middle" class="t">Risk-based queue split</text>
+                  <text x="460" y="143" text-anchor="middle" class="s">exact vs ambiguous / noisy / high-impact</text>
+
+                  <rect x="710" y="42" width="180" height="58" class="g"/>
+                  <text x="800" y="69" text-anchor="middle" class="t">Auto-accept</text>
+                  <text x="800" y="86" text-anchor="middle" class="s">low-risk rows</text>
+
+                  <rect x="710" y="124" width="180" height="58" class="r"/>
+                  <text x="800" y="151" text-anchor="middle" class="t">Selective HITL</text>
+                  <text x="800" y="168" text-anchor="middle" class="s">human-reviewed rows</text>
+
+                  <rect x="710" y="208" width="180" height="42" class="b"/>
+                  <text x="800" y="234" text-anchor="middle" class="t">Validated core alignment</text>
+
+                  <path d="M230 128 L350 128" class="l"/>
+                  <path d="M570 128 C630 128, 640 71, 710 71" class="l"/>
+                  <path d="M570 128 L710 153" class="l"/>
+                  <path d="M800 182 L800 208" class="l"/>
+                  <path d="M800 100 L800 208" class="l"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <details>
+          <summary>Key outputs</summary>
+          <div class="miniBody" style="padding:12px 0 0 0;">
+            <div class="outputs">
+              <div class="outputCard">
+                <div class="outputTitle">Primary outputs</div>
+                <code>fel_core_seed_terms.v1.csv</code><br/>
+                <code>source_to_core_candidates.v1.csv</code><br/>
+                <code>review_queue.v1.csv</code><br/>
+                <code>hitl_core_alignment.final.v1.csv</code>
+              </div>
+              <div class="outputCard">
+                <div class="outputTitle">Unlocked capability</div>
+                Canonical vocabulary formation became scalable and auditable instead of fully manual.
+              </div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- Milestone 7 -->
+      <section class="step" id="m7">
+        <div class="stepHeader">
+          <span class="badge">Milestone 7</span>
+          <h2 class="stepTitle">Facet taxonomy was fixed by human review</h2>
+          <div class="meta">facet candidates → HITL → final facet completeness</div>
+        </div>
+        <div class="kv">
+          <div class="k">Purpose</div>
+          <div>Assign every canonical core term a final semantic facet so that ontology typing is not probabilistic, partial, or split across multiple provisional files.</div>
+          <div class="k">Why</div>
+          <div>Automatic facet classification alone was too risky for ambiguous attributes, nickname-like terms, garment details, and unresolved blanks. Without complete facet assignment, the ontology could not support stable semantic grouping or later definition graph construction.</div>
+          <div class="k">Achievement</div>
+          <div>Facet candidates were generated, high-impact and uncertain cases were reviewed by humans, unresolved blanks were repaired, and the final core term file reached facet completeness.</div>
+          <div class="k">What changed</div>
+          <div>The project moved from candidate semantic labeling to a closed taxonomy assignment where terms could reliably participate in ontology edges, parent grouping, rule design, and later inference logic.</div>
+        </div>
+
+        <div class="miniSection">
+          <div class="miniHead">Diagram</div>
+          <div class="miniBody">
+            <div class="diagramCard">
+              <div class="diagramTop">
+                <div class="diagramTitle">Core terms → facet-complete ontology typing</div>
+                <div class="diagramHint">Semantic organization became stable enough for graph construction</div>
+              </div>
+              <div class="diagramScroll">
+                <svg viewBox="0 0 1000 300" aria-label="Facet taxonomy diagram">
+                  <defs>
+                    <marker id="arrow-m7" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                      <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(127,127,127,.75)"></path>
+                    </marker>
+                    <style>
+                      .term{ fill:rgba(127,127,127,.08); stroke:rgba(127,127,127,.35); stroke-width:1.4; rx:15; ry:15; }
+                      .facet{ fill:rgba(59,130,246,.10); stroke:rgba(59,130,246,.5); stroke-width:1.4; rx:15; ry:15; }
+                      .t{ font: 700 13px system-ui, sans-serif; fill: currentColor; }
+                      .l{ stroke:rgba(127,127,127,.7); stroke-width:2; fill:none; marker-end:url(#arrow-m7); }
+                    </style>
+                  </defs>
+
+                  <rect x="70" y="40" width="150" height="42" class="term"/><text x="145" y="66" text-anchor="middle" class="t">floral</text>
+                  <rect x="70" y="100" width="150" height="42" class="term"/><text x="145" y="126" text-anchor="middle" class="t">cotton</text>
+                  <rect x="70" y="160" width="150" height="42" class="term"/><text x="145" y="186" text-anchor="middle" class="t">long sleeve</text>
+                  <rect x="70" y="220" width="150" height="42" class="term"/><text x="145" y="246" text-anchor="middle" class="t">red</text>
+
+                  <rect x="420" y="34" width="170" height="46" class="facet"/><text x="505" y="62" text-anchor="middle" class="t">pattern</text>
+                  <rect x="420" y="94" width="170" height="46" class="facet"/><text x="505" y="122" text-anchor="middle" class="t">material</text>
+                  <rect x="420" y="154" width="170" height="46" class="facet"/><text x="505" y="182" text-anchor="middle" class="t">structure / detail</text>
+                  <rect x="420" y="214" width="170" height="46" class="facet"/><text x="505" y="242" text-anchor="middle" class="t">color_palette</text>
+
+                  <rect x="730" y="92" width="210" height="112" class="term"/>
+                  <text x="835" y="120" text-anchor="middle" class="t">Facet-complete core terms</text>
+                  <text x="835" y="145" text-anchor="middle" class="t">→ IN_FACET edges</text>
+                  <text x="835" y="170" text-anchor="middle" class="t">→ parent grouping</text>
+                  <text x="835" y="195" text-anchor="middle" class="t">→ ontology readiness</text>
+
+                  <path d="M220 61 L420 57" class="l"/>
+                  <path d="M220 121 L420 117" class="l"/>
+                  <path d="M220 181 L420 177" class="l"/>
+                  <path d="M220 241 L420 237" class="l"/>
+                  <path d="M590 117 L730 147" class="l"/>
+                  <path d="M590 177 L730 147" class="l"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <details>
+          <summary>Key outputs</summary>
+          <div class="miniBody" style="padding:12px 0 0 0;">
+            <div class="outputs">
+              <div class="outputCard">
+                <div class="outputTitle">Primary outputs</div>
+                <code>facet_candidates.v2.csv</code><br/>
+                <code>facet_review_queue.v2.csv</code><br/>
+                <code>core_terms.v1.repaired.filled_final.csv</code><br/>
+                <code>core_facets.final.csv</code>
+              </div>
+              <div class="outputCard">
+                <div class="outputTitle">Unlocked capability</div>
+                Canonical terms became semantically typed ontology nodes instead of ungrouped labels.
+              </div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- Milestone 8 -->
+      <section class="step" id="m8">
+        <div class="stepHeader">
+          <span class="badge">Milestone 8</span>
+          <h2 class="stepTitle">Backbone ontology was materialized</h2>
+          <div class="meta">canonical terms + facet edges + alias edges + graph export</div>
+        </div>
+        <div class="kv">
+          <div class="k">Purpose</div>
+          <div>Turn the emerging ontology components into explicit node and edge tables that can drive graph export, search, and later ontology/evidence linkage.</div>
+          <div class="k">Why</div>
+          <div>Before this point the project had ingredients—core terms, facets, aliases—but not yet a materialized ontology backbone. The system needed an actual graph-ready scaffold, not just intermediate CSVs.</div>
+          <div class="k">Achievement</div>
+          <div>The backbone was materialized as canonical term nodes, term→facet edges, and source→canonical alias edges, with graph export confirming that the ontology backbone could be loaded and traversed as a real graph.</div>
+          <div class="k">What changed</div>
+          <div>Ontology became operational at the graph-structure level, and the project gained a stable intermediate representation from which more expressive ontology layers could later evolve.</div>
+        </div>
+
+        <div class="miniSection">
+          <div class="miniHead">Diagram</div>
+          <div class="miniBody">
+            <div class="diagramCard">
+              <div class="diagramTop">
+                <div class="diagramTitle">Backbone ontology materialization</div>
+                <div class="diagramHint">Nodes and edges became graph-loadable assets</div>
+              </div>
+              <div class="diagramScroll">
+                <svg viewBox="0 0 980 270" aria-label="Backbone ontology materialization diagram">
+                  <defs>
+                    <marker id="arrow-m8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                      <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(127,127,127,.75)"></path>
+                    </marker>
+                    <style>
+                      .b{ fill:rgba(127,127,127,.08); stroke:rgba(127,127,127,.35); stroke-width:1.4; rx:16; ry:16; }
+                      .edge{ fill:none; stroke:rgba(59,130,246,.72); stroke-width:2.1; marker-end:url(#arrow-m8); }
+                      .t{ font: 700 14px system-ui, sans-serif; fill: currentColor; }
+                      .s{ font: 12px system-ui, sans-serif; fill: currentColor; opacity:.8; }
+                    </style>
+                  </defs>
+
+                  <rect x="60" y="112" width="170" height="52" class="b"/><text x="145" y="143" text-anchor="middle" class="t">Canonical terms</text>
+                  <rect x="390" y="52" width="170" height="52" class="b"/><text x="475" y="83" text-anchor="middle" class="t">Facet edges</text>
+                  <rect x="390" y="172" width="170" height="52" class="b"/><text x="475" y="203" text-anchor="middle" class="t">Alias edges</text>
+                  <rect x="720" y="112" width="190" height="52" class="b"/><text x="815" y="143" text-anchor="middle" class="t">Graph-ready backbone</text>
+
+                  <path d="M230 138 C300 138, 315 78, 390 78" class="edge"/>
+                  <path d="M230 138 C300 138, 315 198, 390 198" class="edge"/>
+                  <path d="M560 78 C630 78, 645 138, 720 138" class="edge"/>
+                  <path d="M560 198 C630 198, 645 138, 720 138" class="edge"/>
+
+                  <text x="815" y="178" text-anchor="middle" class="s">Neo4j export / ontology inspection</text>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <details>
+          <summary>Key outputs</summary>
+          <div class="miniBody" style="padding:12px 0 0 0;">
+            <div class="outputs">
+              <div class="outputCard">
+                <div class="outputTitle">Primary outputs</div>
+                <code>backbone_terms.v1_1.csv</code><br/>
+                <code>backbone_term_facet_edges.v1_1.csv</code><br/>
+                <code>backbone_alias_edges.v1_1.csv</code><br/>
+                graph export artifacts
+              </div>
+              <div class="outputCard">
+                <div class="outputTitle">Unlocked capability</div>
+                Direct graph loading, browsing, and ontology backbone inspection became possible.
+              </div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- Milestone 9 -->
+      <section class="step" id="m9">
+        <div class="stepHeader">
+          <span class="badge">Milestone 9</span>
+          <h2 class="stepTitle">Ontology and evidence were redesigned as separate SSOT layers</h2>
+          <div class="meta">Stage 40–42 conceptual re-foundation</div>
+        </div>
+        <div class="kv">
+          <div class="k">Purpose</div>
+          <div>Reframe the project into distinct ontology, evidence, and inference layers so that graph semantics, observational data, and downstream reasoning are not conflated.</div>
+          <div class="k">Why</div>
+          <div>The first joint SSOT attempt exposed structural mismatches: ontology edges were too shallow, event contracts over-compressed subject/object structure, and feature anchoring failed against image tables. The system needed a formal architecture split, not just more patching.</div>
+          <div class="k">Achievement</div>
+          <div>The project explicitly separated ontology from evidence and positioned inference above both, clarifying responsibilities: ontology would define meaning, evidence would preserve observational provenance, and inference would later consume both without rewriting their contracts.</div>
+          <div class="k">What changed</div>
+          <div>This redesign prevented the project from collapsing ontology semantics into event engineering and became the conceptual basis for the later successful ontology final and evidence final layers.</div>
+        </div>
+        <div class="callout warn"><b>Critical insight:</b> the first SSOT v1 failure was not wasted work; it exposed the exact architectural fault lines that had to be split apart for the final system to become stable.</div>
+
+        <div class="miniSection">
+          <div class="miniHead">Diagram</div>
+          <div class="miniBody">
+            <div class="diagramCard">
+              <div class="diagramTop">
+                <div class="diagramTitle">From mixed artifacts to layered architecture</div>
+                <div class="diagramHint">Separation of responsibilities became explicit</div>
+              </div>
+              <div class="diagramScroll">
+                <svg viewBox="0 0 980 300" aria-label="Layer split diagram">
+                  <defs>
+                    <marker id="arrow-m9" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                      <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(127,127,127,.75)"></path>
+                    </marker>
+                    <style>
+                      .bad{ fill:rgba(245,158,11,.10); stroke:rgba(245,158,11,.52); stroke-width:1.5; rx:18; ry:18; }
+                      .good1{ fill:rgba(59,130,246,.10); stroke:rgba(59,130,246,.52); stroke-width:1.5; rx:18; ry:18; }
+                      .good2{ fill:rgba(34,197,94,.10); stroke:rgba(34,197,94,.52); stroke-width:1.5; rx:18; ry:18; }
+                      .good3{ fill:rgba(139,92,246,.10); stroke:rgba(139,92,246,.52); stroke-width:1.5; rx:18; ry:18; }
+                      .t{ font: 700 14px system-ui, sans-serif; fill: currentColor; }
+                      .s{ font: 12px system-ui, sans-serif; fill: currentColor; opacity:.82; }
+                      .l{ stroke:rgba(127,127,127,.72); stroke-width:2; fill:none; marker-end:url(#arrow-m9); }
+                    </style>
+                  </defs>
+
+                  <rect x="60" y="82" width="220" height="110" class="bad"/>
+                  <text x="170" y="112" text-anchor="middle" class="t">Mixed early SSOT</text>
+                  <text x="170" y="138" text-anchor="middle" class="s">ontology semantics</text>
+                  <text x="170" y="158" text-anchor="middle" class="s">event engineering</text>
+                  <text x="170" y="178" text-anchor="middle" class="s">feature anchoring</text>
+
+                  <rect x="430" y="28" width="220" height="66" class="good1"/>
+                  <text x="540" y="58" text-anchor="middle" class="t">Ontology Layer</text>
+                  <text x="540" y="79" text-anchor="middle" class="s">meaning / definitions</text>
+
+                  <rect x="430" y="118" width="220" height="66" class="good2"/>
+                  <text x="540" y="148" text-anchor="middle" class="t">Evidence Layer</text>
+                  <text x="540" y="169" text-anchor="middle" class="s">observations / provenance</text>
+
+                  <rect x="430" y="208" width="220" height="66" class="good3"/>
+                  <text x="540" y="238" text-anchor="middle" class="t">Inference Layer</text>
+                  <text x="540" y="259" text-anchor="middle" class="s">rules / scores / trace</text>
+
+                  <path d="M280 137 L430 61" class="l"/>
+                  <path d="M280 137 L430 151" class="l"/>
+                  <path d="M280 137 L430 241" class="l"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <details>
+          <summary>Key outputs</summary>
+          <div class="miniBody" style="padding:12px 0 0 0;">
+            <div class="outputs">
+              <div class="outputCard">
+                <div class="outputTitle">Primary outputs</div>
+                Layered architecture interpretation<br/>
+                ontology/evidence SSOT separation<br/>
+                failure analysis of first joint SSOT
+              </div>
+              <div class="outputCard">
+                <div class="outputTitle">Unlocked capability</div>
+                The project gained a stable conceptual frame for final ontology and final evidence materialization.
+              </div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- Milestone 10 -->
+      <section class="step" id="m10">
+        <div class="stepHeader">
+          <span class="badge">Milestone 10</span>
+          <h2 class="stepTitle">Ontology final became an operational definition graph</h2>
+          <div class="meta">final core terms / facets / aliases / definition edges</div>
+        </div>
+        <div class="kv">
+          <div class="k">Purpose</div>
+          <div>Upgrade the ontology from a backbone-only graph into a definition-capable operational graph that encodes not only typing and aliasing, but also semantic relations among categories, parts, and attributes.</div>
+          <div class="k">Why</div>
+          <div>A term registry plus facet assignment is still not a full ontology. The system required explicit definition edges such as hierarchical and compositional relations so that fashion concepts could be read as structured semantics rather than just tagged nodes.</div>
+          <div class="k">Achievement</div>
+          <div>Final ontology node tables were materialized, aliases were finalized, and definition edges such as <code>SUBCATEGORY_OF</code>, <code>HAS_PART</code>, and <code>HAS_ATTRIBUTE</code> were added to <code>IN_FACET</code> and <code>ALIAS_OF</code>.</div>
+          <div class="k">What changed</div>
+          <div>The ontology could now support category–part–attribute reasoning, structured retrieval, and rule-based aesthetic or emotional interpretation.</div>
+        </div>
+
+        <div class="miniSection">
+          <div class="miniHead">Diagram</div>
+          <div class="miniBody">
+            <div class="diagramCard">
+              <div class="diagramTop">
+                <div class="diagramTitle">Definition graph materialization</div>
+                <div class="diagramHint">Ontology matured from typed registry into structured semantic graph</div>
+              </div>
+              <div class="diagramScroll">
+                <svg viewBox="0 0 980 300" aria-label="Definition graph diagram">
+                  <defs>
+                    <marker id="arrow-m10" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                      <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(127,127,127,.75)"></path>
+                    </marker>
+                    <style>
+                      .n{ fill:rgba(127,127,127,.08); stroke:rgba(127,127,127,.35); stroke-width:1.5; rx:16; ry:16; }
+                      .t{ font: 700 14px system-ui, sans-serif; fill: currentColor; }
+                      .s{ font: 12px system-ui, sans-serif; fill: currentColor; opacity:.82; }
+                      .l{ stroke:rgba(127,127,127,.72); stroke-width:2; fill:none; marker-end:url(#arrow-m10); }
+                      .lbl{ font: 700 11px system-ui, sans-serif; fill: currentColor; opacity:.8; }
+                    </style>
+                  </defs>
+
+                  <rect x="90" y="120" width="150" height="52" class="n"/><text x="165" y="151" text-anchor="middle" class="t">Category</text>
+                  <rect x="415" y="52" width="150" height="52" class="n"/><text x="490" y="83" text-anchor="middle" class="t">Part</text>
+                  <rect x="415" y="188" width="150" height="52" class="n"/><text x="490" y="219" text-anchor="middle" class="t">Attribute</text>
+                  <rect x="740" y="120" width="150" height="52" class="n"/><text x="815" y="151" text-anchor="middle" class="t">Facet</text>
+
+                  <path d="M240 130 C300 110, 340 92, 415 78" class="l"/>
+                  <text x="320" y="92" class="lbl">HAS_PART</text>
+
+                  <path d="M240 162 C300 180, 340 198, 415 214" class="l"/>
+                  <text x="320" y="205" class="lbl">HAS_ATTRIBUTE</text>
+
+                  <path d="M565 214 C640 214, 675 162, 740 146" class="l"/>
+                  <text x="646" y="171" class="lbl">IN_FACET</text>
+
+                  <path d="M565 78 C640 78, 675 120, 740 136" class="l"/>
+                  <text x="646" y="102" class="lbl">part-aware semantics</text>
+
+                  <text x="490" y="273" text-anchor="middle" class="s">Operational graph = canonical nodes + semantic relations + taxonomy support</text>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <details>
+          <summary>Key outputs</summary>
+          <div class="miniBody" style="padding:12px 0 0 0;">
+            <div class="outputs">
+              <div class="outputCard">
+                <div class="outputTitle">Primary outputs</div>
+                <code>core_terms.final.csv</code><br/>
+                <code>core_facets.final.csv</code><br/>
+                <code>ontology_parent_terms.final.csv</code><br/>
+                <code>term_alias.final.csv</code><br/>
+                <code>ontology_edges.final.csv</code>
+              </div>
+              <div class="outputCard">
+                <div class="outputTitle">Unlocked capability</div>
+                The ontology became usable for compositional retrieval, rule design, and semantic graph reasoning.
+              </div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- Milestone 11 -->
+      <section class="step" id="m11">
+        <div class="stepHeader">
+          <span class="badge">Milestone 11</span>
+          <h2 class="stepTitle">Evidence final achieved bridge-level integrity</h2>
+          <div class="meta">images / instances / events / core bridge validated</div>
+        </div>
+        <div class="kv">
+          <div class="k">Purpose</div>
+          <div>Construct the evidence layer as a structurally valid bridge among images, instances, events, and canonical ontology terms.</div>
+          <div class="k">Why</div>
+          <div>An ontology without evidence is only a dictionary, and evidence without stable foreign-key bridges cannot support audit, retrieval, or inference. The pipeline needed a final integrity check proving that image-level, instance-level, and term-level observations were mutually consistent.</div>
+          <div class="k">Achievement</div>
+          <div>Image tables were rebuilt with usable file paths, instance tables were constructed across DF1 and FP, event anchors were improved, and the bridge QC passed with zero FK misses across images, instances, events, and core terms.</div>
+          <div class="k">What changed</div>
+          <div>The project crossed from ontology engineering into deployable knowledge infrastructure: evidence could now point into ontology terms through validated bridges.</div>
+        </div>
+
+        <div class="miniSection">
+          <div class="miniHead">Diagram</div>
+          <div class="miniBody">
+            <div class="diagramCard">
+              <div class="diagramTop">
+                <div class="diagramTitle">Bridge-level integrity</div>
+                <div class="diagramHint">Images, instances, events, and core terms finally closed together</div>
+              </div>
+              <div class="diagramScroll">
+                <svg viewBox="0 0 980 280" aria-label="Evidence bridge integrity diagram">
+                  <defs>
+                    <marker id="arrow-m11" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                      <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(127,127,127,.75)"></path>
+                    </marker>
+                    <style>
+                      .n{ fill:rgba(127,127,127,.08); stroke:rgba(127,127,127,.35); stroke-width:1.5; rx:16; ry:16; }
+                      .g{ fill:rgba(34,197,94,.10); stroke:rgba(34,197,94,.52); stroke-width:1.5; rx:16; ry:16; }
+                      .t{ font: 700 14px system-ui, sans-serif; fill: currentColor; }
+                      .s{ font: 12px system-ui, sans-serif; fill: currentColor; opacity:.82; }
+                      .l{ stroke:rgba(127,127,127,.72); stroke-width:2; fill:none; marker-end:url(#arrow-m11); }
+                    </style>
+                  </defs>
+
+                  <rect x="70" y="114" width="150" height="52" class="n"/><text x="145" y="145" text-anchor="middle" class="t">Images</text>
+                  <rect x="320" y="114" width="150" height="52" class="n"/><text x="395" y="145" text-anchor="middle" class="t">Instances</text>
+                  <rect x="570" y="114" width="150" height="52" class="n"/><text x="645" y="145" text-anchor="middle" class="t">Events</text>
+                  <rect x="820" y="114" width="150" height="52" class="g"/><text x="895" y="145" text-anchor="middle" class="t">Core terms</text>
+
+                  <path d="M220 140 L320 140" class="l"/>
+                  <path d="M470 140 L570 140" class="l"/>
+                  <path d="M720 140 L820 140" class="l"/>
+
+                  <text x="395" y="101" text-anchor="middle" class="s">valid image FK</text>
+                  <text x="645" y="101" text-anchor="middle" class="s">valid event anchor</text>
+                  <text x="895" y="101" text-anchor="middle" class="s">valid core FK</text>
+
+                  <text x="490" y="226" text-anchor="middle" class="t">Bridge QC result: zero structural FK misses</text>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <details>
+          <summary>Key outputs</summary>
+          <div class="miniBody" style="padding:12px 0 0 0;">
+            <div class="outputs">
+              <div class="outputCard">
+                <div class="outputTitle">Primary outputs</div>
+                <code>images.final.v5.csv</code><br/>
+                <code>instances.final.v9_1.csv</code><br/>
+                <code>evidence_events.final.v7_1.csv</code><br/>
+                <code>qc_instance_image_event_bridge.final.v5.json</code>
+              </div>
+              <div class="outputCard">
+                <div class="outputTitle">Unlocked capability</div>
+                Deployable ontology–evidence coupling with auditable references and stable observational grounding.
+              </div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- Milestone 12 -->
+      <section class="step" id="m12">
+        <div class="stepHeader">
+          <span class="badge">Milestone 12</span>
+          <h2 class="stepTitle">Evidence backbone was completed and validated</h2>
+          <div class="meta">final evidence backbone completion</div>
+        </div>
+        <div class="kv">
+          <div class="k">Purpose</div>
+          <div>Complete the final evidence backbone so that images, instances, events, and ontology core terms form one operationally valid observational graph rather than a set of partially connected tables.</div>
+          <div class="k">Why</div>
+          <div>The project could not claim a usable FEL backbone until ontology terms were not only defined, but also grounded in evidence objects with valid bridges. The final requirement was therefore proof that the evidence side had matured into a stable backbone aligned with ontology.</div>
+          <div class="k">Achievement</div>
+          <div>Through the final evidence reconstruction and validation line, DF1 and FP evidence sources were reorganized, image tables were stabilized, FP true instances were recovered, event anchoring was improved, and the project reached a state where the evidence layer functioned as a completed backbone that could support downstream inference, audit, and graph reasoning.</div>
+          <div class="k">What changed</div>
+          <div>The system no longer ended at a structurally correct ontology plus a fragile observation layer; instead, it arrived at an ontology–evidence backbone in which images, instances, events, and canonical terms were connected strongly enough to serve as the final substrate for the next inference stage.</div>
+        </div>
+        <div class="callout ok"><b>Current interpretation:</b> the decisive result of the last development block is that the evidence backbone was completed and made operational; remaining DF1-side refinements are follow-up optimization work, not a reason to deny backbone completion.</div>
+
+        <div class="miniSection">
+          <div class="miniHead">Diagram</div>
+          <div class="miniBody">
+            <div class="diagramCard">
+              <div class="diagramTop">
+                <div class="diagramTitle">Completed ontology–evidence backbone</div>
+                <div class="diagramHint">The final substrate for traceable inference readiness</div>
+              </div>
+              <div class="diagramScroll">
+                <svg viewBox="0 0 1020 340" aria-label="Completed backbone diagram">
+                  <defs>
+                    <marker id="arrow-m12" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                      <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(127,127,127,.75)"></path>
+                    </marker>
+                    <style>
+                      .o{ fill:rgba(59,130,246,.10); stroke:rgba(59,130,246,.52); stroke-width:1.6; rx:16; ry:16; }
+                      .e{ fill:rgba(34,197,94,.10); stroke:rgba(34,197,94,.52); stroke-width:1.6; rx:16; ry:16; }
+                      .i{ fill:rgba(139,92,246,.10); stroke:rgba(139,92,246,.52); stroke-width:1.6; rx:16; ry:16; }
+                      .t{ font: 700 14px system-ui, sans-serif; fill: currentColor; }
+                      .s{ font: 12px system-ui, sans-serif; fill: currentColor; opacity:.82; }
+                      .l{ stroke:rgba(127,127,127,.72); stroke-width:2.1; fill:none; marker-end:url(#arrow-m12); }
+                    </style>
+                  </defs>
+
+                  <rect x="390" y="26" width="240" height="64" class="i"/>
+                  <text x="510" y="53" text-anchor="middle" class="t">Inference-ready substrate</text>
+                  <text x="510" y="73" text-anchor="middle" class="s">not yet full inference layer</text>
+
+                  <rect x="220" y="140" width="580" height="90" class="e"/>
+                  <text x="510" y="170" text-anchor="middle" class="t">Evidence backbone</text>
+                  <text x="510" y="192" text-anchor="middle" class="s">images · instances · events · anchors</text>
+                  <text x="510" y="212" text-anchor="middle" class="s">structurally validated</text>
+
+                  <rect x="220" y="268" width="580" height="50" class="o"/>
+                  <text x="510" y="299" text-anchor="middle" class="t">Ontology backbone</text>
+
+                  <path d="M510 90 L510 140" class="l"/>
+                  <path d="M510 230 L510 268" class="l"/>
+
+                  <rect x="70" y="153" width="110" height="44" class="e"/><text x="125" y="180" text-anchor="middle" class="t">DF1 evidence</text>
+                  <rect x="840" y="153" width="110" height="44" class="e"/><text x="895" y="180" text-anchor="middle" class="t">FP evidence</text>
+
+                  <path d="M180 175 L220 175" class="l"/>
+                  <path d="M800 175 L840 175" class="l"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <details>
+          <summary>Key outputs</summary>
+          <div class="miniBody" style="padding:12px 0 0 0;">
+            <div class="outputs">
+              <div class="outputCard">
+                <div class="outputTitle">Primary outputs</div>
+                <code>core_terms.final.csv</code><br/>
+                <code>core_facets.final.csv</code><br/>
+                <code>ontology_edges.final.csv</code><br/>
+                <code>images.final.v5.csv</code><br/>
+                <code>instances.final.v9_1.csv</code><br/>
+                <code>evidence_events.final.v7_1.csv</code>
+              </div>
+              <div class="outputCard">
+                <div class="outputTitle">Unlocked capability</div>
+                The system reached a completed ontology–evidence backbone strong enough to support the next traceable inference stage.
+              </div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <section class="summaryCard" id="closing">
+        <h2 style="margin:0 0 8px 0; font-size:21px;">Closing summary</h2>
+        <div class="callout ok">
+          In 12 milestones, the project can be described as:
+          <b>raw dataset normalization → dataset SSOT vocabularies → common event unification → core-centered ontology convergence → human-stabilized facet taxonomy → materialized ontology backbone → ontology/evidence layer split → operational definition graph → evidence bridge validation → completed ontology–evidence backbone for inference readiness</b>.
+        </div>
+        <div class="chips" style="margin-top:12px;">
+          <span class="chip">Ontology final = canonical semantic substrate</span>
+          <span class="chip">Evidence final = multi-anchor observation backbone</span>
+          <span class="chip">Bridge QC = structural closure</span>
+          <span class="chip">Next stage = traceable inference</span>
+        </div>
+      </section>
+
+      <p class="footer muted">
+        This HTML intentionally emphasizes achievement, architectural change, and validated outputs rather than run-command listings. It is designed for readable reporting, appendix use, and presentation-adjacent technical review.
+      </p>
+    </main>
+  </div>
 </body>
 </html>
