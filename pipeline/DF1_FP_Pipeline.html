@@ -259,7 +259,6 @@
     }
     details[open] summary::after{ content:"－"; }
 
-    /* Diagram cards */
     .diagramWrap{
       display:grid;
       grid-template-columns: 1fr;
@@ -384,12 +383,8 @@
               <div class="diagramHint">Responsive overview diagram</div>
             </div>
             <div class="diagramScroll">
-              <svg viewBox="0 0 1120 520" aria-label="Global FEL architecture diagram" role="img">
+              <svg viewBox="0 0 1120 545" aria-label="Global FEL architecture diagram" role="img">
                 <defs>
-                  <linearGradient id="g1" x1="0" x2="1">
-                    <stop offset="0%" stop-color="rgba(59,130,246,.9)"/>
-                    <stop offset="100%" stop-color="rgba(139,92,246,.95)"/>
-                  </linearGradient>
                   <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
                     <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(127,127,127,.75)"></path>
                   </marker>
@@ -414,42 +409,42 @@
                 <text x="560" y="206" text-anchor="middle" class="title">Evidence Layer</text>
                 <text x="560" y="228" text-anchor="middle" class="sub">Images · Instances · Evidence Events</text>
                 <text x="560" y="247" text-anchor="middle" class="small">multi-anchor observation graph</text>
-                
+
                 <rect x="62" y="358" width="998" height="150" class="box2"/>
                 <text x="560" y="384" text-anchor="middle" class="title">Ontology Layer</text>
                 <text x="560" y="407" text-anchor="middle" class="sub">Core Terms · Facets · Alias Bridge · Definition Graph</text>
                 <text x="560" y="426" text-anchor="middle" class="small">canonical semantic substrate</text>
 
-                <rect x="245" y="236" width="140" height="44" class="box"/>
-                <text x="315" y="263" text-anchor="middle" class="sub">Images</text>
+                <rect x="245" y="252" width="140" height="44" class="box"/>
+                <text x="315" y="279" text-anchor="middle" class="sub">Images</text>
 
-                <rect x="490" y="236" width="140" height="44" class="box"/>
-                <text x="560" y="263" text-anchor="middle" class="sub">Instances</text>
+                <rect x="490" y="252" width="140" height="44" class="box"/>
+                <text x="560" y="279" text-anchor="middle" class="sub">Instances</text>
 
-                <rect x="735" y="236" width="170" height="44" class="box"/>
-                <text x="820" y="263" text-anchor="middle" class="sub">Evidence Events</text>
+                <rect x="735" y="252" width="170" height="44" class="box"/>
+                <text x="820" y="279" text-anchor="middle" class="sub">Evidence Events</text>
 
-                <rect x="150" y="414" width="150" height="44" class="box"/>
-                <text x="225" y="441" text-anchor="middle" class="sub">Core Terms</text>
+                <rect x="150" y="444" width="150" height="44" class="box"/>
+                <text x="225" y="471" text-anchor="middle" class="sub">Core Terms</text>
 
-                <rect x="355" y="414" width="150" height="44" class="box"/>
-                <text x="430" y="441" text-anchor="middle" class="sub">Core Facets</text>
+                <rect x="355" y="444" width="150" height="44" class="box"/>
+                <text x="430" y="471" text-anchor="middle" class="sub">Core Facets</text>
 
-                <rect x="560" y="414" width="150" height="44" class="box"/>
-                <text x="635" y="441" text-anchor="middle" class="sub">Alias Bridge</text>
+                <rect x="560" y="444" width="150" height="44" class="box"/>
+                <text x="635" y="471" text-anchor="middle" class="sub">Alias Bridge</text>
 
-                <rect x="765" y="414" width="195" height="44" class="box"/>
-                <text x="862" y="441" text-anchor="middle" class="sub">Definition Edges</text>
+                <rect x="765" y="444" width="195" height="44" class="box"/>
+                <text x="862" y="471" text-anchor="middle" class="sub">Definition Edges</text>
 
                 <path d="M560,114 L560,180" class="line"/>
-                <path d="M560,308 L560,358" class="line"/>
+                <path d="M560,330 L560,358" class="line"/>
 
-                <path d="M315,280 L315,358" class="line"/>
-                <path d="M560,280 L560,358" class="line"/>
-                <path d="M820,280 L820,358" class="line"/>
+                <path d="M315 296 L315 358" class="line"/>
+                <path d="M560 296 L560 358" class="line"/>
+                <path d="M820 296 L820 358" class="line"/>
 
                 <text x="560" y="154" text-anchor="middle" class="small">reasoning consumes ontology-grounded evidence</text>
-                <text x="560" y="338" text-anchor="middle" class="small">events resolve into canonical terms through validated bridges</text>
+                <text x="560" y="346" text-anchor="middle" class="small">events resolve into canonical terms through validated bridges</text>
               </svg>
             </div>
             <div class="legend">
@@ -488,7 +483,7 @@
                 <div class="diagramHint">Benchmark fragmentation resolved into one stable root</div>
               </div>
               <div class="diagramScroll">
-                <svg viewBox="0 0 940 300" aria-label="DF1 normalization diagram">
+                <svg viewBox="0 0 980 320" aria-label="DF1 normalization diagram">
                   <defs>
                     <marker id="arrow-m1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
                       <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(127,127,127,.75)"></path>
@@ -500,18 +495,35 @@
                       .l{ stroke:rgba(127,127,127,.72); stroke-width:2; fill:none; marker-end:url(#arrow-m1); }
                     </style>
                   </defs>
-                  <rect x="20" y="45" width="165" height="58" class="b"/><text x="102.5" y="70" text-anchor="middle" class="t">CAPB coarse/fine</text><text x="102.5" y="89" text-anchor="middle" class="s">category / attribute / bbox / landmark</text>
-                  <rect x="20" y="125" width="165" height="58" class="b"/><text x="102.5" y="150" text-anchor="middle" class="t">Consumer2Shop</text><text x="102.5" y="169" text-anchor="middle" class="s">pairs / partitions / geometry</text>
-                  <rect x="20" y="205" width="165" height="58" class="b"/><text x="102.5" y="230" text-anchor="middle" class="t">In-shop / Landmark</text><text x="102.5" y="249" text-anchor="middle" class="s">item grouping / landmark cues</text>
 
-                  <rect x="312" y="104" width="170" height="98" class="b"/><text x="397" y="132" text-anchor="middle" class="t">Normalization + QC</text><text x="397" y="154" text-anchor="middle" class="s">schema standardization</text><text x="397" y="172" text-anchor="middle" class="s">global image keys</text><text x="397" y="190" text-anchor="middle" class="s">manifest + audit outputs</text>
+                  <rect x="20" y="45" width="220" height="58" class="b"/>
+                  <text x="130" y="70" text-anchor="middle" class="t">CAPB coarse/fine</text>
+                  <text x="130" y="89" text-anchor="middle" class="s">category / attribute / bbox / landmark</text>
 
-                  <rect x="610" y="104" width="300" height="98" class="b"/><text x="760" y="132" text-anchor="middle" class="t">DF1 normalized root</text><text x="760" y="154" text-anchor="middle" class="s">benchmarks/*/normalized/*.csv.gz</text><text x="760" y="172" text-anchor="middle" class="s">split-stable substrate</text><text x="760" y="190" text-anchor="middle" class="s">reusable source contract</text>
+                  <rect x="20" y="125" width="220" height="58" class="b"/>
+                  <text x="130" y="150" text-anchor="middle" class="t">Consumer2Shop</text>
+                  <text x="130" y="169" text-anchor="middle" class="s">pairs / partitions / geometry</text>
 
-                  <path d="M185 74 C240 74, 255 128, 312 128" class="l"/>
-                  <path d="M185 154 C240 154, 255 154, 312 154" class="l"/>
-                  <path d="M185 234 C240 234, 255 180, 312 180" class="l"/>
-                  <path d="M482 153 L610 153" class="l"/>
+                  <rect x="20" y="205" width="220" height="58" class="b"/>
+                  <text x="130" y="230" text-anchor="middle" class="t">In-shop / Landmark</text>
+                  <text x="130" y="249" text-anchor="middle" class="s">item grouping / landmark cues</text>
+
+                  <rect x="355" y="104" width="200" height="98" class="b"/>
+                  <text x="455" y="132" text-anchor="middle" class="t">Normalization + QC</text>
+                  <text x="455" y="154" text-anchor="middle" class="s">schema standardization</text>
+                  <text x="455" y="172" text-anchor="middle" class="s">global image keys</text>
+                  <text x="455" y="190" text-anchor="middle" class="s">manifest + audit outputs</text>
+
+                  <rect x="700" y="104" width="245" height="98" class="b"/>
+                  <text x="822.5" y="132" text-anchor="middle" class="t">DF1 normalized root</text>
+                  <text x="822.5" y="154" text-anchor="middle" class="s">benchmarks/*/normalized/*.csv.gz</text>
+                  <text x="822.5" y="172" text-anchor="middle" class="s">split-stable substrate</text>
+                  <text x="822.5" y="190" text-anchor="middle" class="s">reusable source contract</text>
+
+                  <path d="M240 74 C290 74, 308 128, 355 128" class="l"/>
+                  <path d="M240 154 L355 154" class="l"/>
+                  <path d="M240 234 C290 234, 308 180, 355 180" class="l"/>
+                  <path d="M555 153 L700 153" class="l"/>
                 </svg>
               </div>
             </div>
@@ -650,7 +662,7 @@
                 <div class="diagramHint">Canonicalization begins only after source registries are frozen</div>
               </div>
               <div class="diagramScroll">
-                <svg viewBox="0 0 940 250" aria-label="Dataset registry diagram">
+                <svg viewBox="0 0 940 290" aria-label="Dataset registry diagram">
                   <defs>
                     <marker id="arrow-m3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
                       <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(127,127,127,.75)"></path>
@@ -662,22 +674,23 @@
                       .l{ stroke:rgba(127,127,127,.72); stroke-width:2; fill:none; marker-end:url(#arrow-m3); }
                     </style>
                   </defs>
-                      <rect x="70" y="40" width="240" height="82" class="b"/>
-                      <text x="190" y="68" text-anchor="middle" class="t">DF1 local terms</text>
-                      <text x="190" y="92" text-anchor="middle" class="s">category / attribute / color / attr_type</text>
-                      
-                      <rect x="70" y="160" width="240" height="82" class="b"/>
-                      <text x="190" y="188" text-anchor="middle" class="t">FP local terms</text>
-                      <text x="190" y="212" text-anchor="middle" class="s">category / part / attribute</text>
-                      
-                      <rect x="650" y="56" width="210" height="50" class="b"/>
-                      <text x="755" y="87" text-anchor="middle" class="t">df1_term_registry.csv</text>
-                      
-                      <rect x="650" y="176" width="210" height="50" class="b"/>
-                      <text x="755" y="207" text-anchor="middle" class="t">fp_term_registry.csv</text>
-                      
-                      <path d="M310 81 L650 81" class="l"/>
-                      <path d="M310 201 L650 201" class="l"/>
+
+                  <rect x="70" y="40" width="240" height="82" class="b"/>
+                  <text x="190" y="68" text-anchor="middle" class="t">DF1 local terms</text>
+                  <text x="190" y="92" text-anchor="middle" class="s">category / attribute / color / attr_type</text>
+
+                  <rect x="70" y="160" width="240" height="82" class="b"/>
+                  <text x="190" y="188" text-anchor="middle" class="t">FP local terms</text>
+                  <text x="190" y="212" text-anchor="middle" class="s">category / part / attribute</text>
+
+                  <rect x="650" y="56" width="210" height="50" class="b"/>
+                  <text x="755" y="87" text-anchor="middle" class="t">df1_term_registry.csv</text>
+
+                  <rect x="650" y="176" width="210" height="50" class="b"/>
+                  <text x="755" y="207" text-anchor="middle" class="t">fp_term_registry.csv</text>
+
+                  <path d="M310 81 L650 81" class="l"/>
+                  <path d="M310 201 L650 201" class="l"/>
                 </svg>
               </div>
             </div>
@@ -898,7 +911,7 @@
                 <div class="diagramHint">Human review concentrated only on semantic risk</div>
               </div>
               <div class="diagramScroll">
-                <svg viewBox="0 0 980 270" aria-label="Selective HITL diagram">
+                <svg viewBox="0 0 980 290" aria-label="Selective HITL diagram">
                   <defs>
                     <marker id="arrow-m6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
                       <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(127,127,127,.75)"></path>
@@ -1008,10 +1021,10 @@
                   <rect x="70" y="160" width="150" height="42" class="term"/><text x="145" y="186" text-anchor="middle" class="t">long sleeve</text>
                   <rect x="70" y="220" width="150" height="42" class="term"/><text x="145" y="246" text-anchor="middle" class="t">red</text>
 
-                  <rect x="420" y="34" width="170" height="46" class="facet"/><text x="505" y="62" text-anchor="middle" class="t">pattern</text>
-                  <rect x="420" y="94" width="170" height="46" class="facet"/><text x="505" y="122" text-anchor="middle" class="t">material</text>
-                  <rect x="420" y="154" width="170" height="46" class="facet"/><text x="505" y="182" text-anchor="middle" class="t">structure / detail</text>
-                  <rect x="420" y="214" width="170" height="46" class="facet"/><text x="505" y="242" text-anchor="middle" class="t">color_palette</text>
+                  <rect x="420" y="40" width="170" height="42" class="facet"/><text x="505" y="66" text-anchor="middle" class="t">pattern</text>
+                  <rect x="420" y="100" width="170" height="42" class="facet"/><text x="505" y="126" text-anchor="middle" class="t">material</text>
+                  <rect x="420" y="160" width="170" height="42" class="facet"/><text x="505" y="186" text-anchor="middle" class="t">structure / detail</text>
+                  <rect x="420" y="220" width="170" height="42" class="facet"/><text x="505" y="246" text-anchor="middle" class="t">color_palette</text>
 
                   <rect x="730" y="92" width="210" height="112" class="term"/>
                   <text x="835" y="120" text-anchor="middle" class="t">Facet-complete core terms</text>
@@ -1019,12 +1032,13 @@
                   <text x="835" y="170" text-anchor="middle" class="t">→ parent grouping</text>
                   <text x="835" y="195" text-anchor="middle" class="t">→ ontology readiness</text>
 
-                  <path d="M220 61 L420 57" class="l"/>
-                  <path d="M220 121 L420 117" class="l"/>
-                  <path d="M220 181 L420 177" class="l"/>
-                  <path d="M220 241 L420 237" class="l"/>
-                  <path d="M590 117 L730 147" class="l"/>
-                  <path d="M590 177 L730 147" class="l"/>
+                  <path d="M220 61 L420 61" class="l"/>
+                  <path d="M220 121 L420 121" class="l"/>
+                  <path d="M220 181 L420 181" class="l"/>
+                  <path d="M220 241 L420 241" class="l"/>
+
+                  <path d="M590 121 C655 121, 680 135, 730 148" class="l"/>
+                  <path d="M590 181 C655 181, 680 165, 730 148" class="l"/>
                 </svg>
               </div>
             </div>
@@ -1489,7 +1503,6 @@
           <span class="chip">Next stage = traceable inference</span>
         </div>
       </section>
-
     </main>
   </div>
 </body>
