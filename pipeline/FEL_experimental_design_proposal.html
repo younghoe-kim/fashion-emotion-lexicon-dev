@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FEL v5 Experimental Design Proposal Final Revised HTML</title>
+  <style>
+    :root{
+      --bg:#0b0d12;
+      --panel:#12161f;
+      --panel-2:#171c27;
+      --text:#f3f5f8;
+      --muted:#c6ccd8;
+      --soft:#9aa3b2;
+      --line:rgba(255,255,255,.12);
+      --line-2:rgba(255,255,255,.18);
+      --blue:#4ea1ff;
+      --green:#38d27a;
+      --violet:#9c6bff;
+      --amber:#f4a62a;
+      --teal:#31c3b3;
+      --shadow:0 16px 40px rgba(0,0,0,.34);
+      --radius:24px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(156,107,255,.12), transparent 28%),
+        radial-gradient(circle at 82% 8%, rgba(78,161,255,.11), transparent 24%),
+        linear-gradient(180deg, #0a0c11 0%, #0b0d12 100%);
+      color:var(--text);
+      line-height:1.68;
+      padding:28px 18px 52px;
+    }
+    .page{max-width:1360px;margin:0 auto}
+    header{
+      margin-bottom:20px;
+      padding:22px 24px;
+      border:1px solid var(--line);
+      border-radius:28px;
+      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.02));
+      box-shadow:var(--shadow);
+    }
+    h1,h2,h3,h4,p,ul,ol{margin:0}
+    h1{font-size:36px;line-height:1.15;letter-spacing:-.03em}
+    h2{font-size:22px;line-height:1.25;letter-spacing:-.02em}
+    h3{font-size:18px;line-height:1.32;margin-bottom:10px}
+    h4{font-size:15px;line-height:1.35;margin-bottom:8px;color:#fff}
+    .subtitle{margin-top:10px;color:var(--muted);max-width:1080px}
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      margin-top:14px;padding:7px 12px;border-radius:999px;
+      border:1px solid var(--line-2);background:rgba(255,255,255,.03);
+      font-size:12px;color:#fff;font-weight:700;
+    }
+    .layout{display:grid;grid-template-columns:290px minmax(0,1fr);gap:18px;align-items:start}
+    .toc,.card,.panel,.diagramWrap,.miniCard,.stagePanel{
+      border:1px solid var(--line);background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.02));
+      border-radius:var(--radius);box-shadow:var(--shadow);
+    }
+    .toc{position:sticky;top:16px;padding:16px 14px}
+    .toc h2{font-size:14px;margin-bottom:10px}
+    .toc a{
+      display:block;padding:8px 10px;border-radius:12px;color:var(--muted);text-decoration:none;
+      font-size:13px;border:1px solid transparent;
+    }
+    .toc a:hover{background:rgba(255,255,255,.04);border-color:var(--line);color:#fff}
+    .toc hr{border:none;border-top:1px solid var(--line);margin:10px 0}
+    .main section{margin-bottom:18px}
+    .card{padding:20px}
+    .sectionHead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+    .badge{
+      display:inline-flex;align-items:center;justify-content:center;
+      min-width:86px;padding:7px 12px;border-radius:999px;font-size:12px;font-weight:800;
+      color:#fff;border:1px solid var(--line-2);background:rgba(255,255,255,.04)
+    }
+    .lead{font-size:17px;color:#fff}
+    .muted{color:var(--muted)}
+    .small{font-size:13px;color:var(--muted)}
+    .tiny{font-size:12px;color:var(--soft)}
+    .callout{
+      margin-top:14px;padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.035);
+      border:1px solid var(--line);border-left:4px solid var(--blue)
+    }
+    .callout.green{border-left-color:var(--green)}
+    .callout.violet{border-left-color:var(--violet)}
+    .callout.amber{border-left-color:var(--amber)}
+    .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+    .chip{
+      display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;
+      font-size:12px;font-weight:700;color:#fff;border:1px solid var(--line-2);background:rgba(255,255,255,.04)
+    }
+    .diagramWrap{overflow:hidden}
+    .diagramHead{
+      display:flex;justify-content:space-between;align-items:center;gap:12px;
+      padding:13px 16px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.03)
+    }
+    .diagramTitle{font-size:14px;font-weight:800}
+    .diagramHint{font-size:12px;color:var(--soft)}
+    .diagramBody{padding:16px}
+    svg{display:block;width:100%;height:auto}
+    .panel{padding:18px}
+    .miniGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}
+    .miniCard{padding:14px}
+    .pipelineList{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;margin-top:16px}
+    .stageBox{padding:14px 10px;border-radius:18px;border:1px solid var(--line);text-align:center;background:rgba(255,255,255,.03)}
+    .stageBox .n{display:block;font-size:11px;color:var(--soft);text-transform:uppercase;letter-spacing:.12em}
+    .stageBox .t{display:block;font-size:14px;font-weight:800;margin-top:4px;color:#fff}
+    .violetBox{box-shadow:inset 0 0 0 1px rgba(156,107,255,.24);background:rgba(156,107,255,.08)}
+    .greenBox{box-shadow:inset 0 0 0 1px rgba(56,210,122,.22);background:rgba(56,210,122,.07)}
+    .blueBox{box-shadow:inset 0 0 0 1px rgba(78,161,255,.22);background:rgba(78,161,255,.07)}
+    .amberBox{box-shadow:inset 0 0 0 1px rgba(244,166,42,.22);background:rgba(244,166,42,.07)}
+    .stagePanel{margin-top:14px;padding:18px;background:rgba(255,255,255,.025)}
+    .stagePanel + .stagePanel{margin-top:12px}
+    .stagePanel ul,.stagePanel ol{margin-top:10px;padding-left:20px}
+    .stagePanel li{margin-top:6px;color:var(--muted)}
+    .formula{
+      margin-top:12px;padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.035);
+      border:1px dashed rgba(255,255,255,.18);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      font-size:13px;white-space:pre-wrap;color:#f7f8fb
+    }
+    .trace{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}
+    .refLinks{margin-top:12px;font-size:13px;color:var(--muted)}
+    .refLinks a{color:#a9d0ff;text-decoration:none;border-bottom:1px dotted rgba(169,208,255,.5)}
+    .refLinks a:hover{color:#fff;border-bottom-color:#fff}
+    .refsTable{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
+    .refsTable th,.refsTable td{padding:12px 12px;vertical-align:top;border-top:1px solid var(--line)}
+    .refsTable th{text-align:left;color:#fff;background:rgba(255,255,255,.03)}
+    .refsTable tr:first-child th,.refsTable tr:first-child td{border-top:none}
+    .refsTable td:first-child{width:240px;font-weight:800;color:#dff6e7}
+    .summaryBlock{margin-top:14px;padding:16px 18px;border-radius:20px;background:rgba(255,255,255,.035);border:1px solid var(--line);border-left:5px solid var(--blue)}
+    .summaryBlock div{margin-top:4px}
+    @media (max-width:1180px){
+      .pipelineList{grid-template-columns:repeat(4,minmax(0,1fr))}
+      .trace{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .miniGrid{grid-template-columns:1fr}
+    }
+    @media (max-width:980px){
+      .layout{grid-template-columns:1fr}
+      .toc{position:static}
+      .pipelineList{grid-template-columns:repeat(3,minmax(0,1fr))}
+    }
+    @media (max-width:720px){
+      body{padding:16px 12px 38px}
+      header,.card{padding:16px}
+      h1{font-size:29px}
+      .pipelineList,.trace{grid-template-columns:1fr}
+      .refsTable td:first-child{width:auto}
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>FEL v5 Experimental Design Proposal</h1>
+      <p class="subtitle">Final revised collaborator draft. This version fixes the broken FEL diagram layout, restores the full ontology-first logic, and incorporates the detailed experimental-plan content around traceability, schema governance, exact-linked subset design, signal validation, prototype plus MLP aesthetic modeling, VAD-based affect mapping, lexical projection, and LLM sidecar usage.</p>
+      <div class="pill">Concept-first · Evidence-grounded · Governed multi-stage inference</div>
+    </header>
+
+    <div class="layout">
+      <nav class="toc">
+        <h2>Contents</h2>
+        <a href="#intuition">1. One-line intuition</a>
+        <a href="#why">2. Why this structure</a>
+        <a href="#full-pipeline">3. Full pipeline</a>
+        <a href="#stages">4. Stage-by-stage explanation</a>
+        <a href="#llm">5. Proposal: How we can integrate LLM reasoning</a>
+        <a href="#execution">6. Recommended execution order</a>
+        <a href="#final-intuition">7. Final intuition</a>
+        <a href="#references">References</a>
+        <hr />
+        <div class="small">Key additions in this revision</div>
+        <a href="#stage2">Exact-linked 30k subset and controlled evaluation</a>
+        <a href="#stage3">All 13 initial signals and validation logic</a>
+        <a href="#stage4">Prototype plus MLP hybrid aesthetic layer</a>
+        <a href="#stage5">VAD headline with optional auxiliary axis</a>
+        <a href="#stage6">Whitelist-based lexical projection governance</a>
+      </nav>
+
+      <main class="main">
+        <section class="card" id="intuition">
+          <div class="sectionHead"><span class="badge">Section 1</span><h2>One-line intuition</h2></div>
+          <p class="lead">What I’m proposing is <strong>not</strong> a standard image → emotion pipeline.</p>
+          <div class="callout green">
+            Instead, we first define meaning through an ontology, ground that meaning into structured evidence linked to images, and then perform inference in stages:
+            <div class="chips"><span class="chip">evidence → signal → aesthetic → affect</span></div>
+          </div>
+          <p class="muted" style="margin-top:14px;">So the model is not guessing emotion from pixels. It is reasoning from structured, grounded evidence toward affect. More precisely, this experiment keeps the canonical ontology and evidence backbone fixed, and validates <strong>signal → aesthetic → affect</strong> on top of that governed substrate.</p>
+          <div class="miniGrid">
+            <div class="miniCard">
+              <h4>Traceability</h4>
+              <p class="small">Outputs remain traceable through <strong>image_uid → instance_uid → event_uid → core_term_uid → signal → A(x) → VAD → lexical</strong>.</p>
+            </div>
+            <div class="miniCard">
+              <h4>Schema governance</h4>
+              <p class="small">The ontology and evidence backbone is treated as contract-locked, so experiments add inference on top of an already governed substrate instead of improvising reasoning on raw pixels.</p>
+            </div>
+            <div class="miniCard">
+              <h4>Domain specificity</h4>
+              <p class="small">Fashion semantics are not generic image semantics. Silhouette, material, decoration, composition, and styling intent require domain-governed evidence.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" id="why">
+          <div class="sectionHead"><span class="badge">Section 2</span><h2>Why this structure (intuitive explanation)</h2></div>
+          <div class="diagramWrap">
+            <div class="diagramHead">
+              <div class="diagramTitle">Image-first vs ontology-first</div>
+              <div class="diagramHint">Wide horizontal diagram, unified box size, no clipping</div>
+            </div>
+            <div class="diagramBody">
+              <svg viewBox="0 0 1320 430" aria-label="Image-first versus ontology-first comparison">
+                <defs>
+                  <marker id="arrow-why" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                    <path d="M0 0 L10 5 L0 10 z" fill="rgba(255,255,255,.78)"></path>
+                  </marker>
+                </defs>
+                <rect x="18" y="20" width="1284" height="176" rx="28" fill="rgba(255,255,255,.02)" stroke="rgba(255,255,255,.10)"/>
+                <text x="60" y="66" fill="#ffffff" font-size="22" font-weight="800">Common image-first pattern</text>
+                <rect x="70" y="96" width="220" height="74" rx="22" fill="rgba(255,255,255,.05)" stroke="rgba(255,255,255,.18)"/>
+                <rect x="390" y="96" width="220" height="74" rx="22" fill="rgba(255,255,255,.05)" stroke="rgba(255,255,255,.18)"/>
+                <rect x="710" y="96" width="220" height="74" rx="22" fill="rgba(255,255,255,.05)" stroke="rgba(255,255,255,.18)"/>
+                <text x="180" y="141" text-anchor="middle" fill="#ffffff" font-size="20" font-weight="800">Image</text>
+                <text x="500" y="141" text-anchor="middle" fill="#ffffff" font-size="20" font-weight="800">Embedding</text>
+                <text x="820" y="141" text-anchor="middle" fill="#ffffff" font-size="20" font-weight="800">Emotion</text>
+                <path d="M290 133 L390 133" stroke="rgba(255,255,255,.78)" stroke-width="3" marker-end="url(#arrow-why)"/>
+                <path d="M610 133 L710 133" stroke="rgba(255,255,255,.78)" stroke-width="3" marker-end="url(#arrow-why)"/>
+
+                <rect x="18" y="218" width="1284" height="176" rx="28" fill="rgba(255,255,255,.02)" stroke="rgba(255,255,255,.10)"/>
+                <text x="60" y="264" fill="#ffffff" font-size="22" font-weight="800">FEL v5 ontology-first pattern</text>
+                <rect x="42" y="294" width="160" height="74" rx="22" fill="rgba(156,107,255,.12)" stroke="rgba(156,107,255,.72)"/>
+                <rect x="222" y="294" width="160" height="74" rx="22" fill="rgba(56,210,122,.12)" stroke="rgba(56,210,122,.72)"/>
+                <rect x="402" y="294" width="160" height="74" rx="22" fill="rgba(56,210,122,.12)" stroke="rgba(56,210,122,.72)"/>
+                <rect x="582" y="294" width="160" height="74" rx="22" fill="rgba(78,161,255,.12)" stroke="rgba(78,161,255,.72)"/>
+                <rect x="762" y="294" width="160" height="74" rx="22" fill="rgba(244,166,42,.11)" stroke="rgba(244,166,42,.68)"/>
+                <rect x="942" y="294" width="160" height="74" rx="22" fill="rgba(244,166,42,.11)" stroke="rgba(244,166,42,.68)"/>
+                <rect x="1122" y="294" width="160" height="74" rx="22" fill="rgba(244,166,42,.11)" stroke="rgba(244,166,42,.68)"/>
+                <text x="122" y="339" text-anchor="middle" fill="#ffffff" font-size="18" font-weight="800">Ontology</text>
+                <text x="302" y="339" text-anchor="middle" fill="#ffffff" font-size="18" font-weight="800">Evidence</text>
+                <text x="482" y="339" text-anchor="middle" fill="#ffffff" font-size="18" font-weight="800">Instance</text>
+                <text x="662" y="339" text-anchor="middle" fill="#ffffff" font-size="18" font-weight="800">Image</text>
+                <text x="842" y="339" text-anchor="middle" fill="#ffffff" font-size="18" font-weight="800">Signal</text>
+                <text x="1022" y="339" text-anchor="middle" fill="#ffffff" font-size="18" font-weight="800">Aesthetic</text>
+                <text x="1202" y="339" text-anchor="middle" fill="#ffffff" font-size="18" font-weight="800">Affect</text>
+                <path d="M202 331 L222 331" stroke="rgba(255,255,255,.78)" stroke-width="3" marker-end="url(#arrow-why)"/>
+                <path d="M382 331 L402 331" stroke="rgba(255,255,255,.78)" stroke-width="3" marker-end="url(#arrow-why)"/>
+                <path d="M562 331 L582 331" stroke="rgba(255,255,255,.78)" stroke-width="3" marker-end="url(#arrow-why)"/>
+                <path d="M742 331 L762 331" stroke="rgba(255,255,255,.78)" stroke-width="3" marker-end="url(#arrow-why)"/>
+                <path d="M922 331 L942 331" stroke="rgba(255,255,255,.78)" stroke-width="3" marker-end="url(#arrow-why)"/>
+                <path d="M1102 331 L1122 331" stroke="rgba(255,255,255,.78)" stroke-width="3" marker-end="url(#arrow-why)"/>
+              </svg>
+            </div>
+          </div>
+          <div class="panel" style="margin-top:16px;">
+            <p>Most existing systems start from the image and try to infer everything directly:</p>
+            <div class="chips"><span class="chip">Image → Embedding → Emotion</span></div>
+            <p class="muted" style="margin-top:14px;">In our case, we’re doing something fundamentally different:</p>
+            <div class="chips"><span class="chip">Ontology → Evidence → Instance → Image → Signal → Aesthetic → Affect</span></div>
+            <p class="muted" style="margin-top:14px;">The reason is this:</p>
+            <ul style="margin-top:10px;padding-left:18px;">
+              <li>In fashion, meaning is not purely visual. It is structured through silhouette, material, composition, styling intent, and domain-specific attributes.</li>
+              <li>If we go directly from pixels to emotion, we lose interpretability, governance, and control.</li>
+              <li>If we define meaning first, then ground it into data, we can build a system that is both explainable and stable.</li>
+            </ul>
+            <p class="muted" style="margin-top:14px;">So in our design, the image is not the starting point. The image is the <strong>grounding layer</strong> of meaning.</p>
+            <div class="summaryBlock">
+              <div><strong>Summary</strong></div>
+              <div>Ontology defines meaning</div>
+              <div>Evidence instantiates meaning</div>
+              <div>Instance localizes meaning</div>
+              <div>Image grounds meaning</div>
+              <div>Inference operates on grounded evidence</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" id="full-pipeline">
+          <div class="sectionHead"><span class="badge">Section 3</span><h2>Full pipeline (conceptual view)</h2></div>
+          <p class="muted">The collaborator-facing experimental pipeline is best explained as a governed sequence that starts from canonical semantics and only later reaches images, signals, aesthetics, and affect.</p>
+          <div class="pipelineList">
+            <div class="stageBox violetBox"><span class="n">Stage 0</span><span class="t">Ontology</span></div>
+            <div class="stageBox greenBox"><span class="n">Stage 1</span><span class="t">Evidence Construction</span></div>
+            <div class="stageBox blueBox"><span class="n">Stage 2</span><span class="t">Clean Experimental Subset</span></div>
+            <div class="stageBox amberBox"><span class="n">Stage 3</span><span class="t">Signal Layer</span></div>
+            <div class="stageBox amberBox"><span class="n">Stage 4</span><span class="t">Aesthetic Layer</span></div>
+            <div class="stageBox amberBox"><span class="n">Stage 5</span><span class="t">Affect Layer (VAD)</span></div>
+            <div class="stageBox amberBox"><span class="n">Stage 6</span><span class="t">Lexical Explanation</span></div>
+          </div>
+          <div class="callout violet">
+            Philosophically compressed:<br />
+            <strong>Ontology defines meaning → Event instantiates meaning → Instance localizes meaning → Image grounds meaning → Inference operates on grounded evidence</strong>
+          </div>
+        </section>
+
+        <section class="card" id="stages">
+          <div class="sectionHead"><span class="badge">Section 4</span><h2>Stage-by-stage explanation</h2></div>
+
+          <div class="stagePanel" id="stage0">
+            <h3>Stage 0. Canonical Ontology Backbone</h3>
+            <p class="muted">At the beginning, we define and lock the ontology-side single source of truth: a structured vocabulary of fashion semantics including garment types, core facets, material and silhouette attributes, decorations, parent terms, aliases, and ontology edges.</p>
+            <ul>
+              <li><strong>Purpose:</strong> make sure the semantic units are closed before downstream inference begins.</li>
+              <li><strong>Why first:</strong> if a signal is supposed to be an evidence-derived feature anchored to canonical semantics, the meaning space must already be fixed.</li>
+              <li><strong>Design claim:</strong> FEL aims for canonical convergence ontology rather than ad hoc dataset-specific vocabularies.</li>
+              <li><strong>Cross-dataset value:</strong> different sources can converge into a shared representation through the same core_term backbone.</li>
+            </ul>
+            <div class="callout">If we do not define what counts as a semantic unit first, everything downstream becomes unstable. The ontology is therefore not decoration. It is the governed prior that stabilizes later evidence and inference.</div>
+            <div class="refLinks"><strong>References:</strong> <a href="#ref-fashionbert">FashionBERT</a>, <a href="#ref-fashionvil">FashionViL</a>, <a href="#ref-aesthemos">AESTHEMOS</a>, <a href="#ref-aesthetic-emotion-lexicon">Aesthetic Emotion Lexicon</a></div>
+          </div>
+
+          <div class="stagePanel" id="stage1">
+            <h3>Stage 1. Evidence Construction</h3>
+            <p class="muted">Here we connect the ontology to actual observational data: images, localized instances (bounding boxes / regions), and evidence events grounded in those observations.</p>
+            <ul>
+              <li><strong>What is represented:</strong> what elements exist, where they exist, and how they are supported.</li>
+              <li><strong>QC logic:</strong> image-instance-event-core bridges must close cleanly.</li>
+              <li><strong>Conservative precision policy:</strong> exact instance-anchored evidence is preferred; ambiguous observations may remain at image level instead of being over-localized.</li>
+              <li><strong>Reason:</strong> emotion and aesthetics depend on structured presence, not just labels.</li>
+            </ul>
+            <div class="formula">Availability-aware fusion principle
+J(x) = Σ_k  m_k(x) · w_k · e_k(x)
+
+where m_k(x) is an availability mask and w_k encodes confidence hierarchy.
+Practical reading: instance evidence is strongest, image-level evidence is next,
+and ontology prior is always available but weakest.</div>
+            <div class="refLinks"><strong>References:</strong> <a href="#ref-vanessa">Vanessa (MABSA)</a>, <a href="#ref-fashionvil">FashionViL</a>, <a href="#ref-fashionbert">FashionBERT</a></div>
+          </div>
+
+          <div class="stagePanel" id="stage2">
+            <h3>Stage 2. Exact-linked Experimental Subset</h3>
+            <p class="muted">Before running full-scale experiments, we use a clean, strictly linked subset rather than the entire backbone all at once.</p>
+            <ul>
+              <li><strong>Subset policy:</strong> only exact matches between ontology, events, instances, and images. No weak or ambiguous joins.</li>
+              <li><strong>Experimental role:</strong> this is a clean sandbox, not merely a smaller sample.</li>
+              <li><strong>Reason:</strong> we want falsifiable experiments in a controlled environment so we can distinguish better signals, better modeling, and noisy data.</li>
+              <li><strong>Defense logic:</strong> the subset is used because it is contract-locked and role-preserving, not because the full dataset is unavailable.</li>
+            </ul>
+            <div class="miniGrid">
+              <div class="miniCard"><h4>Subset framing</h4><p class="small">Exact-linked 30k subset for development and controlled reporting.</p></div>
+              <div class="miniCard"><h4>Illustrative counts</h4><p class="small">14,049 images · 30,000 instances · 678,548 events · 530,642 semantic events.</p></div>
+              <div class="miniCard"><h4>Reporting rule</h4><p class="small">Separate full-data statistics, subset statistics, and signal calculability instead of collapsing them into one headline number.</p></div>
+            </div>
+            <div class="refLinks"><strong>References:</strong> <a href="#ref-aesrec">AesRec</a>, <a href="#ref-fashionbert">FashionBERT</a>, <a href="#ref-fashionvil">FashionViL</a></div>
+          </div>
+
+          <div class="stagePanel" id="stage3">
+            <h3>Stage 3. Signal Layer</h3>
+            <p class="muted">At this stage, structured evidence is transformed into interpretable signals. These are treated as <strong>formative inputs</strong>, not hidden latent factors.</p>
+            <div class="chips">
+              <span class="chip">softness</span>
+              <span class="chip">sharpness</span>
+              <span class="chip">decorative_richness</span>
+              <span class="chip">minimalism_index</span>
+              <span class="chip">visual_flow</span>
+              <span class="chip">visual_balance</span>
+              <span class="chip">color_warmth</span>
+              <span class="chip">color_calmness</span>
+              <span class="chip">contrast_energy</span>
+              <span class="chip">structure_rigidity</span>
+              <span class="chip">playfulness_signal</span>
+              <span class="chip">dramatic_intensity</span>
+              <span class="chip">novelty_cue</span>
+            </div>
+            <ul>
+              <li><strong>Interpretability:</strong> each signal has explicit meaning.</li>
+              <li><strong>Controllability:</strong> signals can be inspected, adjusted, or ablated.</li>
+              <li><strong>Testability:</strong> redundancy and interactions can be studied directly.</li>
+              <li><strong>Validation requirement:</strong> monitor correlation, VIF, and condition index so formative inputs do not become estimation-instability traps.</li>
+            </ul>
+            <div class="formula">Signal materialization idea
+s_i(x) = f_i( ontology-grounded evidence, instance support, image support )
+
+Aesthetic input construction
+Aesthetic layer receives S(x) = [s_1(x), s_2(x), ..., s_13(x)]</div>
+            <div class="refLinks"><strong>References:</strong> <a href="#ref-aesthemos">AESTHEMOS</a>, <a href="#ref-formative-measurement">Formative Measurement</a>, <a href="#ref-vanessa">Vanessa (MABSA)</a></div>
+          </div>
+
+          <div class="stagePanel" id="stage4">
+            <h3>Stage 4. Aesthetic Layer</h3>
+            <p class="muted">Signals are mapped into a continuous aesthetic representation rather than a single beauty scalar. The system predicts a vector of aesthetic dimensions such as elegance, minimalism, boldness, and harmony.</p>
+            <ul>
+              <li><strong>Core claim:</strong> aesthetic response is irreducibly multi-dimensional.</li>
+              <li><strong>Modeling choice:</strong> prototype-based representation plus shallow neural mapping.</li>
+              <li><strong>Why this hybrid:</strong> prototypes supply interpretable reference styles and sparse-tag priors; the neural branch supplies flexible correction.</li>
+              <li><strong>Judgment protocol:</strong> pairwise comparisons are emphasized because relative judgments are often more reliable than absolute ratings.</li>
+            </ul>
+            <div class="formula">Prototype branch
+A_proto(x) = similarity( S(x), prototype centroids )
+
+Neural branch
+A_mlp(x) = MLP( S(x) )
+
+Final aesthetic score
+A(x) = α · A_proto(x) + (1 - α) · A_mlp(x)
+
+Training objective
+L = λ_rank · L_pairwise + λ_abs · L_absolute</div>
+            <div class="refLinks"><strong>References:</strong> <a href="#ref-aesthemos">AESTHEMOS</a>, <a href="#ref-bws-reliability">BWS Reliability</a>, <a href="#ref-aesthetic-emotion-lexicon">Aesthetic Emotion Lexicon</a>, <a href="#ref-aesrec">AesRec</a></div>
+          </div>
+
+          <div class="stagePanel" id="stage5">
+            <h3>Stage 5. Affect Layer (VAD space)</h3>
+            <p class="muted">The aesthetic vector is then mapped into a continuous affective state. The recommended headline representation is VAD: valence, arousal, and dominance. Optional extensions such as an additional domain-specific axis or Hourglass-style auxiliary targets can remain secondary.</p>
+            <ul>
+              <li><strong>Why VAD first:</strong> continuous affect space is more stable and generalizable than direct lexical labels.</li>
+              <li><strong>Reviewer-safe version:</strong> for conference framing, VAD or VAD plus D is the most robust headline; optional extra axes can be clearly marked as auxiliary.</li>
+              <li><strong>Appraisal note:</strong> a separate appraisal layer is intentionally not foregrounded because it overlaps with VAD while offering weaker supervision.</li>
+            </ul>
+            <div class="formula">Affect mapping
+z_vad(x) = g( A(x) )
+
+Typical output space
+z_vad(x) = [ valence(x), arousal(x), dominance(x) ]
+
+Optional extension
+z_affect(x) = [ V, A, D, N? ] with N treated as a domain auxiliary, not a universal headline dimension.</div>
+            <div class="refLinks"><strong>References:</strong> <a href="#ref-circumplex-model-of-affect">Circumplex Model of Affect</a>, <a href="#ref-warriner-vad-norms">Warriner VAD Norms</a>, <a href="#ref-nrc-vad-lexicon">NRC VAD Lexicon</a>, <a href="#ref-hourglass-of-emotions">Hourglass of Emotions</a></div>
+          </div>
+
+          <div class="stagePanel" id="stage6">
+            <h3>Stage 6. Lexical Projection (Explanation Layer)</h3>
+            <p class="muted">Finally, affect states may be projected into words. Crucially, words are <strong>not predicted directly from images</strong>. They are projected from structured affect and aesthetic representations.</p>
+            <ul>
+              <li><strong>Governance rule:</strong> use whitelist-based lexical projection rather than unconstrained direct lexical classification.</li>
+              <li><strong>Stability policy:</strong> terms can be governed as stable, extended, or disputed rather than treated as equally reliable labels.</li>
+              <li><strong>Interpretation benefit:</strong> if lexical output conflicts with VAD, the issue can be isolated as a projection-layer problem instead of corrupting the entire inference chain.</li>
+            </ul>
+            <div class="formula">Lexical projection idea
+score(word | x) = compatibility( word centroid in VAD / affect space, z_vad(x) )
+                  + compatibility( word aesthetic profile, A(x) )
+
+Selection policy
+lexical(x) = argmax over governed whitelist, rather than direct image → word prediction.</div>
+            <div class="refLinks"><strong>References:</strong> <a href="#ref-aesthetic-emotion-lexicon">Aesthetic Emotion Lexicon</a>, <a href="#ref-nrc-vad-lexicon">NRC VAD Lexicon</a>, <a href="#ref-warriner-vad-norms">Warriner VAD Norms</a>, <a href="#ref-distributional-emotion-embeddings">Distributional Emotion Embeddings</a></div>
+          </div>
+        </section>
+
+        <section class="card" id="llm">
+          <div class="sectionHead"><span class="badge">Section 5</span><h2>Proposal: How we can integrate LLM reasoning</h2></div>
+          <p class="muted">LLMs can be incorporated naturally, but only as a supporting layer. They should not replace the ontology and evidence substrate. FEL’s primary asset is that meaning is already structured before language enters the loop.</p>
+
+          <div class="trace">
+            <div class="miniCard"><h4>LLM role boundary</h4><p class="small">LLMs should not become the semantic constructor. They should operate as reasoning-data generators or explanation engines on top of already grounded evidence.</p></div>
+            <div class="miniCard"><h4>Why not image-first CoT</h4><p class="small">An image-score reasoning corpus alone would underuse FEL’s stronger inputs: ontology terms, evidence events, instance anchors, exact image linkage, and signal summaries.</p></div>
+            <div class="miniCard"><h4>Safety rationale</h4><p class="small">When predictions are fixed before the LLM explains them, hallucinations cannot directly alter the predictive core.</p></div>
+            <div class="miniCard"><h4>FEL-CoT</h4><p class="small">A better prompt substrate is <strong>ontology-grounded evidence summary + signal summary + image context</strong>, not raw image alone.</p></div>
+          </div>
+
+          <div class="stagePanel">
+            <h3>Proposal A. Reasoning generation between Signal and Aesthetic</h3>
+            <div class="chips"><span class="chip">Signal Layer → LLM Reasoning (FEL-CoT) → Aesthetic Layer</span></div>
+            <p class="muted" style="margin-top:12px;">At this point we already have structured evidence, semantic signals, and grounded image context. That makes the LLM input richer and better governed than raw image prompting.</p>
+            <ul>
+              <li>Generate explanations of aesthetic judgments.</li>
+              <li>Generate candidate rationales before BWS annotation.</li>
+              <li>Create exemplar descriptions for aesthetic tags.</li>
+              <li>Produce textual critiques for centroid candidates.</li>
+              <li>Build structured reasoning datasets without letting the LLM redefine the semantic backbone.</li>
+            </ul>
+          </div>
+
+          <div class="stagePanel">
+            <h3>Proposal B. Explanation layer after Affect</h3>
+            <div class="chips"><span class="chip">Affect → Lexical → LLM Explanation</span></div>
+            <p class="muted" style="margin-top:12px;">This is the safest insertion point. The core prediction has already been made, so the LLM only rewrites the trace into human-readable explanation.</p>
+            <ul>
+              <li>Generate reviewer-facing rationale.</li>
+              <li>Generate critique-aware explanation.</li>
+              <li>Generate case-study narratives from the full trace chain.</li>
+              <li>Keep prediction and explanation separable for higher falsifiability.</li>
+            </ul>
+          </div>
+
+          <div class="stagePanel">
+            <h3>Proposal C. Reasoning policy between Aesthetic and Affect should be deferred</h3>
+            <div class="chips"><span class="chip">Signal → Aesthetic Vector → [LLM Judge / Policy] → VAD</span></div>
+            <p class="muted" style="margin-top:12px;">This is conceptually interesting but should come later. Before the empirical layer is closed, inserting an LLM judge here raises reward hacking, leakage, hallucination, and overfitting risks.</p>
+          </div>
+
+          <div class="diagramWrap" style="margin-top:14px;">
+            <div class="diagramHead">
+              <div class="diagramTitle">FEL + LLM sidecar pipeline</div>
+              <div class="diagramHint">LLM as support, not replacement</div>
+            </div>
+            <div class="diagramBody">
+              <svg viewBox="0 0 1320 540" aria-label="FEL plus LLM sidecar pipeline">
+                <defs>
+                  <marker id="arrow-llm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                    <path d="M0 0 L10 5 L0 10 z" fill="rgba(255,255,255,.75)"></path>
+                  </marker>
+                </defs>
+                <rect x="36" y="44" width="280" height="76" rx="22" fill="rgba(156,107,255,.12)" stroke="rgba(156,107,255,.7)"/>
+                <text x="176" y="90" text-anchor="middle" fill="#fff" font-size="20" font-weight="800">Canonical Ontology</text>
+
+                <rect x="36" y="156" width="280" height="76" rx="22" fill="rgba(56,210,122,.12)" stroke="rgba(56,210,122,.7)"/>
+                <text x="176" y="202" text-anchor="middle" fill="#fff" font-size="20" font-weight="800">Evidence / Events / Supports</text>
+
+                <rect x="36" y="268" width="280" height="76" rx="22" fill="rgba(78,161,255,.12)" stroke="rgba(78,161,255,.7)"/>
+                <text x="176" y="314" text-anchor="middle" fill="#fff" font-size="20" font-weight="800">Instances / Images / Subset</text>
+
+                <rect x="418" y="214" width="250" height="76" rx="22" fill="rgba(244,166,42,.12)" stroke="rgba(244,166,42,.7)"/>
+                <text x="543" y="260" text-anchor="middle" fill="#fff" font-size="20" font-weight="800">Signal Layer</text>
+
+                <rect x="800" y="124" width="250" height="92" rx="22" fill="rgba(49,195,179,.12)" stroke="rgba(49,195,179,.72)"/>
+                <text x="925" y="172" text-anchor="middle" fill="#fff" font-size="20" font-weight="800">LLM Reasoning Generator</text>
+                <text x="925" y="198" text-anchor="middle" fill="#dbe7ec" font-size="15">FEL-CoT rationale corpus</text>
+
+                <rect x="800" y="264" width="250" height="76" rx="22" fill="rgba(244,166,42,.12)" stroke="rgba(244,166,42,.7)"/>
+                <text x="925" y="310" text-anchor="middle" fill="#fff" font-size="20" font-weight="800">Aesthetic Layer A(x)</text>
+
+                <rect x="1092" y="264" width="190" height="76" rx="22" fill="rgba(244,166,42,.12)" stroke="rgba(244,166,42,.7)"/>
+                <text x="1187" y="310" text-anchor="middle" fill="#fff" font-size="20" font-weight="800">Affect / VAD</text>
+
+                <rect x="1092" y="388" width="190" height="76" rx="22" fill="rgba(244,166,42,.12)" stroke="rgba(244,166,42,.7)"/>
+                <text x="1187" y="434" text-anchor="middle" fill="#fff" font-size="20" font-weight="800">Lexical Projection</text>
+
+                <rect x="800" y="388" width="250" height="92" rx="22" fill="rgba(49,195,179,.12)" stroke="rgba(49,195,179,.72)"/>
+                <text x="925" y="436" text-anchor="middle" fill="#fff" font-size="20" font-weight="800">LLM Explanation Generator</text>
+                <text x="925" y="462" text-anchor="middle" fill="#dbe7ec" font-size="15">human-readable critique / report</text>
+
+                <path d="M176 120 L176 156" stroke="rgba(255,255,255,.75)" stroke-width="3" marker-end="url(#arrow-llm)"/>
+                <path d="M176 232 L176 268" stroke="rgba(255,255,255,.75)" stroke-width="3" marker-end="url(#arrow-llm)"/>
+                <path d="M316 306 L418 252" stroke="rgba(255,255,255,.75)" stroke-width="3" marker-end="url(#arrow-llm)"/>
+                <path d="M668 252 L800 170" stroke="rgba(255,255,255,.75)" stroke-width="3" marker-end="url(#arrow-llm)"/>
+                <path d="M668 252 L800 302" stroke="rgba(255,255,255,.75)" stroke-width="3" marker-end="url(#arrow-llm)"/>
+                <path d="M1050 302 L1092 302" stroke="rgba(255,255,255,.75)" stroke-width="3" marker-end="url(#arrow-llm)"/>
+                <path d="M1187 340 L1187 388" stroke="rgba(255,255,255,.75)" stroke-width="3" marker-end="url(#arrow-llm)"/>
+                <path d="M1092 426 L1050 426" stroke="rgba(255,255,255,.75)" stroke-width="3" marker-end="url(#arrow-llm)"/>
+              </svg>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" id="execution">
+          <div class="sectionHead"><span class="badge">Section 6</span><h2>Recommended execution order</h2></div>
+          <p class="muted">The safest execution order is to preserve the current scientific spine and add LLM functionality only where it improves reasoning artifacts without destabilizing the governed backbone.</p>
+          <div class="stagePanel">
+            <h3>Recommended sequence</h3>
+            <ol style="margin:10px 0 0 18px;color:var(--muted);padding-left:18px;">
+              <li>Keep the current FEL base pipeline unchanged: <strong>Ontology → Evidence → Subset → Signal → Aesthetic → VAD → Lexical</strong>.</li>
+              <li>Add <strong>Stage 3.5 FEL-CoT reasoning corpus generation</strong> between Signal and Aesthetic.</li>
+              <li>Add <strong>post-Lexical LLM explanation generation</strong> for reviewer and report-facing output.</li>
+              <li>Only after substantial empirical validation, consider a later-stage reasoning-policy experiment between Aesthetic and Affect.</li>
+            </ol>
+          </div>
+        </section>
+
+        <section class="card" id="final-intuition">
+          <div class="sectionHead"><span class="badge">Section 7</span><h2>Final intuition</h2></div>
+          <div class="callout violet">
+            If I summarize the whole idea in one sentence:<br /><br />
+            <strong>We are not building a model that guesses emotion from images. We are building a system that derives emotion from structured, grounded semantic evidence, and optionally explains that reasoning with language.</strong>
+          </div>
+          <div class="callout amber">
+            And for LLM usage:<br /><br />
+            <strong>LLMs are not replacing the system. They are helping us articulate and leverage the reasoning already present in the structured pipeline.</strong>
+          </div>
+        </section>
+
+        <section class="card" id="references">
+          <div class="sectionHead"><span class="badge">References</span><h2>Reference list</h2></div>
+          <table class="refsTable">
+            <tr><th>Short name</th><th>Full citation</th></tr>
+            <tr id="ref-fashionbert"><td>FashionBERT</td><td>Gao D. et al. (2020). FashionBERT: Text and Image Matching with Adaptive Loss for Cross-modal Retrieval. SIGIR 2020. DOI:10.1145/3397271.3401430</td></tr>
+            <tr id="ref-fashionvil"><td>FashionViL</td><td>Han X. et al. (2022). FashionViL: Fashion-Focused Vision-and-Language Representation Learning. ECCV 2022. arXiv:2207.08150</td></tr>
+            <tr id="ref-distributional-emotion-embeddings"><td>Distributional Emotion Embeddings</td><td>Liapis C.M. et al. (2025). Enhancing sentiment analysis with distributional emotion embeddings. Neurocomputing 634: 129822. DOI:10.1016/j.neucom.2025.129822</td></tr>
+            <tr id="ref-aesthemos"><td>AESTHEMOS</td><td>Schindler I. et al. (2017). Measuring aesthetic emotions: A review of the literature and a new assessment tool. PLOS ONE 12(6): e0178899. DOI:10.1371/journal.pone.0178899</td></tr>
+            <tr id="ref-aesthetic-emotion-lexicon"><td>Aesthetic Emotion Lexicon</td><td>Beermann U. et al. (2021). Dimensions and Clusters of Aesthetic Emotions: A Semantic Profile Analysis. Frontiers in Psychology 12: 667173.</td></tr>
+            <tr id="ref-circumplex-model-of-affect"><td>Circumplex Model of Affect</td><td>Russell J.A. (1980). A circumplex model of affect. Journal of Personality and Social Psychology 39(6): 1161–1178. DOI:10.1037/h0077714</td></tr>
+            <tr id="ref-warriner-vad-norms"><td>Warriner VAD Norms</td><td>Warriner A.B., Kuperman V., Brysbaert M. (2013). Norms of valence, arousal, and dominance for 13,915 English lemmas. Behavior Research Methods 45(4): 1191–1207. DOI:10.3758/s13428-012-0314-x</td></tr>
+            <tr id="ref-nrc-vad-lexicon"><td>NRC VAD Lexicon</td><td>Mohammad S. (2018). Obtaining Reliable Human Ratings of Valence, Arousal, and Dominance for 20,000 English Words. ACL 2018, pp. 174–184.</td></tr>
+            <tr id="ref-bws-reliability"><td>BWS Reliability</td><td>Kiritchenko S., Mohammad S. (2017). Best-Worst Scaling More Reliable than Rating Scales. ACL 2017, pp. 465–470.</td></tr>
+            <tr id="ref-hourglass-of-emotions"><td>Hourglass of Emotions</td><td>Cambria E., Livingstone A., Hussain A. (2012). The Hourglass of Emotions. Cognitive Behavioural Systems, LNCS 7403, pp. 144–157.</td></tr>
+            <tr id="ref-formative-measurement"><td>Formative Measurement</td><td>Jarvis C.B., MacKenzie S.B., Podsakoff P.M. (2003). A Critical Review of Construct Indicators and Measurement Model Misspecification. Journal of Consumer Research 30(2): 199–218. DOI:10.1086/376806</td></tr>
+            <tr id="ref-uncertainty-weighting"><td>Uncertainty Weighting</td><td>Kendall A., Gal Y., Cipolla R. (2018). Multi-Task Learning Using Uncertainty to Weigh Losses for Scene Geometry and Semantics. CVPR 2018, pp. 7482–7491.</td></tr>
+            <tr id="ref-vanessa"><td>Vanessa (MABSA)</td><td>Xiao L., Mao R., Zhang X., He L., Cambria E. (2024). Vanessa: Visual Connotation and Aesthetic Attributes Understanding Network for MABSA. Findings of EMNLP 2024, pp. 11486–11500.</td></tr>
+            <tr id="ref-aesrec"><td>AesRec</td><td>AesRec: A Dataset for Aesthetics-Aligned Clothing Outfit Recommendation. arXiv:2602.03416 (2025/2026).</td></tr>
+          </table>
+        </section>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
