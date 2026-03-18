@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>FEL v5 Experimental Design Proposal Final Revised HTML</title>
+  <title>FEL Experimental Design Proposal</title>
   <style>
     :root{
       --bg:#0b0d12;
@@ -155,8 +155,8 @@
 <body>
   <div class="page">
     <header>
-      <h1>FEL v5 Experimental Design Proposal</h1>
-      <p class="subtitle">Final revised collaborator draft. This version fixes the broken FEL diagram layout, restores the full ontology-first logic, and incorporates the detailed experimental-plan content around traceability, schema governance, exact-linked subset design, signal validation, prototype plus MLP aesthetic modeling, VAD-based affect mapping, lexical projection, and LLM sidecar usage.</p>
+      <h1>FEL Experimental Design Proposal</h1>
+      <p class="subtitle">This design includes FEL diagram layout, restores the full ontology-first logic, and incorporates the detailed experimental-plan content around traceability, schema governance, exact-linked subset design, signal validation, prototype plus MLP aesthetic modeling, VAD-based affect mapping, lexical projection, and LLM sidecar usage.</p>
       <div class="pill">Concept-first · Evidence-grounded · Governed multi-stage inference</div>
     </header>
 
@@ -172,12 +172,6 @@
         <a href="#final-intuition">7. Final intuition</a>
         <a href="#references">References</a>
         <hr />
-        <div class="small">Key additions in this revision</div>
-        <a href="#stage2">Exact-linked 30k subset and controlled evaluation</a>
-        <a href="#stage3">All 13 initial signals and validation logic</a>
-        <a href="#stage4">Prototype plus MLP hybrid aesthetic layer</a>
-        <a href="#stage5">VAD headline with optional auxiliary axis</a>
-        <a href="#stage6">Whitelist-based lexical projection governance</a>
       </nav>
 
       <main class="main">
@@ -206,7 +200,7 @@
         </section>
 
         <section class="card" id="why">
-          <div class="sectionHead"><span class="badge">Section 2</span><h2>Why this structure (intuitive explanation)</h2></div>
+          <div class="sectionHead"><span class="badge">Section 2</span><h2>Why this structure</h2></div>
           <div class="diagramWrap">
             <div class="diagramHead">
               <div class="diagramTitle">Image-first vs ontology-first</div>
@@ -474,13 +468,6 @@ lexical(x) = argmax over governed whitelist, rather than direct image → word p
               <li>Keep prediction and explanation separable for higher falsifiability.</li>
             </ul>
           </div>
-
-          <div class="stagePanel">
-            <h3>Proposal C. Reasoning policy between Aesthetic and Affect should be deferred</h3>
-            <div class="chips"><span class="chip">Signal → Aesthetic Vector → [LLM Judge / Policy] → VAD</span></div>
-            <p class="muted" style="margin-top:12px;">This is conceptually interesting but should come later. Before the empirical layer is closed, inserting an LLM judge here raises reward hacking, leakage, hallucination, and overfitting risks.</p>
-          </div>
-
           <div class="diagramWrap" style="margin-top:14px;">
             <div class="diagramHead">
               <div class="diagramTitle">FEL + LLM sidecar pipeline</div>
