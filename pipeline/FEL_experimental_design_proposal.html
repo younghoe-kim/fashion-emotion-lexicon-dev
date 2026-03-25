@@ -117,11 +117,62 @@
     .stagePanel + .stagePanel{margin-top:12px}
     .stagePanel ul,.stagePanel ol{margin-top:10px;padding-left:20px}
     .stagePanel li{margin-top:6px;color:var(--muted)}
+
     .formula{
-      margin-top:12px;padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.035);
-      border:1px dashed rgba(255,255,255,.18);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-      font-size:13px;white-space:pre-wrap;color:#f7f8fb
+      margin-top:12px;
+      padding:12px 14px;
+      border-radius:16px;
+      background:rgba(255,255,255,.035);
+      border:1px dashed rgba(255,255,255,.18);
+      font-size:13px;
+      color:#f7f8fb;
+      overflow-x:auto;
     }
+    .formula p{
+      margin:0 0 8px 0;
+      color:#f7f8fb;
+      font-weight:700;
+      font-size:13px;
+      line-height:1.45;
+    }
+    .formula p:last-child{margin-bottom:0}
+    .formula .explain{
+      margin-top:8px;
+      color:#d9deea;
+      font-size:13px;
+      line-height:1.65;
+      white-space:normal;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+
+    /* MathJax normalization - CHTML */
+    .formula mjx-container{
+      font-size:1em !important;
+      line-height:1.2 !important;
+      margin:.3em 0 !important;
+      max-width:100%;
+    }
+    .formula mjx-container[display="true"]{
+      display:block;
+      margin:.45em 0 !important;
+      overflow-x:auto;
+      overflow-y:hidden;
+    }
+    .formula mjx-container[jax="CHTML"]{
+      white-space:nowrap;
+    }
+    .formula .explain mjx-container{
+      font-size:1em !important;
+      margin:0 .08em !important;
+      vertical-align:-0.05em;
+    }
+    mjx-container{
+      font-size:1em !important;
+    }
+    mjx-container[display="true"]{
+      margin:.55em 0 !important;
+    }
+
     .trace{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}
     .refLinks{margin-top:12px;font-size:13px;color:var(--muted)}
     .refLinks a{color:#a9d0ff;text-decoration:none;border-bottom:1px dotted rgba(169,208,255,.5)}
@@ -149,8 +200,32 @@
       h1{font-size:29px}
       .pipelineList,.trace{grid-template-columns:1fr}
       .refsTable td:first-child{width:auto}
+      .formula{font-size:12px}
+      .formula p,
+      .formula .explain{font-size:12px}
+      .formula mjx-container{font-size:.95em !important}
+      .formula .explain mjx-container{font-size:.95em !important}
+      mjx-container[display="true"]{margin:.45em 0 !important}
     }
   </style>
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      },
+      chtml: {
+        scale: 0.92
+      },
+      options: {
+        renderActions: {
+          addMenu: []
+        }
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 </head>
 <body>
   <div class="page">
@@ -315,12 +390,17 @@
               <li><strong>Conservative precision policy:</strong> exact instance-anchored evidence is preferred; ambiguous observations may remain at image level instead of being over-localized.</li>
               <li><strong>Reason:</strong> emotion and aesthetics depend on structured presence, not just labels.</li>
             </ul>
-            <div class="formula">Availability-aware fusion principle
-J(x) = Σ_k  m_k(x) · w_k · e_k(x)
-
-where m_k(x) is an availability mask and w_k encodes confidence hierarchy.
-Practical reading: instance evidence is strongest, image-level evidence is next,
-and ontology prior is always available but weakest.</div>
+            <div class="formula">
+              <p>Availability-aware fusion principle</p>
+              \[
+              J(x) = \sum_k m_k(x)\cdot w_k \cdot e_k(x)
+              \]
+              <div class="explain">
+                where \(m_k(x)\) is an availability mask and \(w_k\) encodes confidence hierarchy.
+                Practical reading: instance evidence is strongest, image-level evidence is next,
+                and ontology prior is always available but weakest.
+              </div>
+            </div>
             <div class="refLinks"><strong>References:</strong> <a href="#ref-vanessa">Vanessa (MABSA)</a>, <a href="#ref-fashionvil">FashionViL</a>, <a href="#ref-fashionbert">FashionBERT</a></div>
           </div>
 
@@ -365,11 +445,16 @@ and ontology prior is always available but weakest.</div>
               <li><strong>Testability:</strong> redundancy and interactions can be studied directly.</li>
               <li><strong>Validation requirement:</strong> monitor correlation, VIF, and condition index so formative inputs do not become estimation-instability traps.</li>
             </ul>
-            <div class="formula">Signal materialization idea
-s_i(x) = f_i( ontology-grounded evidence, instance support, image support )
-
-Aesthetic input construction
-Aesthetic layer receives S(x) = [s_1(x), s_2(x), ..., s_13(x)]</div>
+            <div class="formula">
+              <p>Signal materialization idea</p>
+              \[
+              s_i(x) = f_i\bigl(\text{ontology-grounded evidence},\ \text{instance support},\ \text{image support}\bigr)
+              \]
+              <p>Aesthetic input construction</p>
+              \[
+              S(x) = [s_1(x), s_2(x), \ldots, s_{13}(x)]
+              \]
+            </div>
             <div class="refLinks"><strong>References:</strong> <a href="#ref-aesthemos">AESTHEMOS</a>, <a href="#ref-formative-measurement">Formative Measurement</a>, <a href="#ref-vanessa">Vanessa (MABSA)</a></div>
           </div>
 
@@ -382,17 +467,24 @@ Aesthetic layer receives S(x) = [s_1(x), s_2(x), ..., s_13(x)]</div>
               <li><strong>Why this hybrid:</strong> prototypes supply interpretable reference styles and sparse-tag priors; the neural branch supplies flexible correction.</li>
               <li><strong>Judgment protocol:</strong> pairwise comparisons are emphasized because relative judgments are often more reliable than absolute ratings.</li>
             </ul>
-            <div class="formula">Prototype branch
-A_proto(x) = similarity( S(x), prototype centroids )
-
-Neural branch
-A_mlp(x) = MLP( S(x) )
-
-Final aesthetic score
-A(x) = α · A_proto(x) + (1 - α) · A_mlp(x)
-
-Training objective
-L = λ_rank · L_pairwise + λ_abs · L_absolute</div>
+            <div class="formula">
+              <p>Prototype branch</p>
+              \[
+              A_{\text{proto}}(x) = \mathrm{similarity}\bigl(S(x),\ \text{prototype centroids}\bigr)
+              \]
+              <p>Neural branch</p>
+              \[
+              A_{\text{mlp}}(x) = \mathrm{MLP}\bigl(S(x)\bigr)
+              \]
+              <p>Final aesthetic score</p>
+              \[
+              A(x) = \alpha \cdot A_{\text{proto}}(x) + (1-\alpha)\cdot A_{\text{mlp}}(x)
+              \]
+              <p>Training objective</p>
+              \[
+              L = \lambda_{\text{rank}}\cdot L_{\text{pairwise}} + \lambda_{\text{abs}}\cdot L_{\text{absolute}}
+              \]
+            </div>
             <div class="refLinks"><strong>References:</strong> <a href="#ref-aesthemos">AESTHEMOS</a>, <a href="#ref-bws-reliability">BWS Reliability</a>, <a href="#ref-aesthetic-emotion-lexicon">Aesthetic Emotion Lexicon</a>, <a href="#ref-aesrec">AesRec</a></div>
           </div>
 
@@ -404,14 +496,28 @@ L = λ_rank · L_pairwise + λ_abs · L_absolute</div>
               <li><strong>Reviewer-safe version:</strong> for conference framing, VAD or VAD plus D is the most robust headline; optional extra axes can be clearly marked as auxiliary.</li>
               <li><strong>Appraisal note:</strong> a separate appraisal layer is intentionally not foregrounded because it overlaps with VAD while offering weaker supervision.</li>
             </ul>
-            <div class="formula">Affect mapping
-z_vad(x) = g( A(x) )
-
-Typical output space
-z_vad(x) = [ valence(x), arousal(x), dominance(x) ]
-
-Optional extension
-z_affect(x) = [ V, A, D, N? ] with N treated as a domain auxiliary, not a universal headline dimension.</div>
+            <div class="formula">
+              <p>Affect mapping</p>
+              \[
+              z_{\text{vad}}(x) = g\bigl(A(x)\bigr)
+              \]
+              <p>Typical output space</p>
+              \[
+              z_{\text{vad}}(x) =
+              \bigl[
+              \mathrm{valence}(x),\ 
+              \mathrm{arousal}(x),\ 
+              \mathrm{dominance}(x)
+              \bigr]
+              \]
+              <p>Optional extension</p>
+              \[
+              z_{\text{affect}}(x) = [V, A, D, N?]
+              \]
+              <div class="explain">
+                with \(N\) treated as a domain auxiliary, not a universal headline dimension.
+              </div>
+            </div>
             <div class="refLinks"><strong>References:</strong> <a href="#ref-circumplex-model-of-affect">Circumplex Model of Affect</a>, <a href="#ref-warriner-vad-norms">Warriner VAD Norms</a>, <a href="#ref-nrc-vad-lexicon">NRC VAD Lexicon</a>, <a href="#ref-hourglass-of-emotions">Hourglass of Emotions</a></div>
           </div>
 
@@ -423,12 +529,26 @@ z_affect(x) = [ V, A, D, N? ] with N treated as a domain auxiliary, not a univer
               <li><strong>Stability policy:</strong> terms can be governed as stable, extended, or disputed rather than treated as equally reliable labels.</li>
               <li><strong>Interpretation benefit:</strong> if lexical output conflicts with VAD, the issue can be isolated as a projection-layer problem instead of corrupting the entire inference chain.</li>
             </ul>
-            <div class="formula">Lexical projection idea
-score(word | x) = compatibility( word centroid in VAD / affect space, z_vad(x) )
-                  + compatibility( word aesthetic profile, A(x) )
-
-Selection policy
-lexical(x) = argmax over governed whitelist, rather than direct image → word prediction.</div>
+            <div class="formula">
+              <p>Lexical projection idea</p>
+              \[
+              \mathrm{score}(\mathrm{word}\mid x)
+              =
+              \mathrm{compatibility}\bigl(\text{word centroid in VAD / affect space},\ z_{\text{vad}}(x)\bigr)
+              +
+              \mathrm{compatibility}\bigl(\text{word aesthetic profile},\ A(x)\bigr)
+              \]
+              <p>Selection policy</p>
+              \[
+              \mathrm{lexical}(x)
+              =
+              \arg\max_{\mathrm{word}\in\mathrm{governed\ whitelist}}
+              \mathrm{score}(\mathrm{word}\mid x)
+              \]
+              <div class="explain">
+                rather than direct image \(\to\) word prediction.
+              </div>
+            </div>
             <div class="refLinks"><strong>References:</strong> <a href="#ref-aesthetic-emotion-lexicon">Aesthetic Emotion Lexicon</a>, <a href="#ref-nrc-vad-lexicon">NRC VAD Lexicon</a>, <a href="#ref-warriner-vad-norms">Warriner VAD Norms</a>, <a href="#ref-distributional-emotion-embeddings">Distributional Emotion Embeddings</a></div>
           </div>
         </section>
