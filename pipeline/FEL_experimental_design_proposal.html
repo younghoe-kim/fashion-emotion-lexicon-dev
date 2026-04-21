@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>FEL Experimental Design Proposal</title>
+  <title>FEF Experimental Design Proposal</title>
   <style>
     :root{
       --bg:#0b0d12;
@@ -230,8 +230,8 @@
 <body>
   <div class="page">
     <header>
-      <h1>FEL Experimental Design Proposal</h1>
-      <p class="subtitle">This design includes FEL diagram layout, restores the full ontology-first logic, and incorporates the detailed experimental-plan content around traceability, schema governance, exact-linked subset design, signal validation, prototype plus MLP aesthetic modeling, VAD-based affect mapping, lexical projection, and LLM sidecar usage.</p>
+      <h1>FEF Experimental Design Proposal</h1>
+      <p class="subtitle">This design includes FEF diagram layout, restores the full ontology-first logic, and incorporates the detailed experimental-plan content around traceability, schema governance, exact-linked subset design, signal validation, prototype plus MLP aesthetic modeling, VAD-based affect mapping, lexical projection, and LLM sidecar usage.</p>
       <div class="pill">Concept-first · Evidence-grounded · Governed multi-stage inference</div>
     </header>
 
@@ -300,7 +300,7 @@
                 <path d="M610 133 L710 133" stroke="rgba(255,255,255,.78)" stroke-width="3" marker-end="url(#arrow-why)"/>
 
                 <rect x="18" y="218" width="1284" height="176" rx="28" fill="rgba(255,255,255,.02)" stroke="rgba(255,255,255,.10)"/>
-                <text x="60" y="264" fill="#ffffff" font-size="22" font-weight="800">FEL v5 ontology-first pattern</text>
+                <text x="60" y="264" fill="#ffffff" font-size="22" font-weight="800">FEF v5 ontology-first pattern</text>
                 <rect x="42" y="294" width="160" height="74" rx="22" fill="rgba(156,107,255,.12)" stroke="rgba(156,107,255,.72)"/>
                 <rect x="222" y="294" width="160" height="74" rx="22" fill="rgba(56,210,122,.12)" stroke="rgba(56,210,122,.72)"/>
                 <rect x="402" y="294" width="160" height="74" rx="22" fill="rgba(56,210,122,.12)" stroke="rgba(56,210,122,.72)"/>
@@ -374,7 +374,7 @@
             <ul>
               <li><strong>Purpose:</strong> make sure the semantic units are closed before downstream inference begins.</li>
               <li><strong>Why first:</strong> if a signal is supposed to be an evidence-derived feature anchored to canonical semantics, the meaning space must already be fixed.</li>
-              <li><strong>Design claim:</strong> FEL aims for canonical convergence ontology rather than ad hoc dataset-specific vocabularies.</li>
+              <li><strong>Design claim:</strong> FEF aims for canonical convergence ontology rather than ad hoc dataset-specific vocabularies.</li>
               <li><strong>Cross-dataset value:</strong> different sources can converge into a shared representation through the same core_term backbone.</li>
             </ul>
             <div class="callout">If we do not define what counts as a semantic unit first, everything downstream becomes unstable. The ontology is therefore not decoration. It is the governed prior that stabilizes later evidence and inference.</div>
@@ -555,18 +555,18 @@
 
         <section class="card" id="llm">
           <div class="sectionHead"><span class="badge">Section 5</span><h2>Proposal: How we can integrate LLM reasoning</h2></div>
-          <p class="muted">LLMs can be incorporated naturally, but only as a supporting layer. They should not replace the ontology and evidence substrate. FEL’s primary asset is that meaning is already structured before language enters the loop.</p>
+          <p class="muted">LLMs can be incorporated naturally, but only as a supporting layer. They should not replace the ontology and evidence substrate. FEF’s primary asset is that meaning is already structured before language enters the loop.</p>
 
           <div class="trace">
             <div class="miniCard"><h4>LLM role boundary</h4><p class="small">LLMs should not become the semantic constructor. They should operate as reasoning-data generators or explanation engines on top of already grounded evidence.</p></div>
-            <div class="miniCard"><h4>Why not image-first CoT</h4><p class="small">An image-score reasoning corpus alone would underuse FEL’s stronger inputs: ontology terms, evidence events, instance anchors, exact image linkage, and signal summaries.</p></div>
+            <div class="miniCard"><h4>Why not image-first CoT</h4><p class="small">An image-score reasoning corpus alone would underuse FEF’s stronger inputs: ontology terms, evidence events, instance anchors, exact image linkage, and signal summaries.</p></div>
             <div class="miniCard"><h4>Safety rationale</h4><p class="small">When predictions are fixed before the LLM explains them, hallucinations cannot directly alter the predictive core.</p></div>
-            <div class="miniCard"><h4>FEL-CoT</h4><p class="small">A better prompt substrate is <strong>ontology-grounded evidence summary + signal summary + image context</strong>, not raw image alone.</p></div>
+            <div class="miniCard"><h4>FEF-CoT</h4><p class="small">A better prompt substrate is <strong>ontology-grounded evidence summary + signal summary + image context</strong>, not raw image alone.</p></div>
           </div>
 
           <div class="stagePanel">
             <h3>Proposal A. Reasoning generation between Signal and Aesthetic</h3>
-            <div class="chips"><span class="chip">Signal Layer → LLM Reasoning (FEL-CoT) → Aesthetic Layer</span></div>
+            <div class="chips"><span class="chip">Signal Layer → LLM Reasoning (FEF-CoT) → Aesthetic Layer</span></div>
             <p class="muted" style="margin-top:12px;">At this point we already have structured evidence, semantic signals, and grounded image context. That makes the LLM input richer and better governed than raw image prompting.</p>
             <ul>
               <li>Generate explanations of aesthetic judgments.</li>
@@ -590,11 +590,11 @@
           </div>
           <div class="diagramWrap" style="margin-top:14px;">
             <div class="diagramHead">
-              <div class="diagramTitle">FEL + LLM sidecar pipeline</div>
+              <div class="diagramTitle">FEF + LLM sidecar pipeline</div>
               <div class="diagramHint">LLM as support, not replacement</div>
             </div>
             <div class="diagramBody">
-              <svg viewBox="0 0 1320 540" aria-label="FEL plus LLM sidecar pipeline">
+              <svg viewBox="0 0 1320 540" aria-label="FEF plus LLM sidecar pipeline">
                 <defs>
                   <marker id="arrow-llm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
                     <path d="M0 0 L10 5 L0 10 z" fill="rgba(255,255,255,.75)"></path>
@@ -614,7 +614,7 @@
 
                 <rect x="800" y="124" width="250" height="92" rx="22" fill="rgba(49,195,179,.12)" stroke="rgba(49,195,179,.72)"/>
                 <text x="925" y="172" text-anchor="middle" fill="#fff" font-size="20" font-weight="800">LLM Reasoning Generator</text>
-                <text x="925" y="198" text-anchor="middle" fill="#dbe7ec" font-size="15">FEL-CoT rationale corpus</text>
+                <text x="925" y="198" text-anchor="middle" fill="#dbe7ec" font-size="15">FEF-CoT rationale corpus</text>
 
                 <rect x="800" y="264" width="250" height="76" rx="22" fill="rgba(244,166,42,.12)" stroke="rgba(244,166,42,.7)"/>
                 <text x="925" y="310" text-anchor="middle" fill="#fff" font-size="20" font-weight="800">Aesthetic Layer A(x)</text>
@@ -648,8 +648,8 @@
           <div class="stagePanel">
             <h3>Recommended sequence</h3>
             <ol style="margin:10px 0 0 18px;color:var(--muted);padding-left:18px;">
-              <li>Keep the current FEL base pipeline unchanged: <strong>Ontology → Evidence → Subset → Signal → Aesthetic → VAD → Lexical</strong>.</li>
-              <li>Add <strong>Stage 3.5 FEL-CoT reasoning corpus generation</strong> between Signal and Aesthetic.</li>
+              <li>Keep the current FEF base pipeline unchanged: <strong>Ontology → Evidence → Subset → Signal → Aesthetic → VAD → Lexical</strong>.</li>
+              <li>Add <strong>Stage 3.5 FEF-CoT reasoning corpus generation</strong> between Signal and Aesthetic.</li>
               <li>Add <strong>post-Lexical LLM explanation generation</strong> for reviewer and report-facing output.</li>
               <li>Only after substantial empirical validation, consider a later-stage reasoning-policy experiment between Aesthetic and Affect.</li>
             </ol>
